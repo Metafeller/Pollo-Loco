@@ -16,6 +16,11 @@ class World {
 
     draw() {
         this.ctx.drawImage(this.character.img, this.character.x, this.character.y, this.character.height, this.character.width);
+
+        // draw() wird immer wieder aufgerufen
+        let self = this;
+        requestAnimationFrame(function() {
+            self.draw();
+        });
     }
-    
 }
