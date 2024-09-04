@@ -23,16 +23,23 @@ class Character extends MovableObject {
     animate() {
 
         setInterval(() => {
-            if (this.world.keyboard.RIGHT) {
+            // Bewegung nach rechts, aber nur bis zum Level-Ende
+            if (this.world.keyboard.RIGHT && this.x < this.world.level.level_end_x) {
                 this.x += this.speed;
                 this.otherDirection = false;
+            }   else if (this.x >= this.world.level.level_end_x) {
+                // Charakter soll am Ende stoppen und nicht weiter bewegen! Siehe unter level.class.js bei level_end_x = 3500;
+                this.x = this.world.level.level_end_x;
             }
 
-            if (this.world.keyboard.LEFT) {
+            // Bewegung nach links, aber nur bis zur Position 0
+            if (this.world.keyboard.LEFT && this.x > 0) {
                 this.x -= this.speed;
                 this.otherDirection = true;
             }
-            this.world.camera_x = -this.x;
+
+            // Kamera-Bewegung basierend auf der Charakter-Position
+            this.world.camera_x = -this.x + 100;
         }, 1000 / 60);
 
 
