@@ -13,6 +13,7 @@ class Character extends MovableObject {
     ];
     world;
     walking_sound = new Audio('audio/stamping.mp3');
+    walking_sound_back = new Audio('audio/fear-back.mp3');
 
     constructor() {
         super().loadImage('/img/2_character_pepe/2_walk/W-21.png');
@@ -39,6 +40,7 @@ class Character extends MovableObject {
             if (this.world.keyboard.LEFT && this.x > 0) {
                 this.x -= this.speed;
                 this.otherDirection = true;
+                this.walking_sound_back.play();
             }
 
             // Kamera-Bewegung basierend auf der Charakter-Position
