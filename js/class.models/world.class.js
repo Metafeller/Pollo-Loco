@@ -34,7 +34,7 @@ class World {
     }
 
     setWorld() {
-        this.character.World = this;
+        this.character.world = this;
     }
 
     draw() {
