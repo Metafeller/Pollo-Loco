@@ -12,6 +12,7 @@ class Character extends MovableObject {
         '/img/2_character_pepe/2_walk/W-26.png'
     ];
     world;
+    walking_sound = new Audio('audio/stamping.mp3');
 
     constructor() {
         super().loadImage('/img/2_character_pepe/2_walk/W-21.png');
@@ -23,10 +24,12 @@ class Character extends MovableObject {
     animate() {
 
         setInterval(() => {
+            this.walking_sound.pause();
             // Bewegung nach rechts, aber nur bis zum Level-Ende
             if (this.world.keyboard.RIGHT && this.x < this.world.level.level_end_x) {
                 this.x += this.speed;
                 this.otherDirection = false;
+                this.walking_sound.play();
             }   else if (this.x >= this.world.level.level_end_x) {
                 // Charakter soll am Ende stoppen und nicht weiter bewegen! Siehe unter level.class.js bei level_end_x = 3500;
                 this.x = this.world.level.level_end_x;
