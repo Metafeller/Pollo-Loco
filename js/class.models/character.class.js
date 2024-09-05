@@ -43,9 +43,10 @@ class Character extends MovableObject {
             this.walking_sound.pause();
             // Bewegung nach rechts, aber nur bis zum Level-Ende
             if (this.world.keyboard.RIGHT && this.x < this.world.level.level_end_x) {
-                this.x += this.speed;
+                this.moveRight();
                 this.otherDirection = false;
                 this.walking_sound.play();
+
             }   else if (this.x >= this.world.level.level_end_x) {
                 // Charakter soll am Ende stoppen und nicht weiter bewegen! Siehe unter level.class.js bei level_end_x = 3500;
                 this.x = this.world.level.level_end_x;
@@ -53,13 +54,13 @@ class Character extends MovableObject {
 
             // Bewegung nach links, aber nur bis zur Position 0
             if (this.world.keyboard.LEFT && this.x > 0) {
-                this.x -= this.speed;
+                this.moveLeft();
                 this.otherDirection = true;
                 this.walking_sound_back.play();
             }
 
-            if(this.world.keyboard.UP) {
-                this.speedY = 20;
+            if(this.world.keyboard.SPACE && !this.isAboveGround()) {
+                this.jump();
             }
 
             // Kamera-Bewegung basierend auf der Charakter-Position
@@ -85,6 +86,6 @@ class Character extends MovableObject {
     }
 
     jump() {
-
+        this.speedY = 25;
     }
 }

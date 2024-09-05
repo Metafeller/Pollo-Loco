@@ -46,13 +46,15 @@ class MovableObject {
 
     moveRight() {
     console.log('Moving right');
+        this.x += this.speed;
+        
+        
     }
 
     moveLeft() {
-            setInterval(() => {
-                this.x -= 0.15;
-            }, 1000 / 60);
-        }
+        this.x -= this.speed;
+        this.x -= 0.15;
+    }
 
         playAnimation(images) {
             let i = this.currentImage % this.IMAGES_WALKING.length; // let i = 7 % "7 geteilt durch 6 ist Eins" 6; => (1, Rest 1)
@@ -61,5 +63,9 @@ class MovableObject {
             this.img = this.imageCache[path];
             this.currentImage++;
         }
+
+    jump() {
+        // this.speedY = 25;
+    }    
 
 }
