@@ -35,6 +35,7 @@ body::before {
     align-items: center;
     position: relative;
     z-index: 1; /* Damit es über dem dunklen Layer liegt */
+    height: 800px;
 }
 
 h1 {
