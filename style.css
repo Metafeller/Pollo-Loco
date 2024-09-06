@@ -51,4 +51,5 @@ canvas {
     background-color: black;
     border-radius: 16px;
     display: block;
+    box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.5);
 }
