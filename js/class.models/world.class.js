@@ -8,7 +8,8 @@ class World {
     statusBar = new StatusBar();
     bottleStatusBar = new BottleStatusBar(); // Flaschen StatusBar hinzufügen
     throwableObjects = [];
-    bottlesCollected = 0;
+    bottlesCollected = 0; // Anzahl gesammalter Flaschen
+    maxBottles = 5; // Maximal zu sammelnde Flaschen
 
     constructor(canvas, keyboard) {
         this.ctx = canvas.getContext('2d');
@@ -23,21 +24,25 @@ class World {
         this.character.world = this;
     }
 
+
     checkBottleCollection() {
         this.level.bottles.forEach((bottle, index) => {
             if (this.character.isColliding(bottle)) {
                 this.level.bottles.splice(index, 1); // Entfernt die Flasche vom Spielfeld
                 this.bottlesCollected++;
-                this.bottleStatusBar.setPercentage(this.bottlesCollected); // Aktualisiert die StatusBar
+                // Berechnung des Prozentsatzes und Aktualisierung der StatusBar
+                let percentage = (this.bottlesCollected / this.maxBottles) * 100;
+                this.bottleStatusBar.setPercentage(percentage); // Setze den berechneten Prozentsatz
             }
         });
     }
+
 
     run() {
         setInterval(() => {
             this.checkCollisions();
             this.checkThrowObjects();
-            this.checkBottleCollection();
+            this.checkBottleCollection(); // Überprüft die Flaschenkollision
         }, 200);
     }
 
@@ -83,7 +88,7 @@ class World {
         // ------- space for fixed objects -------
 
         // StatusBars (Lebensenergie, Flaschen) zeichnen
-        this.addToMap(this.statusBar);
+        this.addToMap(this.statusBar); // Lebens-StatusBar
         this.addToMap(this.bottleStatusBar); // Flaschen StatusBar wird gezeichnet
 
         // Kamera verschieben, um die restlichen Objekte zu zeichnen
@@ -94,7 +99,7 @@ class World {
         this.addToMap(this.character);
         
         // Flaschen und Gegner zeichnen
-        this.addObjectsToMap(this.level.bottles);
+        this.addObjectsToMap(this.level.bottles); // Flaschen zeichnen
         this.addObjectsToMap(this.level.enemies);
         
         this.addObjectsToMap(this.throwableObjects);
