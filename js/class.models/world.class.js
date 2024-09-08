@@ -6,7 +6,9 @@ class World {
     keyboard;
     camera_x = 0;
     statusBar = new StatusBar();
+    bottleStatusBar = new BottleStatusBar(); // Flaschen StatusBar hinzufügen
     throwableObjects = [];
+    bottlesCollected = 0;
 
     constructor(canvas, keyboard) {
         this.ctx = canvas.getContext('2d');
@@ -21,17 +23,38 @@ class World {
         this.character.world = this;
     }
 
+    checkBottleCollection() {
+        this.level.bottles.forEach((bottle, index) => {
+            if (this.character.isColliding(bottle)) {
+                this.level.bottles.splice(index, 1); // Entfernt die Flasche vom Spielfeld
+                this.bottlesCollected++;
+                this.bottleStatusBar.setPercentage(this.bottlesCollected); // Aktualisiert die StatusBar
+            }
+        });
+    }
+
     run() {
         setInterval(() => {
             this.checkCollisions();
             this.checkThrowObjects();
+            this.checkBottleCollection();
         }, 200);
     }
 
+    // checkThrowObjects() {
+    //     if (this.keyboard.D) {
+    //         let bottle = new ThrowableObject(this.character.x + 100, this.character.y +100);
+    //         this.throwableObjects.push(bottle);
+    //     }
+    // }
+
     checkThrowObjects() {
-        if (this.keyboard.D) {
-            let bottle = new ThrowableObject(this.character.x + 100, this.character.y +100);
+        // Überprüfen, ob der Spieler genügend Flaschen gesammelt hat
+        if (this.keyboard.D && this.bottlesCollected > 0) {
+            let bottle = new ThrowableObject(this.character.x + 100, this.character.y + 100);
             this.throwableObjects.push(bottle);
+            this.bottlesCollected--; // Anzahl der Flaschen verringern
+            this.bottleStatusBar.setPercentage(this.bottlesCollected); // Aktualisiert die StatusBar
         }
     }
 
@@ -45,21 +68,38 @@ class World {
     }
 
     draw() {
+         // Canvas löschen
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
+        // Kamera verschieben
         this.ctx.translate(this.camera_x, 0);
+
+        // Hintergrundobjekte zeichnen
         this.addObjectsToMap(this.level.backgroundObjects);
 
+        // Kamera wieder zurück verschieben
         this.ctx.translate(-this.camera_x, 0);
+
         // ------- space for fixed objects -------
+
+        // StatusBars (Lebensenergie, Flaschen) zeichnen
         this.addToMap(this.statusBar);
+        this.addToMap(this.bottleStatusBar); // Flaschen StatusBar wird gezeichnet
+
+        // Kamera verschieben, um die restlichen Objekte zu zeichnen
         this.ctx.translate(this.camera_x, 0);
 
-        this.addToMap(this.character);
+        // Wolken und Charakter zeichnen
         this.addObjectsToMap(this.level.clouds);
+        this.addToMap(this.character);
+        
+        // Flaschen und Gegner zeichnen
+        this.addObjectsToMap(this.level.bottles);
         this.addObjectsToMap(this.level.enemies);
+        
         this.addObjectsToMap(this.throwableObjects);
-
+        
+        // Kamera wieder zurück verschieben
         this.ctx.translate(-this.camera_x, 0);
 
         // draw() wird immer wieder aufgerufen
