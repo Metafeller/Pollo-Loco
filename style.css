@@ -25,7 +25,7 @@ body::before {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.5); /* bg ist jz verdunkelt, damit mein canvas im Fokus liegt */
     z-index: 0;
 }
 
@@ -52,7 +52,7 @@ canvas {
     background-color: black;
     border-radius: 16px;
     display: block;
-    box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.5);
+    box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.5); /* hebt nochmal den Fokus hevor */
 }
 
 /* ----- Smartphones w ----- */
