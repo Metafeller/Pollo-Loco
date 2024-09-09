@@ -21,9 +21,10 @@ class BottleStatusBar extends StatusBar {
      * @param {number} percentage - Der aktuelle Prozentsatz der gesammelten Flaschen
      */
     setPercentage(percentage) {
-        this.percentage = percentage; // Speichert den aktuellen Prozentwert
-        let path = this.IMAGES[this.resolveImageIndex()]; // Bestimme das entsprechende Bild basierend auf dem Prozentsatz
-        this.img = this.imageCache[path]; // Lade das entsprechende Bild
+        this.percentage = percentage;  // Speichere den aktuellen Prozentsatz
+        let index = this.resolveImageIndex();  // Bestimme den Bildindex basierend auf dem Prozentsatz
+        let path = this.IMAGES[index];  // Wähle das Bild aus
+        this.img = this.imageCache[path];  // Setze das Bild für die StatusBar
     }
 
     /**
@@ -33,13 +34,13 @@ class BottleStatusBar extends StatusBar {
     resolveImageIndex() {
         if (this.percentage >= 100) {
             return 5;
-        } else if (this.percentage > 80) {
+        } else if (this.percentage >= 80) {
             return 4;
-        } else if (this.percentage > 60) {
+        } else if (this.percentage >= 60) {
             return 3;
-        } else if (this.percentage > 40) {
+        } else if (this.percentage >= 40) {
             return 2;
-        } else if (this.percentage > 20) {
+        } else if (this.percentage >= 20) {
             return 1;
         } else {
             return 0; // Zeige das Bild für 0% an

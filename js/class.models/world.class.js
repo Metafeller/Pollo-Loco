@@ -9,7 +9,7 @@ class World {
     bottleStatusBar = new BottleStatusBar(); // Flaschen StatusBar hinzufügen
     throwableObjects = [];
     bottlesCollected = 0; // Anzahl gesammalter Flaschen
-    maxBottles = 5; // Maximal zu sammelnde Flaschen
+    maxBottles = 5; // Maximale Anzahl an Flaschen, die gesammelt werden können
 
     constructor(canvas, keyboard) {
         this.ctx = canvas.getContext('2d');
@@ -28,13 +28,27 @@ class World {
     checkBottleCollection() {
         this.level.bottles.forEach((bottle, index) => {
             if (this.character.isColliding(bottle)) {
-                this.level.bottles.splice(index, 1); // Entfernt die Flasche vom Spielfeld
-                this.bottlesCollected++;
-                // Berechnung des Prozentsatzes und Aktualisierung der StatusBar
-                let percentage = (this.bottlesCollected / this.maxBottles) * 100;
-                this.bottleStatusBar.setPercentage(percentage); // Setze den berechneten Prozentsatz
+                if (this.bottlesCollected < this.maxBottles) { // Überprüfen, ob die maximale Anzahl erreicht ist
+                    this.level.bottles.splice(index, 1); // Entfernt die Flasche vom Spielfeld
+                    this.bottlesCollected++;
+                    let percentage = (this.bottlesCollected / this.maxBottles) * 100; // Berechne den Prozentsatz
+                    this.bottleStatusBar.setPercentage(percentage); // Aktualisiere die StatusBar
+                }
             }
         });
+    }
+
+
+    throwBottle() {
+        if (this.bottlesCollected > 0) {  // Nur Flaschen werfen, wenn welche vorhanden sind
+            let bottle = new ThrowableObject(this.character.x + 100, this.character.y + 100);
+            this.throwableObjects.push(bottle);
+            this.bottlesCollected--;  // Anzahl der Flaschen verringern
+
+            // Berechnet den neuen Prozentsatz basierend auf den verbleibenden Flaschen
+            let percentage = (this.bottlesCollected / this.maxBottles) * 100;  // Berechne den neuen Prozentsatz
+            this.bottleStatusBar.setPercentage(percentage);  // Aktualisiere die StatusBar
+        }
     }
 
 
@@ -43,7 +57,7 @@ class World {
             this.checkCollisions();
             this.checkThrowObjects();
             this.checkBottleCollection(); // Überprüft die Flaschenkollision
-        }, 200);
+        }, 200); // vielleicht auf 100 oder 50 setzen?
     }
 
     // checkThrowObjects() {
@@ -59,7 +73,10 @@ class World {
             let bottle = new ThrowableObject(this.character.x + 100, this.character.y + 100);
             this.throwableObjects.push(bottle);
             this.bottlesCollected--; // Anzahl der Flaschen verringern
-            this.bottleStatusBar.setPercentage(this.bottlesCollected); // Aktualisiert die StatusBar
+
+            // Berechnet den neuen Prozentsatz
+        let percentage = (this.bottlesCollected / this.maxBottles) * 100; 
+        this.bottleStatusBar.setPercentage(percentage); // Aktualisiert die StatusBar
         }
     }
 
