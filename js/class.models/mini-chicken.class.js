@@ -13,7 +13,7 @@ class MiniChicken extends MovableObject {
         super().loadImage('/img/3_enemies_chicken/chicken_small/1_walk/1_w.png')
         this.loadImages(this.IMAGES_WALKING);
 
-        this.x = 1800 + Math.random() * 500;
+        this.x = 5000 + Math.random() * 500;
         this.speed = 0.2 + Math.random() * 0.3; // Mini-Chicken haben eine etwas schnellere Geschwindigkeit
 
         this.animate();

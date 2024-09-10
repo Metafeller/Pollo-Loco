@@ -7,6 +7,9 @@ class World {
     camera_x = 0;
     statusBar = new StatusBar();
     bottleStatusBar = new BottleStatusBar(); // Flaschen StatusBar hinzufügen
+    endbossStatusBar = new EndbossStatusBar();  // Endboss StatusBar hinzufügen
+    endbossInSight = false;  // Flag für das Sichtfeld des Endbosses
+    dramaticAudio = new Audio('/audio/spiel-mir-das-lied-vom-tod.mp3');  // Audio für den Endboss
     throwableObjects = [];
     bottlesCollected = 0; // Anzahl gesammalter Flaschen
     maxBottles = 5; // Maximale Anzahl an Flaschen, die gesammelt werden können
@@ -51,21 +54,36 @@ class World {
         }
     }
 
+    checkEndbossSight() {
+        // Überprüfen, ob der Character im Sichtfeld des Endbosses ist
+        let sightRange = 700; // Sichtbereich des Endbosses
+        let endboss = this.level.enemies.find(enemy => enemy instanceof Endboss);  // Finde den Endboss
+        
+        if (endboss) {
+            // Überprüfen, ob der Charakter im Sichtbereich des Endbosses ist
+            if (this.character.x > endboss.x - sightRange && !endboss.isInSight) {
+                endboss.isInSight = true;
+                this.endbossInSight = true; // Zeige den Lebensbalken des Endbosses an
+                this.dramaticAudio.play();  // Dramatische Musik abspielen
+            }
+    
+            // Wenn der Charakter das Sichtfeld verlässt, bewegt sich der Endboss zurück
+            if (this.character.x < endboss.x - sightRange && endboss.isInSight) {
+                endboss.isInSight = false;
+                endboss.toggleDirection();  // Endboss umkehren lassen
+            }
+        }
+    }
 
     run() {
         setInterval(() => {
             this.checkCollisions();
             this.checkThrowObjects();
             this.checkBottleCollection(); // Überprüft die Flaschenkollision
-        }, 200); // vielleicht auf 100 oder 50 setzen?
+            this.checkEndbossSight();  // Überprüft, ob der Endboss im Sichtfeld ist
+        }, 200); // vielleicht auf 200, 100 oder 50 setzen?
+    
     }
-
-    // checkThrowObjects() {
-    //     if (this.keyboard.D) {
-    //         let bottle = new ThrowableObject(this.character.x + 100, this.character.y +100);
-    //         this.throwableObjects.push(bottle);
-    //     }
-    // }
 
     checkThrowObjects() {
         // Überprüfen, ob der Spieler genügend Flaschen gesammelt hat
@@ -107,6 +125,13 @@ class World {
         // StatusBars (Lebensenergie, Flaschen) zeichnen
         this.addToMap(this.statusBar); // Lebens-StatusBar
         this.addToMap(this.bottleStatusBar); // Flaschen StatusBar wird gezeichnet
+
+        // Endboss StatusBar wird nur gezeichnet, wenn er im Sichtfeld ist
+        if (this.endbossInSight) {
+            this.addToMap(this.endbossStatusBar); // Endboss StatusBar
+        }
+
+        // this.addToMap(this.endbossStatusBar);  
 
         // Kamera verschieben, um die restlichen Objekte zu zeichnen
         this.ctx.translate(this.camera_x, 0);
