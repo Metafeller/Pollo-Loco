@@ -9,7 +9,7 @@ class World {
     bottleStatusBar = new BottleStatusBar(); // Flaschen StatusBar hinzufügen
     endbossStatusBar = new EndbossStatusBar();  // Endboss StatusBar hinzufügen
     endbossInSight = false;  // Flag für das Sichtfeld des Endbosses
-    dramaticAudio = new Audio('/audio/hey-escucha-hoer-mal-zu.mp3');  // Audio für den Endboss
+    dramaticAudio = new Audio('/audio/fear-back.mp3');  // Audio für den Endboss
     throwableObjects = [];
     bottlesCollected = 0; // Anzahl gesammalter Flaschen
     maxBottles = 5; // Maximale Anzahl an Flaschen, die gesammelt werden können
@@ -55,7 +55,7 @@ class World {
     }
 
     checkEndbossSight() {
-        let sightRange = 700; // Sichtbereich des Endbosses
+        let sightRange = 400; // Sichtbereich des Endbosses
         let endboss = this.level.enemies.find(enemy => enemy instanceof Endboss);  // Finde den Endboss
     
         if (endboss) {
@@ -68,6 +68,7 @@ class World {
                 }
             } else if (this.character.x < endboss.x - sightRange && endboss.isInSight) {
                 endboss.isInSight = false;
+                endboss.returning = true;  // Flag setzen, dass er zurückläuft
                 this.endbossInSight = false;
             }
         }
