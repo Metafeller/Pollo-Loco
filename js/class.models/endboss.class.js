@@ -5,6 +5,7 @@ class Endboss extends MovableObject {
     speed = 0.3;
     isInSight = false;  // Status ob der Character im Sichtfeld ist
     movingForward = true; // Verfolgt, ob der Endboss sich vorwärts bewegt
+    startPosition = 4500;  // Die Startposition des Endbosses
 
 
     IMAGES_WALKING = [
@@ -26,7 +27,7 @@ class Endboss extends MovableObject {
     constructor() {
         super().loadImage(this.IMAGES_WALKING[0]);
         this.loadImages(this.IMAGES_WALKING);
-        this.x = 4500;  // Platzierung des Endbosses
+        this.x = this.startPosition;  // Setze den Endboss an seine Startposition
         this.animate();
     }
 
@@ -35,6 +36,7 @@ class Endboss extends MovableObject {
         // Überprüfen, ob der Charakter im Sichtfeld ist
         if (characterX > this.x - 500) {  // Wenn der Character 500px vor dem Endboss ist
             this.isInSight = true;
+            this.movingForward = true;  // Endboss bewegt sich vorwärts
         } else {
             this.isInSight = false;
         }
@@ -44,14 +46,16 @@ class Endboss extends MovableObject {
     animate() {
         setInterval(() => {
             if (this.isInSight) {
-                if (this.movingForward) {
-                    this.moveLeft();  // Vorwärts bewegen
-                    this.otherDirection = false;
-                } else {
-                    this.moveRight();  // Rückwärts bewegen
+                this.moveLeft();  // Endboss bewegt sich immer vorwärts, wenn der Charakter im Sichtfeld ist
+                this.otherDirection = false;
+                this.playAnimation(this.IMAGES_WALKING);
+            } else {
+                // Bewege den Endboss zurück zu seiner Startposition, wenn er sich nicht im Sichtfeld befindet
+                if (this.x < this.startPosition) {
+                    this.moveRight();
                     this.otherDirection = true;
                 }
-                this.playAnimation(this.IMAGES_WALKING);  // Abspielen der Geh-Animation
+                this.playAnimation(this.IMAGES_WALKING);
             }
         }, 1000 / 60);
     }

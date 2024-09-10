@@ -55,25 +55,24 @@ class World {
     }
 
     checkEndbossSight() {
-        // Überprüfen, ob der Character im Sichtfeld des Endbosses ist
         let sightRange = 700; // Sichtbereich des Endbosses
         let endboss = this.level.enemies.find(enemy => enemy instanceof Endboss);  // Finde den Endboss
-        
+    
         if (endboss) {
             // Überprüfen, ob der Charakter im Sichtbereich des Endbosses ist
-            if (this.character.x > endboss.x - sightRange && !endboss.isInSight) {
-                endboss.isInSight = true;
-                this.endbossInSight = true; // Zeige den Lebensbalken des Endbosses an
-                this.dramaticAudio.play();  // Dramatische Musik abspielen
-            }
-    
-            // Wenn der Charakter das Sichtfeld verlässt, bewegt sich der Endboss zurück
-            if (this.character.x < endboss.x - sightRange && endboss.isInSight) {
+            if (this.character.x > endboss.x - sightRange) {
+                if (!endboss.isInSight) {
+                    endboss.isInSight = true;
+                    this.endbossInSight = true; // Zeige den Lebensbalken des Endbosses an
+                    this.dramaticAudio.play();  // Dramatische Musik abspielen
+                }
+            } else if (this.character.x < endboss.x - sightRange && endboss.isInSight) {
                 endboss.isInSight = false;
-                endboss.toggleDirection();  // Endboss umkehren lassen
+                this.endbossInSight = false;
             }
         }
     }
+    
 
     run() {
         setInterval(() => {
