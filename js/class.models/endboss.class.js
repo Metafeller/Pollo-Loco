@@ -2,7 +2,7 @@ class Endboss extends MovableObject {
     y = 60;
     height = 400;
     width = 300;
-    speed = 0.3
+    speed = 0.3;
     isInSight = false;  // Status ob der Character im Sichtfeld ist
     movingForward = true; // Verfolgt, ob der Endboss sich vorwärts bewegt
 
