@@ -2,15 +2,23 @@ class Endboss extends MovableObject {
     y = 60;
     height = 400;
     width = 300;
-    speed = 0.3;
+    speed = 0.3
     isInSight = false;  // Status ob der Character im Sichtfeld ist
     movingForward = true; // Verfolgt, ob der Endboss sich vorwärts bewegt
 
 
     IMAGES_WALKING = [
         'img/4_enemie_boss_chicken/1_walk/G1.png',
+        'img/4_enemie_boss_chicken/1_walk/G1.png',
+        'img/4_enemie_boss_chicken/1_walk/G1.png',
+        'img/4_enemie_boss_chicken/1_walk/G2.png',
+        'img/4_enemie_boss_chicken/1_walk/G2.png',
         'img/4_enemie_boss_chicken/1_walk/G2.png',
         'img/4_enemie_boss_chicken/1_walk/G3.png',
+        'img/4_enemie_boss_chicken/1_walk/G3.png',
+        'img/4_enemie_boss_chicken/1_walk/G3.png',
+        // 'img/4_enemie_boss_chicken/1_walk/G4.png',
+        // 'img/4_enemie_boss_chicken/1_walk/G4.png',
         'img/4_enemie_boss_chicken/1_walk/G4.png'
     ];
 
