@@ -9,7 +9,7 @@ class World {
     bottleStatusBar = new BottleStatusBar(); // Flaschen StatusBar hinzufügen
     endbossStatusBar = new EndbossStatusBar();  // Endboss StatusBar hinzufügen
     endbossInSight = false;  // Flag für das Sichtfeld des Endbosses
-    dramaticAudio = new Audio('/audio/spiel-mir-das-lied-vom-tod.mp3');  // Audio für den Endboss
+    dramaticAudio = new Audio('/audio/hey-escucha-hoer-mal-zu.mp3');  // Audio für den Endboss
     throwableObjects = [];
     bottlesCollected = 0; // Anzahl gesammalter Flaschen
     maxBottles = 5; // Maximale Anzahl an Flaschen, die gesammelt werden können
