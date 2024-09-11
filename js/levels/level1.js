@@ -1,10 +1,13 @@
 const level1 = new Level([
     new Chicken(),
-    new Chicken(),
-    new MiniChicken(),
     new MiniChicken(),
     new Chicken(),
     new MiniChicken(),
+    new Chicken(),
+    new Chicken(),
+    new MiniChicken(),
+    new Chicken(),
+    new Chicken(),
     new Endboss()
 ],
 

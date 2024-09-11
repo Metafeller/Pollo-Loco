@@ -1,7 +1,7 @@
 class MiniChicken extends MovableObject {
-    y = 370; // Die Y-Koordinate wird etwas niedriger sein, um das Mini-Chicken kleiner darzustellen
-    height = 50;
-    width = 70;
+    y = 340; // Die Y-Koordinate wird etwas niedriger sein, um das Mini-Chicken kleiner darzustellen
+    height = 80;
+    width = 80;
     IMAGES_WALKING = [
         '/img/3_enemies_chicken/chicken_small/1_walk/1_w.png',
         '/img/3_enemies_chicken/chicken_small/1_walk/2_w.png',
