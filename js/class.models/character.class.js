@@ -3,6 +3,10 @@ class Character extends MovableObject {
     height = 280;
     y = 80;
     speed = 5;
+
+    invulnerable = false;  // Unverwundbarkeits-Status
+    invulnerabilityDuration = 1500;  // Dauer der Unverwundbarkeit in Millisekunden
+
     IMAGES_WALKING = [
         '/img/2_character_pepe/2_walk/W-21.png',
         '/img/2_character_pepe/2_walk/W-22.png',
@@ -108,6 +112,14 @@ class Character extends MovableObject {
 
     jump() {
         this.speedY = 25;
+    }
+
+    // Methode, um den Charakter für eine bestimmte Zeit unverwundbar zu machen
+    makeInvulnerable() {
+        this.invulnerable = true;
+        setTimeout(() => {
+            this.invulnerable = false;  // Nach Ablauf der Zeit wird der Charakter wieder verwundbar
+        }, this.invulnerabilityDuration);
     }
 
     isAboveGround() {

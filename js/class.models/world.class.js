@@ -110,13 +110,15 @@ class World {
                     // Der Charakter springt von oben auf den Gegner -> Der Gegner stirbt
                     enemy.die();  // Gegner sterben lassen (Animation starten)
                     this.playEnemyDeathSound();  // Audio abspielen, wenn der Gegner stirbt
+                    this.character.makeInvulnerable();  // Charakter unverwundbar machen
                     setTimeout(() => {
                         this.level.enemies.splice(index, 1);  // Gegner aus dem Array entfernen (nach kurzer Verzögerung)
                     }, 500);  // Gegner bleibt für 0.5 Sekunden sichtbar, bevor er entfernt wird
-                } else {
+                } else if (!this.character.invulnerable) {
+                    // Wenn der Charakter nicht unverwundbar ist und frontal kollidiert -> Schaden für den Charakter
                     // Der Charakter kollidiert seitlich oder frontal mit dem Gegner -> Der Charakter erleidet Schaden
                     this.character.hit();
-                    this.statusBar.setPercentage(this.character.energy);
+                    this.statusBar.setPercentage(this.character.energy); // Lebensanzeige aktualisieren
                 }
             }
         });
