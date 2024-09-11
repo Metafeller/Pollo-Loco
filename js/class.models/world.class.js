@@ -85,10 +85,11 @@ class World {
             this.checkCollisions();
             this.checkThrowObjects();
             this.checkBottleCollection(); // Überprüft die Flaschenkollision
+            this.checkBottleCollisions();  // Neue Methode zur Kollisionserkennung
             this.checkEndbossSight();  // Überprüft, ob der Endboss im Sichtfeld ist
         }, 200); // vielleicht auf 200, 100 oder 50 setzen?
-    
     }
+
 
     checkThrowObjects() {
         // Überprüfen, ob der Spieler genügend Flaschen gesammelt hat
@@ -96,12 +97,31 @@ class World {
             let bottle = new ThrowableObject(this.character.x + 100, this.character.y + 100);
             this.throwableObjects.push(bottle);
             this.bottlesCollected--; // Anzahl der Flaschen verringern
-
+    
             // Berechnet den neuen Prozentsatz
-        let percentage = (this.bottlesCollected / this.maxBottles) * 100; 
-        this.bottleStatusBar.setPercentage(percentage); // Aktualisiert die StatusBar
+            let percentage = (this.bottlesCollected / this.maxBottles) * 100; 
+            this.bottleStatusBar.setPercentage(percentage); // Aktualisiert die StatusBar
         }
     }
+    
+
+    checkBottleCollisions() {
+        this.throwableObjects.forEach((bottle, bottleIndex) => {
+            this.level.enemies.forEach((enemy, enemyIndex) => {
+                if (bottle.isColliding(enemy)) {
+                    if (enemy instanceof Chicken || enemy instanceof MiniChicken) {
+                        this.level.enemies.splice(enemyIndex, 1);  // Chicken oder MiniChicken entfernen
+                        enemy.die();  // Sterbeanimation für Chicken/MiniChicken
+                    } else if (enemy instanceof Endboss) {
+                        enemy.hit();  // Endboss verliert Lebenspunkte
+                        this.endbossStatusBar.setPercentage(enemy.energy);  // StatusBar des Endbosses aktualisieren
+                    }
+                    this.throwableObjects.splice(bottleIndex, 1);  // Flasche nach Kollision entfernen
+                }
+            });
+        });
+    }
+    
 
     checkCollisions() {
         this.level.enemies.forEach((enemy, index) => {

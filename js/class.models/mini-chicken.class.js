@@ -1,7 +1,9 @@
 class MiniChicken extends MovableObject {
-    y = 340; // Die Y-Koordinate wird etwas niedriger sein, um das Mini-Chicken kleiner darzustellen
+    y = 340;
     height = 80;
     width = 80;
+    energy = 10;  // Lebenspunkte
+
     IMAGES_WALKING = [
         '/img/3_enemies_chicken/chicken_small/1_walk/1_w.png',
         '/img/3_enemies_chicken/chicken_small/1_walk/2_w.png',
@@ -12,7 +14,6 @@ class MiniChicken extends MovableObject {
         '/img/3_enemies_chicken/chicken_small/2_dead/dead.png'
     ];
 
-
     constructor() {
         super().loadImage(this.IMAGES_WALKING[0]);
         this.loadImages(this.IMAGES_WALKING);
@@ -22,19 +23,23 @@ class MiniChicken extends MovableObject {
         this.animate();
     }
 
-    die() {
-        this.loadImage(this.IMAGES_DEAD[0]);  // Lässt das Huhn sterben
+    hit() {
+        this.energy = 0;  // Setze die Lebensenergie auf 0
+        this.die();  // Lasse das MiniChicken sterben
     }
 
+    die() {
+        this.loadImage(this.IMAGES_DEAD[0]);  // Zeige das Bild des toten Mini-Chickens
+        this.speed = 0;  // Stoppe die Bewegung
+    }
 
     animate() {
         setInterval(() => {
-            this.moveLeft();  // Die Mini-Chicken bewegen sich von rechts nach links
+            this.moveLeft();
         }, 1000 / 60);
 
         setInterval(() => {
-            this.playAnimation(this.IMAGES_WALKING);  // Spiele die Laufanimation ab
+            this.playAnimation(this.IMAGES_WALKING);
         }, 200);
     }
-
 }

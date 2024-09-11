@@ -8,6 +8,7 @@ class Endboss extends MovableObject {
     startPosition = 4500;  // Die Startposition des Endbosses
     returning = false;  // Flag um zu prüfen, ob der Endboss zurückkehrt
     sightRange = 400;  // Verkleinertes Sichtfeld
+    energy = 100;  // Endboss startet mit 100% Lebensenergie
 
 
     IMAGES_WALKING = [
@@ -20,8 +21,6 @@ class Endboss extends MovableObject {
         'img/4_enemie_boss_chicken/1_walk/G3.png',
         'img/4_enemie_boss_chicken/1_walk/G3.png',
         'img/4_enemie_boss_chicken/1_walk/G3.png',
-        // 'img/4_enemie_boss_chicken/1_walk/G4.png',
-        // 'img/4_enemie_boss_chicken/1_walk/G4.png',
         'img/4_enemie_boss_chicken/1_walk/G4.png'
     ];
 
@@ -70,11 +69,22 @@ class Endboss extends MovableObject {
         }
     }
 
+    hit() {
+        this.energy -= 20;  // Reduziere die Lebenspunkte um 20%
+        if (this.energy < 0) {
+            this.energy = 0;
+        }
+        // Wenn der Endboss stirbt, rufe die Methode "die()" auf
+        if (this.energy == 0) {
+            this.die();
+        }
+    }
 
-    // Richtung wechseln, wenn der Charakter aus dem Sichtfeld geht
-    // toggleDirection() {
-    //     this.movingForward = !this.movingForward;
-    // }
+    die() {
+        // Hier kannst du eine Sterbeanimation oder Logik einfügen
+        console.log('Endboss ist tot!');
+        // Du kannst eine Animation hinzufügen, die zeigt, dass der Endboss stirbt
+    }
 
     
 }
