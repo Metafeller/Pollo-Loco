@@ -18,9 +18,14 @@ class World {
         this.ctx = canvas.getContext('2d');
         this.canvas = canvas;
         this.keyboard = keyboard;
+        this.enemyDeathAudio = new Audio('/audio/punch-1.mp3');  // Soundeffekt für den Tod eines Gegners
         this.draw();
         this.setWorld();
         this.run();
+    }
+
+    playEnemyDeathSound() {
+        this.enemyDeathAudio.play();  // Spielt den Sound ab, wenn ein Gegner stirbt
     }
 
     setWorld() {
@@ -99,13 +104,26 @@ class World {
     }
 
     checkCollisions() {
-        this.level.enemies.forEach((enemy) => {
-            if(this.character.isColliding(enemy)) {
-               this.character.hit();
-               this.statusBar.setPercentage(this.character.energy);
+        this.level.enemies.forEach((enemy, index) => {
+            if (this.character.isColliding(enemy)) {
+                if (this.character.isAboveGround() && this.character.speedY < 0) {
+                    // Der Charakter springt von oben auf den Gegner -> Der Gegner stirbt
+                    enemy.die();  // Gegner sterben lassen (Animation starten)
+                    this.playEnemyDeathSound();  // Audio abspielen, wenn der Gegner stirbt
+                    setTimeout(() => {
+                        this.level.enemies.splice(index, 1);  // Gegner aus dem Array entfernen (nach kurzer Verzögerung)
+                    }, 500);  // Gegner bleibt für 0.5 Sekunden sichtbar, bevor er entfernt wird
+                } else {
+                    // Der Charakter kollidiert seitlich oder frontal mit dem Gegner -> Der Charakter erleidet Schaden
+                    this.character.hit();
+                    this.statusBar.setPercentage(this.character.energy);
+                }
             }
         });
     }
+    
+    
+    
 
     draw() {
          // Canvas löschen

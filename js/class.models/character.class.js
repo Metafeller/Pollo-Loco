@@ -109,4 +109,13 @@ class Character extends MovableObject {
     jump() {
         this.speedY = 25;
     }
+
+    isAboveGround() {
+        return this.y < 150;  // Überprüft, ob der Charakter sich über dem Boden befindet (Grenze kann angepasst werden)
+    }
+
+    checkIfJumpedOnEnemy(enemy) {
+        return this.isAboveGround() && this.speedY < 0 && this.isColliding(enemy);  
+    }
+
 }
