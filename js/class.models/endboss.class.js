@@ -21,13 +21,7 @@ class Endboss extends MovableObject {
 
     IMAGES_WALKING = [
         'img/4_enemie_boss_chicken/1_walk/G1.png',
-        'img/4_enemie_boss_chicken/1_walk/G1.png',
-        'img/4_enemie_boss_chicken/1_walk/G1.png',
         'img/4_enemie_boss_chicken/1_walk/G2.png',
-        'img/4_enemie_boss_chicken/1_walk/G2.png',
-        'img/4_enemie_boss_chicken/1_walk/G2.png',
-        'img/4_enemie_boss_chicken/1_walk/G3.png',
-        'img/4_enemie_boss_chicken/1_walk/G3.png',
         'img/4_enemie_boss_chicken/1_walk/G3.png',
         'img/4_enemie_boss_chicken/1_walk/G4.png'
     ];
@@ -53,6 +47,13 @@ class Endboss extends MovableObject {
     ];
 
 
+    IMAGES_HURT = [
+        '/img/4_enemie_boss_chicken/4_hurt/G21.png',
+        '/img/4_enemie_boss_chicken/4_hurt/G22.png',
+        '/img/4_enemie_boss_chicken/4_hurt/G23.png'
+    ];
+
+
     IMAGES_DEAD = [
         '/img/4_enemie_boss_chicken/5_dead/G24.png',
         '/img/4_enemie_boss_chicken/5_dead/G25.png',
@@ -65,6 +66,7 @@ class Endboss extends MovableObject {
         this.loadImages(this.IMAGES_WALKING);
         this.loadImages(this.IMAGES_ALERT); // Platzhalter für den Aggromode
         this.loadImages(this.IMAGES_DEAD); // Platzhalter für den Tod von Endboss
+        this.loadImages(this.IMAGES_HURT); // Hurt-Bilder laden
         this.x = this.startPosition;  // Setze den Endboss an seine Startposition
         this.animate();
     }
@@ -82,47 +84,98 @@ class Endboss extends MovableObject {
     }
 
 
-    animate() {
-        setInterval(() => {
-            if (this.isInSight) {
-                this.moveLeft();  // Endboss bewegt sich vorwärts
-                this.otherDirection = false;  // Nach links schauen
-                this.playAnimation(this.IMAGES_WALKING);
-            } else if (!this.isInSight && this.x < this.startPosition) {
-                this.returnToStart();  // Endboss kehrt zur Startposition zurück
-            }
-        }, 1000 / 60);
-    }
-
-    
-    returnToStart() {
-        this.returning = true;  // Endboss kehrt zurück
-        if (this.x < this.startPosition) {
-            this.moveRight();  // Endboss läuft zurück
-            this.otherDirection = true;  // Nach rechts schauen
-            this.playAnimation(this.IMAGES_WALKING);
-        } else {
-            this.returning = false;  // Erreicht die Startposition
-        }
-    }
-
-
     hit() {
         this.energy -= 20;  // Reduziere die Lebenspunkte um 20%
         if (this.energy < 0) {
             this.energy = 0;
         }
-        // Wenn der Endboss stirbt, rufe die Methode "die()" auf
+    
         if (this.energy == 0) {
-            this.die();
+            this.die();  // Endboss stirbt, wenn Energie 0 ist
+        } else {
+            this.isHurtAnimation = true;
+            this.speedY = 20;  // Sprung-Effekt nach oben
+            this.applyGravity();  // Schwerkraft anwenden
+    
+            setTimeout(() => {
+                this.endHurtAnimation();  // Hurt-Animation nach 1 Sekunde beenden
+            }, 1500);
+    
+            // Sicherstellen, dass der Endboss auf seiner Bodenposition landet
+            this.ensureCorrectLanding();
         }
+    }
+    
+
+    ensureCorrectLanding() {
+        setInterval(() => {
+            // Wenn der Endboss unterhalb seiner eigentlichen Position ist, korrigieren wir ihn
+            if (this.y > 60) {
+                this.y = 60;  // Setze den Endboss auf die Bodenposition
+                this.speedY = 0;  // Stoppe die Bewegung nach unten
+            }
+        }, 1000 / 60);
+    }
+    
+    
+    playAnimation(images, speedFactor = 4) {
+        let i = Math.floor(this.currentImage / speedFactor) % images.length; 
+        this.img = this.imageCache[images[i]];
+        this.currentImage++;
+    }
+    
+
+    activateHurtAnimation() {
+        this.isHurtAnimation = true;
+        this.loadImages(this.IMAGES_HURT);  // Hurt-Animation Bilder setzen
+        this.speedY = -20; // Endboss springt in die Luft
+        this.applyGravity(); // Gravitationslogik anwenden
+
+        // Timer für die Dauer der Hurt-Animation (z.B. 1 Sekunde)
+        this.hurtTimeout = setTimeout(() => {
+            this.isHurtAnimation = false;
+            this.loadImages(this.IMAGES_WALKING); // Zurück zur Geh-Animation
+        }, 1000);
+    }
+
+
+    die() {
+        clearTimeout(this.hurtTimeout);  // Timer beenden
+        this.loadImage(this.IMAGES_DEAD[2]);  // Zeige das letzte Bild der Sterbeanimation
+    }
+
+
+    animate() {
+        setInterval(() => {
+            if (this.isInSight && !this.isHurtAnimation) {
+                this.moveLeft();  // Endboss bewegt sich vorwärts
+                this.otherDirection = false;  // Nach links schauen
+                this.playAnimation(this.IMAGES_WALKING);
+            } else if (!this.isInSight && !this.isHurtAnimation && this.x < this.startPosition) {
+                this.returnToStart();  // Endboss kehrt zur Startposition zurück
+            } else if (this.isHurtAnimation) {
+                this.playAnimation(this.IMAGES_HURT);  // Hurt-Animation abspielen
+            }
+        }, 1000 / 60);
     }
 
     
-    die() {
-        // Hier kannst du eine Sterbeanimation oder Logik einfügen
-        console.log('Endboss ist tot!');
-        // Du kannst eine Animation hinzufügen, die zeigt, dass der Endboss stirbt
+    // Diese Methode beendet die Hurt-Animation und stellt die Y-Position wieder her
+    endHurtAnimation() {
+        this.isHurtAnimation = false;
+        this.y = 60;  // Setze die Y-Position des Endbosses wieder auf die ursprüngliche Höhe zurück
+    }
+    
+
+    returnToStart() {
+        this.returning = true;  // Endboss kehrt zurück
+        if (this.x < this.startPosition) {
+            this.moveRight();  // Endboss läuft zurück
+            this.otherDirection = true;  // Nach rechts schauen
+            this.playAnimation(this.IMAGES_WALKING);  // Geh-Animation beim Zurücklaufen
+        } else {
+            this.returning = false;  // Erreicht die Startposition
+        }
     }
 
        

@@ -12,7 +12,9 @@ const level1 = new Level([
 ],
 
 [
-    new Cloud()
+    new Cloud(350),
+    new Cloud(700),
+    new Cloud(1400)
 ],
 
 [
@@ -75,7 +77,10 @@ const level1 = new Level([
     new Bottle(3200, 350),
     new Bottle(3400, 350),
     new Bottle(3600, 350),
-    new Bottle(3800, 390)
+    new Bottle(3700, 450),
+    new Bottle(3800, 350),
+    new Bottle(3900, 350),
+    new Bottle(4000, 390)
 ]
 
 );

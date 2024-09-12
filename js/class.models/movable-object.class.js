@@ -10,10 +10,19 @@ class MovableObject extends DrawableObject {
     applyGravity() {
         setInterval(() => {
             if (this.isAboveGround() || this.speedY > 0) {
-            this.y -= this.speedY;
-            this.speedY -= this.acceleration;
+                this.y -= this.speedY;
+                this.speedY -= this.acceleration;
+            }
+            // Sicherstellen, dass das Objekt nicht unter den Boden fällt
+            if (this.y >= this.groundPosition) {
+                this.y = this.groundPosition;
+                this.speedY = 0;
             }
         }, 1000 / 25);
+    }
+
+    isAboveGround() {
+        return this.y < this.groundPosition;
     }
 
 
