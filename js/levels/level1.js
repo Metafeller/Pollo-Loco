@@ -72,7 +72,10 @@ const level1 = new Level([
     new Bottle(1800, 300),
     new Bottle(2300, 400),
     new Bottle(3000, 370),
-    new Bottle(3200, 390)
+    new Bottle(3200, 350),
+    new Bottle(3400, 350),
+    new Bottle(3600, 350),
+    new Bottle(3800, 390)
 ]
 
 );

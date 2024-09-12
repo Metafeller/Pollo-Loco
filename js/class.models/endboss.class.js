@@ -11,6 +11,14 @@ class Endboss extends MovableObject {
     energy = 100;  // Endboss startet mit 100% Lebensenergie
 
 
+    /**
+     * Platzhalter für den Aggromode, wenn der Endboss von einer Flasche getroffen wird, 
+     * dann wird er Aggro und nutzt die Image Bilder für die Animation von
+     * inAggroMode = false;  // Flag für den Aggro-Modus
+     * aggroAudioPlaying = false;  // Verhindert mehrfaches Abspielen des Aggro-Sounds
+     * */ 
+    
+
     IMAGES_WALKING = [
         'img/4_enemie_boss_chicken/1_walk/G1.png',
         'img/4_enemie_boss_chicken/1_walk/G1.png',
@@ -25,9 +33,38 @@ class Endboss extends MovableObject {
     ];
 
 
+    IMAGES_ALERT = [  // Bilder für den Aggro-Modus
+        '/img/4_enemie_boss_chicken/2_alert/G5.png',
+        '/img/4_enemie_boss_chicken/2_alert/G6.png',
+        '/img/4_enemie_boss_chicken/2_alert/G7.png',
+        '/img/4_enemie_boss_chicken/2_alert/G8.png',
+        '/img/4_enemie_boss_chicken/2_alert/G9.png',
+        '/img/4_enemie_boss_chicken/2_alert/G10.png',
+        '/img/4_enemie_boss_chicken/2_alert/G11.png',
+        '/img/4_enemie_boss_chicken/2_alert/G12.png',
+        '/img/4_enemie_boss_chicken/3_attack/G13.png',
+        '/img/4_enemie_boss_chicken/3_attack/G14.png',
+        '/img/4_enemie_boss_chicken/3_attack/G15.png',
+        '/img/4_enemie_boss_chicken/3_attack/G16.png',
+        '/img/4_enemie_boss_chicken/3_attack/G17.png',
+        '/img/4_enemie_boss_chicken/3_attack/G18.png',
+        '/img/4_enemie_boss_chicken/3_attack/G19.png',
+        '/img/4_enemie_boss_chicken/3_attack/G20.png'
+    ];
+
+
+    IMAGES_DEAD = [
+        '/img/4_enemie_boss_chicken/5_dead/G24.png',
+        '/img/4_enemie_boss_chicken/5_dead/G25.png',
+        '/img/4_enemie_boss_chicken/5_dead/G26.png'
+    ];
+
+
     constructor() {
         super().loadImage(this.IMAGES_WALKING[0]);
         this.loadImages(this.IMAGES_WALKING);
+        this.loadImages(this.IMAGES_ALERT); // Platzhalter für den Aggromode
+        this.loadImages(this.IMAGES_DEAD); // Platzhalter für den Tod von Endboss
         this.x = this.startPosition;  // Setze den Endboss an seine Startposition
         this.animate();
     }
@@ -69,6 +106,7 @@ class Endboss extends MovableObject {
         }
     }
 
+
     hit() {
         this.energy -= 20;  // Reduziere die Lebenspunkte um 20%
         if (this.energy < 0) {
@@ -80,11 +118,12 @@ class Endboss extends MovableObject {
         }
     }
 
+    
     die() {
         // Hier kannst du eine Sterbeanimation oder Logik einfügen
         console.log('Endboss ist tot!');
         // Du kannst eine Animation hinzufügen, die zeigt, dass der Endboss stirbt
     }
 
-    
+       
 }

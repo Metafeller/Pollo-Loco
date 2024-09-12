@@ -143,9 +143,6 @@ class World {
             }
         });
     }
-    
-    
-    
 
     draw() {
          // Canvas löschen
