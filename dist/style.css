@@ -1,0 +1,78 @@
+@font-face {
+    font-family: 'zabars';
+    src: url('./fonts/zabars.ttf') format('truetype');
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-image: url('img/10_ai_images_by_tay/game_design_bg/DALLE2_2.png');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    min-height: 100vh;
+    font-family: 'zabars', Arial, Helvetica, sans-serif;
+    position: relative;
+}
+
+body::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* bg ist jz verdunkelt, damit mein canvas im Fokus liegt */
+    z-index: 0;
+}
+
+.game-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    z-index: 1; /* Damit es über dem dunklen Layer liegt */
+    height: 800px;
+}
+
+h1 {
+    font-size: 80px;
+    letter-spacing: 3px;
+    text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.5);
+    position: relative;
+    z-index: 2;
+    color: #F2D4A2;
+    margin-bottom: 16px; /* Abstände zwischen h1 und Canvas */
+}
+
+canvas {
+    background-color: black;
+    border-radius: 16px;
+    display: block;
+    box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.5); /* hebt nochmal den Fokus hevor */
+}
+
+/* ----- Smartphones w ----- */
+@media only screen and (max-width: 720px) {
+    canvas {
+        width: 100%;
+    }
+
+    h1 {
+        display: none;
+    }
+}
+
+/* ----- Smartphones h ----- */
+@media only screen and (max-height: 480px) {
+    canvas {
+        height: 100vh;
+    }
+
+    h1 {
+        display: none;
+    }
+}
