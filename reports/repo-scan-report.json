@@ -1,0 +1,6557 @@
+{
+  "generatedAt": "2025-10-27T16:37:26.567Z",
+  "root": "12.01-Pollo-Loco",
+  "stats": {
+    "totalFiles": 21,
+    "filesWithHits": 17,
+    "keywordCounts": {
+      "lang": 2,
+      "chicken": 57,
+      "chick": 57,
+      "bottle": 61,
+      "status": 45,
+      "bar": 53,
+      "endboss": 55,
+      "audio": 9,
+      "sound": 11,
+      "translate": 6,
+      "scroll": 1,
+      "language": 1,
+      "btn": 1,
+      "supersalsa": 1,
+      "hp": 1
+    }
+  },
+  "report": [
+    {
+      "file": "index.html",
+      "hits": [
+        {
+          "line": 2,
+          "keyword": "lang",
+          "context": [
+            {
+              "rel": 1,
+              "text": "<!DOCTYPE html>"
+            },
+            {
+              "rel": 2,
+              "text": "<html lang=\"en\">"
+            },
+            {
+              "rel": 3,
+              "text": "<head>"
+            }
+          ]
+        },
+        {
+          "line": 12,
+          "keyword": "chicken",
+          "context": [
+            {
+              "rel": 11,
+              "text": "<script src=\"js/class.models/character.class.js\"></script>"
+            },
+            {
+              "rel": 12,
+              "text": "<script src=\"js/class.models/chicken.class.js\"></script>"
+            },
+            {
+              "rel": 13,
+              "text": "<script src=\"/js/class.models/mini-chicken.class.js\"></script>"
+            }
+          ]
+        },
+        {
+          "line": 12,
+          "keyword": "chick",
+          "context": [
+            {
+              "rel": 11,
+              "text": "<script src=\"js/class.models/character.class.js\"></script>"
+            },
+            {
+              "rel": 12,
+              "text": "<script src=\"js/class.models/chicken.class.js\"></script>"
+            },
+            {
+              "rel": 13,
+              "text": "<script src=\"/js/class.models/mini-chicken.class.js\"></script>"
+            }
+          ]
+        },
+        {
+          "line": 13,
+          "keyword": "chicken",
+          "context": [
+            {
+              "rel": 12,
+              "text": "<script src=\"js/class.models/chicken.class.js\"></script>"
+            },
+            {
+              "rel": 13,
+              "text": "<script src=\"/js/class.models/mini-chicken.class.js\"></script>"
+            },
+            {
+              "rel": 14,
+              "text": "<script src=\"js/class.models/cloud.class.js\"></script>"
+            }
+          ]
+        },
+        {
+          "line": 13,
+          "keyword": "chick",
+          "context": [
+            {
+              "rel": 12,
+              "text": "<script src=\"js/class.models/chicken.class.js\"></script>"
+            },
+            {
+              "rel": 13,
+              "text": "<script src=\"/js/class.models/mini-chicken.class.js\"></script>"
+            },
+            {
+              "rel": 14,
+              "text": "<script src=\"js/class.models/cloud.class.js\"></script>"
+            }
+          ]
+        },
+        {
+          "line": 15,
+          "keyword": "bottle",
+          "context": [
+            {
+              "rel": 14,
+              "text": "<script src=\"js/class.models/cloud.class.js\"></script>"
+            },
+            {
+              "rel": 15,
+              "text": "<script src=\"js/class.models/bottle.class.js\"></script>"
+            },
+            {
+              "rel": 16,
+              "text": "<script src=\"js/class.models/status-bar.class.js\"></script>"
+            }
+          ]
+        },
+        {
+          "line": 16,
+          "keyword": "status",
+          "context": [
+            {
+              "rel": 15,
+              "text": "<script src=\"js/class.models/bottle.class.js\"></script>"
+            },
+            {
+              "rel": 16,
+              "text": "<script src=\"js/class.models/status-bar.class.js\"></script>"
+            },
+            {
+              "rel": 17,
+              "text": "<script src=\"js/class.models/bottle-status-bar-class.js\"></script>"
+            }
+          ]
+        },
+        {
+          "line": 16,
+          "keyword": "bar",
+          "context": [
+            {
+              "rel": 15,
+              "text": "<script src=\"js/class.models/bottle.class.js\"></script>"
+            },
+            {
+              "rel": 16,
+              "text": "<script src=\"js/class.models/status-bar.class.js\"></script>"
+            },
+            {
+              "rel": 17,
+              "text": "<script src=\"js/class.models/bottle-status-bar-class.js\"></script>"
+            }
+          ]
+        },
+        {
+          "line": 17,
+          "keyword": "bottle",
+          "context": [
+            {
+              "rel": 16,
+              "text": "<script src=\"js/class.models/status-bar.class.js\"></script>"
+            },
+            {
+              "rel": 17,
+              "text": "<script src=\"js/class.models/bottle-status-bar-class.js\"></script>"
+            },
+            {
+              "rel": 18,
+              "text": "<script src=\"js/class.models/endboss-status-bar.class.js\"></script>"
+            }
+          ]
+        },
+        {
+          "line": 17,
+          "keyword": "status",
+          "context": [
+            {
+              "rel": 16,
+              "text": "<script src=\"js/class.models/status-bar.class.js\"></script>"
+            },
+            {
+              "rel": 17,
+              "text": "<script src=\"js/class.models/bottle-status-bar-class.js\"></script>"
+            },
+            {
+              "rel": 18,
+              "text": "<script src=\"js/class.models/endboss-status-bar.class.js\"></script>"
+            }
+          ]
+        },
+        {
+          "line": 17,
+          "keyword": "bar",
+          "context": [
+            {
+              "rel": 16,
+              "text": "<script src=\"js/class.models/status-bar.class.js\"></script>"
+            },
+            {
+              "rel": 17,
+              "text": "<script src=\"js/class.models/bottle-status-bar-class.js\"></script>"
+            },
+            {
+              "rel": 18,
+              "text": "<script src=\"js/class.models/endboss-status-bar.class.js\"></script>"
+            }
+          ]
+        },
+        {
+          "line": 18,
+          "keyword": "endboss",
+          "context": [
+            {
+              "rel": 17,
+              "text": "<script src=\"js/class.models/bottle-status-bar-class.js\"></script>"
+            },
+            {
+              "rel": 18,
+              "text": "<script src=\"js/class.models/endboss-status-bar.class.js\"></script>"
+            },
+            {
+              "rel": 19,
+              "text": "<script src=\"js/class.models/world.class.js\"></script>"
+            }
+          ]
+        },
+        {
+          "line": 18,
+          "keyword": "status",
+          "context": [
+            {
+              "rel": 17,
+              "text": "<script src=\"js/class.models/bottle-status-bar-class.js\"></script>"
+            },
+            {
+              "rel": 18,
+              "text": "<script src=\"js/class.models/endboss-status-bar.class.js\"></script>"
+            },
+            {
+              "rel": 19,
+              "text": "<script src=\"js/class.models/world.class.js\"></script>"
+            }
+          ]
+        },
+        {
+          "line": 18,
+          "keyword": "bar",
+          "context": [
+            {
+              "rel": 17,
+              "text": "<script src=\"js/class.models/bottle-status-bar-class.js\"></script>"
+            },
+            {
+              "rel": 18,
+              "text": "<script src=\"js/class.models/endboss-status-bar.class.js\"></script>"
+            },
+            {
+              "rel": 19,
+              "text": "<script src=\"js/class.models/world.class.js\"></script>"
+            }
+          ]
+        },
+        {
+          "line": 24,
+          "keyword": "endboss",
+          "context": [
+            {
+              "rel": 23,
+              "text": "<script src=\"js/class.models/throwable-object.class.js\"></script>"
+            },
+            {
+              "rel": 24,
+              "text": "<script src=\"js/class.models/endboss.class.js\"></script>"
+            },
+            {
+              "rel": 25,
+              "text": "<script src=\"js/levels/level1.js\"></script>"
+            }
+          ]
+        }
+      ],
+      "ids": [
+        "canvas"
+      ]
+    },
+    {
+      "file": "js\\class.models\\bottle-status-bar-class.js",
+      "hits": [
+        {
+          "line": 1,
+          "keyword": "bottle",
+          "context": [
+            {
+              "rel": 1,
+              "text": "class BottleStatusBar extends StatusBar {"
+            },
+            {
+              "rel": 2,
+              "text": "IMAGES = ["
+            }
+          ]
+        },
+        {
+          "line": 1,
+          "keyword": "status",
+          "context": [
+            {
+              "rel": 1,
+              "text": "class BottleStatusBar extends StatusBar {"
+            },
+            {
+              "rel": 2,
+              "text": "IMAGES = ["
+            }
+          ]
+        },
+        {
+          "line": 1,
+          "keyword": "bar",
+          "context": [
+            {
+              "rel": 1,
+              "text": "class BottleStatusBar extends StatusBar {"
+            },
+            {
+              "rel": 2,
+              "text": "IMAGES = ["
+            }
+          ]
+        },
+        {
+          "line": 3,
+          "keyword": "bottle",
+          "context": [
+            {
+              "rel": 2,
+              "text": "IMAGES = ["
+            },
+            {
+              "rel": 3,
+              "text": "'/img/7_statusbars/1_statusbar/3_statusbar_bottle/orange/0.png',"
+            },
+            {
+              "rel": 4,
+              "text": "'/img/7_statusbars/1_statusbar/3_statusbar_bottle/orange/20.png',"
+            }
+          ]
+        },
+        {
+          "line": 3,
+          "keyword": "status",
+          "context": [
+            {
+              "rel": 2,
+              "text": "IMAGES = ["
+            },
+            {
+              "rel": 3,
+              "text": "'/img/7_statusbars/1_statusbar/3_statusbar_bottle/orange/0.png',"
+            },
+            {
+              "rel": 4,
+              "text": "'/img/7_statusbars/1_statusbar/3_statusbar_bottle/orange/20.png',"
+            }
+          ]
+        },
+        {
+          "line": 3,
+          "keyword": "bar",
+          "context": [
+            {
+              "rel": 2,
+              "text": "IMAGES = ["
+            },
+            {
+              "rel": 3,
+              "text": "'/img/7_statusbars/1_statusbar/3_statusbar_bottle/orange/0.png',"
+            },
+            {
+              "rel": 4,
+              "text": "'/img/7_statusbars/1_statusbar/3_statusbar_bottle/orange/20.png',"
+            }
+          ]
+        },
+        {
+          "line": 4,
+          "keyword": "bottle",
+          "context": [
+            {
+              "rel": 3,
+              "text": "'/img/7_statusbars/1_statusbar/3_statusbar_bottle/orange/0.png',"
+            },
+            {
+              "rel": 4,
+              "text": "'/img/7_statusbars/1_statusbar/3_statusbar_bottle/orange/20.png',"
+            },
+            {
+              "rel": 5,
+              "text": "'/img/7_statusbars/1_statusbar/3_statusbar_bottle/orange/40.png',"
+            }
+          ]
+        },
+        {
+          "line": 4,
+          "keyword": "status",
+          "context": [
+            {
+              "rel": 3,
+              "text": "'/img/7_statusbars/1_statusbar/3_statusbar_bottle/orange/0.png',"
+            },
+            {
+              "rel": 4,
+              "text": "'/img/7_statusbars/1_statusbar/3_statusbar_bottle/orange/20.png',"
+            },
+            {
+              "rel": 5,
+              "text": "'/img/7_statusbars/1_statusbar/3_statusbar_bottle/orange/40.png',"
+            }
+          ]
+        },
+        {
+          "line": 4,
+          "keyword": "bar",
+          "context": [
+            {
+              "rel": 3,
+              "text": "'/img/7_statusbars/1_statusbar/3_statusbar_bottle/orange/0.png',"
+            },
+            {
+              "rel": 4,
+              "text": "'/img/7_statusbars/1_statusbar/3_statusbar_bottle/orange/20.png',"
+            },
+            {
+              "rel": 5,
+              "text": "'/img/7_statusbars/1_statusbar/3_statusbar_bottle/orange/40.png',"
+            }
+          ]
+        },
+        {
+          "line": 5,
+          "keyword": "bottle",
+          "context": [
+            {
+              "rel": 4,
+              "text": "'/img/7_statusbars/1_statusbar/3_statusbar_bottle/orange/20.png',"
+            },
+            {
+              "rel": 5,
+              "text": "'/img/7_statusbars/1_statusbar/3_statusbar_bottle/orange/40.png',"
+            },
+            {
+              "rel": 6,
+              "text": "'/img/7_statusbars/1_statusbar/3_statusbar_bottle/blue/60.png',"
+            }
+          ]
+        },
+        {
+          "line": 5,
+          "keyword": "status",
+          "context": [
+            {
+              "rel": 4,
+              "text": "'/img/7_statusbars/1_statusbar/3_statusbar_bottle/orange/20.png',"
+            },
+            {
+              "rel": 5,
+              "text": "'/img/7_statusbars/1_statusbar/3_statusbar_bottle/orange/40.png',"
+            },
+            {
+              "rel": 6,
+              "text": "'/img/7_statusbars/1_statusbar/3_statusbar_bottle/blue/60.png',"
+            }
+          ]
+        },
+        {
+          "line": 5,
+          "keyword": "bar",
+          "context": [
+            {
+              "rel": 4,
+              "text": "'/img/7_statusbars/1_statusbar/3_statusbar_bottle/orange/20.png',"
+            },
+            {
+              "rel": 5,
+              "text": "'/img/7_statusbars/1_statusbar/3_statusbar_bottle/orange/40.png',"
+            },
+            {
+              "rel": 6,
+              "text": "'/img/7_statusbars/1_statusbar/3_statusbar_bottle/blue/60.png',"
+            }
+          ]
+        },
+        {
+          "line": 6,
+          "keyword": "bottle",
+          "context": [
+            {
+              "rel": 5,
+              "text": "'/img/7_statusbars/1_statusbar/3_statusbar_bottle/orange/40.png',"
+            },
+            {
+              "rel": 6,
+              "text": "'/img/7_statusbars/1_statusbar/3_statusbar_bottle/blue/60.png',"
+            },
+            {
+              "rel": 7,
+              "text": "'/img/7_statusbars/1_statusbar/3_statusbar_bottle/blue/80.png',"
+            }
+          ]
+        },
+        {
+          "line": 6,
+          "keyword": "status",
+          "context": [
+            {
+              "rel": 5,
+              "text": "'/img/7_statusbars/1_statusbar/3_statusbar_bottle/orange/40.png',"
+            },
+            {
+              "rel": 6,
+              "text": "'/img/7_statusbars/1_statusbar/3_statusbar_bottle/blue/60.png',"
+            },
+            {
+              "rel": 7,
+              "text": "'/img/7_statusbars/1_statusbar/3_statusbar_bottle/blue/80.png',"
+            }
+          ]
+        },
+        {
+          "line": 6,
+          "keyword": "bar",
+          "context": [
+            {
+              "rel": 5,
+              "text": "'/img/7_statusbars/1_statusbar/3_statusbar_bottle/orange/40.png',"
+            },
+            {
+              "rel": 6,
+              "text": "'/img/7_statusbars/1_statusbar/3_statusbar_bottle/blue/60.png',"
+            },
+            {
+              "rel": 7,
+              "text": "'/img/7_statusbars/1_statusbar/3_statusbar_bottle/blue/80.png',"
+            }
+          ]
+        },
+        {
+          "line": 7,
+          "keyword": "bottle",
+          "context": [
+            {
+              "rel": 6,
+              "text": "'/img/7_statusbars/1_statusbar/3_statusbar_bottle/blue/60.png',"
+            },
+            {
+              "rel": 7,
+              "text": "'/img/7_statusbars/1_statusbar/3_statusbar_bottle/blue/80.png',"
+            },
+            {
+              "rel": 8,
+              "text": "'/img/7_statusbars/1_statusbar/3_statusbar_bottle/blue/100.png'"
+            }
+          ]
+        },
+        {
+          "line": 7,
+          "keyword": "status",
+          "context": [
+            {
+              "rel": 6,
+              "text": "'/img/7_statusbars/1_statusbar/3_statusbar_bottle/blue/60.png',"
+            },
+            {
+              "rel": 7,
+              "text": "'/img/7_statusbars/1_statusbar/3_statusbar_bottle/blue/80.png',"
+            },
+            {
+              "rel": 8,
+              "text": "'/img/7_statusbars/1_statusbar/3_statusbar_bottle/blue/100.png'"
+            }
+          ]
+        },
+        {
+          "line": 7,
+          "keyword": "bar",
+          "context": [
+            {
+              "rel": 6,
+              "text": "'/img/7_statusbars/1_statusbar/3_statusbar_bottle/blue/60.png',"
+            },
+            {
+              "rel": 7,
+              "text": "'/img/7_statusbars/1_statusbar/3_statusbar_bottle/blue/80.png',"
+            },
+            {
+              "rel": 8,
+              "text": "'/img/7_statusbars/1_statusbar/3_statusbar_bottle/blue/100.png'"
+            }
+          ]
+        },
+        {
+          "line": 8,
+          "keyword": "bottle",
+          "context": [
+            {
+              "rel": 7,
+              "text": "'/img/7_statusbars/1_statusbar/3_statusbar_bottle/blue/80.png',"
+            },
+            {
+              "rel": 8,
+              "text": "'/img/7_statusbars/1_statusbar/3_statusbar_bottle/blue/100.png'"
+            },
+            {
+              "rel": 9,
+              "text": "];"
+            }
+          ]
+        },
+        {
+          "line": 8,
+          "keyword": "status",
+          "context": [
+            {
+              "rel": 7,
+              "text": "'/img/7_statusbars/1_statusbar/3_statusbar_bottle/blue/80.png',"
+            },
+            {
+              "rel": 8,
+              "text": "'/img/7_statusbars/1_statusbar/3_statusbar_bottle/blue/100.png'"
+            },
+            {
+              "rel": 9,
+              "text": "];"
+            }
+          ]
+        },
+        {
+          "line": 8,
+          "keyword": "bar",
+          "context": [
+            {
+              "rel": 7,
+              "text": "'/img/7_statusbars/1_statusbar/3_statusbar_bottle/blue/80.png',"
+            },
+            {
+              "rel": 8,
+              "text": "'/img/7_statusbars/1_statusbar/3_statusbar_bottle/blue/100.png'"
+            },
+            {
+              "rel": 9,
+              "text": "];"
+            }
+          ]
+        },
+        {
+          "line": 15,
+          "keyword": "status",
+          "context": [
+            {
+              "rel": 14,
+              "text": "this.setPercentage(0); // Startet bei 0 gesammelten Flaschen"
+            },
+            {
+              "rel": 15,
+              "text": "this.x = 40; // Position der StatusBar"
+            },
+            {
+              "rel": 16,
+              "text": "this.y = 60; // y-Koordinate"
+            }
+          ]
+        },
+        {
+          "line": 15,
+          "keyword": "bar",
+          "context": [
+            {
+              "rel": 14,
+              "text": "this.setPercentage(0); // Startet bei 0 gesammelten Flaschen"
+            },
+            {
+              "rel": 15,
+              "text": "this.x = 40; // Position der StatusBar"
+            },
+            {
+              "rel": 16,
+              "text": "this.y = 60; // y-Koordinate"
+            }
+          ]
+        },
+        {
+          "line": 20,
+          "keyword": "status",
+          "context": [
+            {
+              "rel": 19,
+              "text": "/**"
+            },
+            {
+              "rel": 20,
+              "text": "* Setzt den Prozentsatz der Flaschen in der StatusBar"
+            },
+            {
+              "rel": 21,
+              "text": "* @param {number} percentage - Der aktuelle Prozentsatz der gesammelten Flaschen"
+            }
+          ]
+        },
+        {
+          "line": 20,
+          "keyword": "bar",
+          "context": [
+            {
+              "rel": 19,
+              "text": "/**"
+            },
+            {
+              "rel": 20,
+              "text": "* Setzt den Prozentsatz der Flaschen in der StatusBar"
+            },
+            {
+              "rel": 21,
+              "text": "* @param {number} percentage - Der aktuelle Prozentsatz der gesammelten Flaschen"
+            }
+          ]
+        },
+        {
+          "line": 27,
+          "keyword": "status",
+          "context": [
+            {
+              "rel": 26,
+              "text": "let path = this.IMAGES[index];  // Wähle das Bild aus"
+            },
+            {
+              "rel": 27,
+              "text": "this.img = this.imageCache[path];  // Setze das Bild für die StatusBar"
+            },
+            {
+              "rel": 28,
+              "text": "}"
+            }
+          ]
+        },
+        {
+          "line": 27,
+          "keyword": "bar",
+          "context": [
+            {
+              "rel": 26,
+              "text": "let path = this.IMAGES[index];  // Wähle das Bild aus"
+            },
+            {
+              "rel": 27,
+              "text": "this.img = this.imageCache[path];  // Setze das Bild für die StatusBar"
+            },
+            {
+              "rel": 28,
+              "text": "}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "js\\class.models\\bottle.class.js",
+      "hits": [
+        {
+          "line": 1,
+          "keyword": "bottle",
+          "context": [
+            {
+              "rel": 1,
+              "text": "class Bottle extends MovableObject {"
+            },
+            {
+              "rel": 2,
+              "text": "constructor(x, y) {"
+            }
+          ]
+        },
+        {
+          "line": 3,
+          "keyword": "bottle",
+          "context": [
+            {
+              "rel": 2,
+              "text": "constructor(x, y) {"
+            },
+            {
+              "rel": 3,
+              "text": "super().loadImage('/img/6_salsa_bottle/1_salsa_bottle_on_ground.png');"
+            },
+            {
+              "rel": 4,
+              "text": "this.x = x;"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "js\\class.models\\character.class.js",
+      "hits": [
+        {
+          "line": 7,
+          "keyword": "status",
+          "context": [
+            {
+              "rel": 6,
+              "text": ""
+            },
+            {
+              "rel": 7,
+              "text": "invulnerable = false;  // Unverwundbarkeits-Status"
+            },
+            {
+              "rel": 8,
+              "text": "invulnerabilityDuration = 1500;  // Dauer der Unverwundbarkeit in Millisekunden"
+            }
+          ]
+        },
+        {
+          "line": 7,
+          "keyword": "bar",
+          "context": [
+            {
+              "rel": 6,
+              "text": ""
+            },
+            {
+              "rel": 7,
+              "text": "invulnerable = false;  // Unverwundbarkeits-Status"
+            },
+            {
+              "rel": 8,
+              "text": "invulnerabilityDuration = 1500;  // Dauer der Unverwundbarkeit in Millisekunden"
+            }
+          ]
+        },
+        {
+          "line": 8,
+          "keyword": "bar",
+          "context": [
+            {
+              "rel": 7,
+              "text": "invulnerable = false;  // Unverwundbarkeits-Status"
+            },
+            {
+              "rel": 8,
+              "text": "invulnerabilityDuration = 1500;  // Dauer der Unverwundbarkeit in Millisekunden"
+            },
+            {
+              "rel": 9,
+              "text": ""
+            }
+          ]
+        },
+        {
+          "line": 48,
+          "keyword": "audio",
+          "context": [
+            {
+              "rel": 47,
+              "text": "world;"
+            },
+            {
+              "rel": 48,
+              "text": "walking_sound = new Audio('/audio/stamping.mp3');"
+            },
+            {
+              "rel": 49,
+              "text": "walking_sound_back = new Audio('/audio/stamping.mp3');"
+            }
+          ]
+        },
+        {
+          "line": 48,
+          "keyword": "sound",
+          "context": [
+            {
+              "rel": 47,
+              "text": "world;"
+            },
+            {
+              "rel": 48,
+              "text": "walking_sound = new Audio('/audio/stamping.mp3');"
+            },
+            {
+              "rel": 49,
+              "text": "walking_sound_back = new Audio('/audio/stamping.mp3');"
+            }
+          ]
+        },
+        {
+          "line": 49,
+          "keyword": "audio",
+          "context": [
+            {
+              "rel": 48,
+              "text": "walking_sound = new Audio('/audio/stamping.mp3');"
+            },
+            {
+              "rel": 49,
+              "text": "walking_sound_back = new Audio('/audio/stamping.mp3');"
+            },
+            {
+              "rel": 50,
+              "text": ""
+            }
+          ]
+        },
+        {
+          "line": 49,
+          "keyword": "sound",
+          "context": [
+            {
+              "rel": 48,
+              "text": "walking_sound = new Audio('/audio/stamping.mp3');"
+            },
+            {
+              "rel": 49,
+              "text": "walking_sound_back = new Audio('/audio/stamping.mp3');"
+            },
+            {
+              "rel": 50,
+              "text": ""
+            }
+          ]
+        },
+        {
+          "line": 64,
+          "keyword": "sound",
+          "context": [
+            {
+              "rel": 63,
+              "text": "setInterval(() => {"
+            },
+            {
+              "rel": 64,
+              "text": "this.walking_sound.pause();"
+            },
+            {
+              "rel": 65,
+              "text": "// Bewegung nach rechts, aber nur bis zum Level-Ende"
+            }
+          ]
+        },
+        {
+          "line": 69,
+          "keyword": "sound",
+          "context": [
+            {
+              "rel": 68,
+              "text": "this.otherDirection = false;"
+            },
+            {
+              "rel": 69,
+              "text": "this.walking_sound.play();"
+            },
+            {
+              "rel": 70,
+              "text": ""
+            }
+          ]
+        },
+        {
+          "line": 80,
+          "keyword": "sound",
+          "context": [
+            {
+              "rel": 79,
+              "text": "this.otherDirection = true;"
+            },
+            {
+              "rel": 80,
+              "text": "this.walking_sound_back.play();"
+            },
+            {
+              "rel": 81,
+              "text": "}"
+            }
+          ]
+        },
+        {
+          "line": 117,
+          "keyword": "bar",
+          "context": [
+            {
+              "rel": 116,
+              "text": ""
+            },
+            {
+              "rel": 117,
+              "text": "// Methode, um den Charakter für eine bestimmte Zeit unverwundbar zu machen"
+            },
+            {
+              "rel": 118,
+              "text": "makeInvulnerable() {"
+            }
+          ]
+        },
+        {
+          "line": 121,
+          "keyword": "bar",
+          "context": [
+            {
+              "rel": 120,
+              "text": "setTimeout(() => {"
+            },
+            {
+              "rel": 121,
+              "text": "this.invulnerable = false;  // Nach Ablauf der Zeit wird der Charakter wieder verwundbar"
+            },
+            {
+              "rel": 122,
+              "text": "}, this.invulnerabilityDuration);"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "js\\class.models\\chicken.class.js",
+      "hits": [
+        {
+          "line": 1,
+          "keyword": "chicken",
+          "context": [
+            {
+              "rel": 1,
+              "text": "class Chicken extends MovableObject {"
+            },
+            {
+              "rel": 2,
+              "text": "y = 340;"
+            }
+          ]
+        },
+        {
+          "line": 1,
+          "keyword": "chick",
+          "context": [
+            {
+              "rel": 1,
+              "text": "class Chicken extends MovableObject {"
+            },
+            {
+              "rel": 2,
+              "text": "y = 340;"
+            }
+          ]
+        },
+        {
+          "line": 8,
+          "keyword": "chicken",
+          "context": [
+            {
+              "rel": 7,
+              "text": "IMAGES_WALKING = ["
+            },
+            {
+              "rel": 8,
+              "text": "'/img/3_enemies_chicken/chicken_normal/1_walk/1_w.png',"
+            },
+            {
+              "rel": 9,
+              "text": "'/img/3_enemies_chicken/chicken_normal/1_walk/2_w.png',"
+            }
+          ]
+        },
+        {
+          "line": 8,
+          "keyword": "chick",
+          "context": [
+            {
+              "rel": 7,
+              "text": "IMAGES_WALKING = ["
+            },
+            {
+              "rel": 8,
+              "text": "'/img/3_enemies_chicken/chicken_normal/1_walk/1_w.png',"
+            },
+            {
+              "rel": 9,
+              "text": "'/img/3_enemies_chicken/chicken_normal/1_walk/2_w.png',"
+            }
+          ]
+        },
+        {
+          "line": 9,
+          "keyword": "chicken",
+          "context": [
+            {
+              "rel": 8,
+              "text": "'/img/3_enemies_chicken/chicken_normal/1_walk/1_w.png',"
+            },
+            {
+              "rel": 9,
+              "text": "'/img/3_enemies_chicken/chicken_normal/1_walk/2_w.png',"
+            },
+            {
+              "rel": 10,
+              "text": "'/img/3_enemies_chicken/chicken_normal/1_walk/3_w.png'"
+            }
+          ]
+        },
+        {
+          "line": 9,
+          "keyword": "chick",
+          "context": [
+            {
+              "rel": 8,
+              "text": "'/img/3_enemies_chicken/chicken_normal/1_walk/1_w.png',"
+            },
+            {
+              "rel": 9,
+              "text": "'/img/3_enemies_chicken/chicken_normal/1_walk/2_w.png',"
+            },
+            {
+              "rel": 10,
+              "text": "'/img/3_enemies_chicken/chicken_normal/1_walk/3_w.png'"
+            }
+          ]
+        },
+        {
+          "line": 10,
+          "keyword": "chicken",
+          "context": [
+            {
+              "rel": 9,
+              "text": "'/img/3_enemies_chicken/chicken_normal/1_walk/2_w.png',"
+            },
+            {
+              "rel": 10,
+              "text": "'/img/3_enemies_chicken/chicken_normal/1_walk/3_w.png'"
+            },
+            {
+              "rel": 11,
+              "text": "];"
+            }
+          ]
+        },
+        {
+          "line": 10,
+          "keyword": "chick",
+          "context": [
+            {
+              "rel": 9,
+              "text": "'/img/3_enemies_chicken/chicken_normal/1_walk/2_w.png',"
+            },
+            {
+              "rel": 10,
+              "text": "'/img/3_enemies_chicken/chicken_normal/1_walk/3_w.png'"
+            },
+            {
+              "rel": 11,
+              "text": "];"
+            }
+          ]
+        },
+        {
+          "line": 14,
+          "keyword": "chicken",
+          "context": [
+            {
+              "rel": 13,
+              "text": "IMAGES_DEAD = ["
+            },
+            {
+              "rel": 14,
+              "text": "'/img/3_enemies_chicken/chicken_normal/2_dead/dead.png'"
+            },
+            {
+              "rel": 15,
+              "text": "];"
+            }
+          ]
+        },
+        {
+          "line": 14,
+          "keyword": "chick",
+          "context": [
+            {
+              "rel": 13,
+              "text": "IMAGES_DEAD = ["
+            },
+            {
+              "rel": 14,
+              "text": "'/img/3_enemies_chicken/chicken_normal/2_dead/dead.png'"
+            },
+            {
+              "rel": 15,
+              "text": "];"
+            }
+          ]
+        },
+        {
+          "line": 29,
+          "keyword": "chicken",
+          "context": [
+            {
+              "rel": 28,
+              "text": "this.energy = 0;  // Setze die Lebensenergie auf 0"
+            },
+            {
+              "rel": 29,
+              "text": "this.die();  // Lasse das Chicken sterben"
+            },
+            {
+              "rel": 30,
+              "text": "}"
+            }
+          ]
+        },
+        {
+          "line": 29,
+          "keyword": "chick",
+          "context": [
+            {
+              "rel": 28,
+              "text": "this.energy = 0;  // Setze die Lebensenergie auf 0"
+            },
+            {
+              "rel": 29,
+              "text": "this.die();  // Lasse das Chicken sterben"
+            },
+            {
+              "rel": 30,
+              "text": "}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "js\\class.models\\drawable-object.class.js",
+      "hits": [
+        {
+          "line": 22,
+          "keyword": "chicken",
+          "context": [
+            {
+              "rel": 21,
+              "text": "drawFrame(ctx) {"
+            },
+            {
+              "rel": 22,
+              "text": "if (this instanceof Character || this instanceof Chicken) {"
+            },
+            {
+              "rel": 23,
+              "text": "ctx.beginPath();"
+            }
+          ]
+        },
+        {
+          "line": 22,
+          "keyword": "chick",
+          "context": [
+            {
+              "rel": 21,
+              "text": "drawFrame(ctx) {"
+            },
+            {
+              "rel": 22,
+              "text": "if (this instanceof Character || this instanceof Chicken) {"
+            },
+            {
+              "rel": 23,
+              "text": "ctx.beginPath();"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "js\\class.models\\endboss-status-bar.class.js",
+      "hits": [
+        {
+          "line": 1,
+          "keyword": "endboss",
+          "context": [
+            {
+              "rel": 1,
+              "text": "class EndbossStatusBar extends StatusBar {"
+            },
+            {
+              "rel": 2,
+              "text": "IMAGES = ["
+            }
+          ]
+        },
+        {
+          "line": 1,
+          "keyword": "status",
+          "context": [
+            {
+              "rel": 1,
+              "text": "class EndbossStatusBar extends StatusBar {"
+            },
+            {
+              "rel": 2,
+              "text": "IMAGES = ["
+            }
+          ]
+        },
+        {
+          "line": 1,
+          "keyword": "bar",
+          "context": [
+            {
+              "rel": 1,
+              "text": "class EndbossStatusBar extends StatusBar {"
+            },
+            {
+              "rel": 2,
+              "text": "IMAGES = ["
+            }
+          ]
+        },
+        {
+          "line": 3,
+          "keyword": "endboss",
+          "context": [
+            {
+              "rel": 2,
+              "text": "IMAGES = ["
+            },
+            {
+              "rel": 3,
+              "text": "'/img/7_statusbars/2_statusbar_endboss/orange/orange0.png',"
+            },
+            {
+              "rel": 4,
+              "text": "'/img/7_statusbars/2_statusbar_endboss/orange/orange20.png',"
+            }
+          ]
+        },
+        {
+          "line": 3,
+          "keyword": "status",
+          "context": [
+            {
+              "rel": 2,
+              "text": "IMAGES = ["
+            },
+            {
+              "rel": 3,
+              "text": "'/img/7_statusbars/2_statusbar_endboss/orange/orange0.png',"
+            },
+            {
+              "rel": 4,
+              "text": "'/img/7_statusbars/2_statusbar_endboss/orange/orange20.png',"
+            }
+          ]
+        },
+        {
+          "line": 3,
+          "keyword": "bar",
+          "context": [
+            {
+              "rel": 2,
+              "text": "IMAGES = ["
+            },
+            {
+              "rel": 3,
+              "text": "'/img/7_statusbars/2_statusbar_endboss/orange/orange0.png',"
+            },
+            {
+              "rel": 4,
+              "text": "'/img/7_statusbars/2_statusbar_endboss/orange/orange20.png',"
+            }
+          ]
+        },
+        {
+          "line": 4,
+          "keyword": "endboss",
+          "context": [
+            {
+              "rel": 3,
+              "text": "'/img/7_statusbars/2_statusbar_endboss/orange/orange0.png',"
+            },
+            {
+              "rel": 4,
+              "text": "'/img/7_statusbars/2_statusbar_endboss/orange/orange20.png',"
+            },
+            {
+              "rel": 5,
+              "text": "'/img/7_statusbars/2_statusbar_endboss/orange/orange40.png',"
+            }
+          ]
+        },
+        {
+          "line": 4,
+          "keyword": "status",
+          "context": [
+            {
+              "rel": 3,
+              "text": "'/img/7_statusbars/2_statusbar_endboss/orange/orange0.png',"
+            },
+            {
+              "rel": 4,
+              "text": "'/img/7_statusbars/2_statusbar_endboss/orange/orange20.png',"
+            },
+            {
+              "rel": 5,
+              "text": "'/img/7_statusbars/2_statusbar_endboss/orange/orange40.png',"
+            }
+          ]
+        },
+        {
+          "line": 4,
+          "keyword": "bar",
+          "context": [
+            {
+              "rel": 3,
+              "text": "'/img/7_statusbars/2_statusbar_endboss/orange/orange0.png',"
+            },
+            {
+              "rel": 4,
+              "text": "'/img/7_statusbars/2_statusbar_endboss/orange/orange20.png',"
+            },
+            {
+              "rel": 5,
+              "text": "'/img/7_statusbars/2_statusbar_endboss/orange/orange40.png',"
+            }
+          ]
+        },
+        {
+          "line": 5,
+          "keyword": "endboss",
+          "context": [
+            {
+              "rel": 4,
+              "text": "'/img/7_statusbars/2_statusbar_endboss/orange/orange20.png',"
+            },
+            {
+              "rel": 5,
+              "text": "'/img/7_statusbars/2_statusbar_endboss/orange/orange40.png',"
+            },
+            {
+              "rel": 6,
+              "text": "'/img/7_statusbars/2_statusbar_endboss/orange/orange60.png',"
+            }
+          ]
+        },
+        {
+          "line": 5,
+          "keyword": "status",
+          "context": [
+            {
+              "rel": 4,
+              "text": "'/img/7_statusbars/2_statusbar_endboss/orange/orange20.png',"
+            },
+            {
+              "rel": 5,
+              "text": "'/img/7_statusbars/2_statusbar_endboss/orange/orange40.png',"
+            },
+            {
+              "rel": 6,
+              "text": "'/img/7_statusbars/2_statusbar_endboss/orange/orange60.png',"
+            }
+          ]
+        },
+        {
+          "line": 5,
+          "keyword": "bar",
+          "context": [
+            {
+              "rel": 4,
+              "text": "'/img/7_statusbars/2_statusbar_endboss/orange/orange20.png',"
+            },
+            {
+              "rel": 5,
+              "text": "'/img/7_statusbars/2_statusbar_endboss/orange/orange40.png',"
+            },
+            {
+              "rel": 6,
+              "text": "'/img/7_statusbars/2_statusbar_endboss/orange/orange60.png',"
+            }
+          ]
+        },
+        {
+          "line": 6,
+          "keyword": "endboss",
+          "context": [
+            {
+              "rel": 5,
+              "text": "'/img/7_statusbars/2_statusbar_endboss/orange/orange40.png',"
+            },
+            {
+              "rel": 6,
+              "text": "'/img/7_statusbars/2_statusbar_endboss/orange/orange60.png',"
+            },
+            {
+              "rel": 7,
+              "text": "'/img/7_statusbars/2_statusbar_endboss/orange/orange80.png',"
+            }
+          ]
+        },
+        {
+          "line": 6,
+          "keyword": "status",
+          "context": [
+            {
+              "rel": 5,
+              "text": "'/img/7_statusbars/2_statusbar_endboss/orange/orange40.png',"
+            },
+            {
+              "rel": 6,
+              "text": "'/img/7_statusbars/2_statusbar_endboss/orange/orange60.png',"
+            },
+            {
+              "rel": 7,
+              "text": "'/img/7_statusbars/2_statusbar_endboss/orange/orange80.png',"
+            }
+          ]
+        },
+        {
+          "line": 6,
+          "keyword": "bar",
+          "context": [
+            {
+              "rel": 5,
+              "text": "'/img/7_statusbars/2_statusbar_endboss/orange/orange40.png',"
+            },
+            {
+              "rel": 6,
+              "text": "'/img/7_statusbars/2_statusbar_endboss/orange/orange60.png',"
+            },
+            {
+              "rel": 7,
+              "text": "'/img/7_statusbars/2_statusbar_endboss/orange/orange80.png',"
+            }
+          ]
+        },
+        {
+          "line": 7,
+          "keyword": "endboss",
+          "context": [
+            {
+              "rel": 6,
+              "text": "'/img/7_statusbars/2_statusbar_endboss/orange/orange60.png',"
+            },
+            {
+              "rel": 7,
+              "text": "'/img/7_statusbars/2_statusbar_endboss/orange/orange80.png',"
+            },
+            {
+              "rel": 8,
+              "text": "'/img/7_statusbars/2_statusbar_endboss/orange/orange100.png'"
+            }
+          ]
+        },
+        {
+          "line": 7,
+          "keyword": "status",
+          "context": [
+            {
+              "rel": 6,
+              "text": "'/img/7_statusbars/2_statusbar_endboss/orange/orange60.png',"
+            },
+            {
+              "rel": 7,
+              "text": "'/img/7_statusbars/2_statusbar_endboss/orange/orange80.png',"
+            },
+            {
+              "rel": 8,
+              "text": "'/img/7_statusbars/2_statusbar_endboss/orange/orange100.png'"
+            }
+          ]
+        },
+        {
+          "line": 7,
+          "keyword": "bar",
+          "context": [
+            {
+              "rel": 6,
+              "text": "'/img/7_statusbars/2_statusbar_endboss/orange/orange60.png',"
+            },
+            {
+              "rel": 7,
+              "text": "'/img/7_statusbars/2_statusbar_endboss/orange/orange80.png',"
+            },
+            {
+              "rel": 8,
+              "text": "'/img/7_statusbars/2_statusbar_endboss/orange/orange100.png'"
+            }
+          ]
+        },
+        {
+          "line": 8,
+          "keyword": "endboss",
+          "context": [
+            {
+              "rel": 7,
+              "text": "'/img/7_statusbars/2_statusbar_endboss/orange/orange80.png',"
+            },
+            {
+              "rel": 8,
+              "text": "'/img/7_statusbars/2_statusbar_endboss/orange/orange100.png'"
+            },
+            {
+              "rel": 9,
+              "text": "];"
+            }
+          ]
+        },
+        {
+          "line": 8,
+          "keyword": "status",
+          "context": [
+            {
+              "rel": 7,
+              "text": "'/img/7_statusbars/2_statusbar_endboss/orange/orange80.png',"
+            },
+            {
+              "rel": 8,
+              "text": "'/img/7_statusbars/2_statusbar_endboss/orange/orange100.png'"
+            },
+            {
+              "rel": 9,
+              "text": "];"
+            }
+          ]
+        },
+        {
+          "line": 8,
+          "keyword": "bar",
+          "context": [
+            {
+              "rel": 7,
+              "text": "'/img/7_statusbars/2_statusbar_endboss/orange/orange80.png',"
+            },
+            {
+              "rel": 8,
+              "text": "'/img/7_statusbars/2_statusbar_endboss/orange/orange100.png'"
+            },
+            {
+              "rel": 9,
+              "text": "];"
+            }
+          ]
+        },
+        {
+          "line": 14,
+          "keyword": "endboss",
+          "context": [
+            {
+              "rel": 13,
+              "text": "this.loadImages(this.IMAGES);"
+            },
+            {
+              "rel": 14,
+              "text": "this.setPercentage(100);  // Der Endboss startet mit 100% Leben."
+            },
+            {
+              "rel": 15,
+              "text": "this.x = 500;  // Platzierung rechts oben im Canvas."
+            }
+          ]
+        },
+        {
+          "line": 22,
+          "keyword": "status",
+          "context": [
+            {
+              "rel": 21,
+              "text": "let path = this.IMAGES[this.resolveImageIndex()];  // Wähle das passende Bild basierend auf dem Prozentsatz"
+            },
+            {
+              "rel": 22,
+              "text": "this.img = this.imageCache[path];  // Lade das Bild der StatusBar"
+            },
+            {
+              "rel": 23,
+              "text": "}"
+            }
+          ]
+        },
+        {
+          "line": 22,
+          "keyword": "bar",
+          "context": [
+            {
+              "rel": 21,
+              "text": "let path = this.IMAGES[this.resolveImageIndex()];  // Wähle das passende Bild basierend auf dem Prozentsatz"
+            },
+            {
+              "rel": 22,
+              "text": "this.img = this.imageCache[path];  // Lade das Bild der StatusBar"
+            },
+            {
+              "rel": 23,
+              "text": "}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "js\\class.models\\endboss.class.js",
+      "hits": [
+        {
+          "line": 1,
+          "keyword": "endboss",
+          "context": [
+            {
+              "rel": 1,
+              "text": "class Endboss extends MovableObject {"
+            },
+            {
+              "rel": 2,
+              "text": "y = 60;"
+            }
+          ]
+        },
+        {
+          "line": 6,
+          "keyword": "status",
+          "context": [
+            {
+              "rel": 5,
+              "text": "speed = 0.3;"
+            },
+            {
+              "rel": 6,
+              "text": "isInSight = false;  // Status ob der Character im Sichtfeld ist"
+            },
+            {
+              "rel": 7,
+              "text": "movingForward = true; // Verfolgt, ob der Endboss sich vorwärts bewegt"
+            }
+          ]
+        },
+        {
+          "line": 7,
+          "keyword": "endboss",
+          "context": [
+            {
+              "rel": 6,
+              "text": "isInSight = false;  // Status ob der Character im Sichtfeld ist"
+            },
+            {
+              "rel": 7,
+              "text": "movingForward = true; // Verfolgt, ob der Endboss sich vorwärts bewegt"
+            },
+            {
+              "rel": 8,
+              "text": "startPosition = 4500;  // Die Startposition des Endbosses"
+            }
+          ]
+        },
+        {
+          "line": 8,
+          "keyword": "endboss",
+          "context": [
+            {
+              "rel": 7,
+              "text": "movingForward = true; // Verfolgt, ob der Endboss sich vorwärts bewegt"
+            },
+            {
+              "rel": 8,
+              "text": "startPosition = 4500;  // Die Startposition des Endbosses"
+            },
+            {
+              "rel": 9,
+              "text": "returning = false;  // Flag um zu prüfen, ob der Endboss zurückkehrt"
+            }
+          ]
+        },
+        {
+          "line": 9,
+          "keyword": "endboss",
+          "context": [
+            {
+              "rel": 8,
+              "text": "startPosition = 4500;  // Die Startposition des Endbosses"
+            },
+            {
+              "rel": 9,
+              "text": "returning = false;  // Flag um zu prüfen, ob der Endboss zurückkehrt"
+            },
+            {
+              "rel": 10,
+              "text": "sightRange = 400;  // Verkleinertes Sichtfeld"
+            }
+          ]
+        },
+        {
+          "line": 11,
+          "keyword": "endboss",
+          "context": [
+            {
+              "rel": 10,
+              "text": "sightRange = 400;  // Verkleinertes Sichtfeld"
+            },
+            {
+              "rel": 11,
+              "text": "energy = 100;  // Endboss startet mit 100% Lebensenergie"
+            },
+            {
+              "rel": 12,
+              "text": ""
+            }
+          ]
+        },
+        {
+          "line": 15,
+          "keyword": "endboss",
+          "context": [
+            {
+              "rel": 14,
+              "text": "/**"
+            },
+            {
+              "rel": 15,
+              "text": "* Platzhalter für den Aggromode, wenn der Endboss von einer Flasche getroffen wird,"
+            },
+            {
+              "rel": 16,
+              "text": "* dann wird er Aggro und nutzt die Image Bilder für die Animation von"
+            }
+          ]
+        },
+        {
+          "line": 18,
+          "keyword": "audio",
+          "context": [
+            {
+              "rel": 17,
+              "text": "* inAggroMode = false;  // Flag für den Aggro-Modus"
+            },
+            {
+              "rel": 18,
+              "text": "* aggroAudioPlaying = false;  // Verhindert mehrfaches Abspielen des Aggro-Sounds"
+            },
+            {
+              "rel": 19,
+              "text": "* */"
+            }
+          ]
+        },
+        {
+          "line": 18,
+          "keyword": "sound",
+          "context": [
+            {
+              "rel": 17,
+              "text": "* inAggroMode = false;  // Flag für den Aggro-Modus"
+            },
+            {
+              "rel": 18,
+              "text": "* aggroAudioPlaying = false;  // Verhindert mehrfaches Abspielen des Aggro-Sounds"
+            },
+            {
+              "rel": 19,
+              "text": "* */"
+            }
+          ]
+        },
+        {
+          "line": 23,
+          "keyword": "chicken",
+          "context": [
+            {
+              "rel": 22,
+              "text": "IMAGES_WALKING = ["
+            },
+            {
+              "rel": 23,
+              "text": "'img/4_enemie_boss_chicken/1_walk/G1.png',"
+            },
+            {
+              "rel": 24,
+              "text": "'img/4_enemie_boss_chicken/1_walk/G2.png',"
+            }
+          ]
+        },
+        {
+          "line": 23,
+          "keyword": "chick",
+          "context": [
+            {
+              "rel": 22,
+              "text": "IMAGES_WALKING = ["
+            },
+            {
+              "rel": 23,
+              "text": "'img/4_enemie_boss_chicken/1_walk/G1.png',"
+            },
+            {
+              "rel": 24,
+              "text": "'img/4_enemie_boss_chicken/1_walk/G2.png',"
+            }
+          ]
+        },
+        {
+          "line": 24,
+          "keyword": "chicken",
+          "context": [
+            {
+              "rel": 23,
+              "text": "'img/4_enemie_boss_chicken/1_walk/G1.png',"
+            },
+            {
+              "rel": 24,
+              "text": "'img/4_enemie_boss_chicken/1_walk/G2.png',"
+            },
+            {
+              "rel": 25,
+              "text": "'img/4_enemie_boss_chicken/1_walk/G3.png',"
+            }
+          ]
+        },
+        {
+          "line": 24,
+          "keyword": "chick",
+          "context": [
+            {
+              "rel": 23,
+              "text": "'img/4_enemie_boss_chicken/1_walk/G1.png',"
+            },
+            {
+              "rel": 24,
+              "text": "'img/4_enemie_boss_chicken/1_walk/G2.png',"
+            },
+            {
+              "rel": 25,
+              "text": "'img/4_enemie_boss_chicken/1_walk/G3.png',"
+            }
+          ]
+        },
+        {
+          "line": 25,
+          "keyword": "chicken",
+          "context": [
+            {
+              "rel": 24,
+              "text": "'img/4_enemie_boss_chicken/1_walk/G2.png',"
+            },
+            {
+              "rel": 25,
+              "text": "'img/4_enemie_boss_chicken/1_walk/G3.png',"
+            },
+            {
+              "rel": 26,
+              "text": "'img/4_enemie_boss_chicken/1_walk/G4.png'"
+            }
+          ]
+        },
+        {
+          "line": 25,
+          "keyword": "chick",
+          "context": [
+            {
+              "rel": 24,
+              "text": "'img/4_enemie_boss_chicken/1_walk/G2.png',"
+            },
+            {
+              "rel": 25,
+              "text": "'img/4_enemie_boss_chicken/1_walk/G3.png',"
+            },
+            {
+              "rel": 26,
+              "text": "'img/4_enemie_boss_chicken/1_walk/G4.png'"
+            }
+          ]
+        },
+        {
+          "line": 26,
+          "keyword": "chicken",
+          "context": [
+            {
+              "rel": 25,
+              "text": "'img/4_enemie_boss_chicken/1_walk/G3.png',"
+            },
+            {
+              "rel": 26,
+              "text": "'img/4_enemie_boss_chicken/1_walk/G4.png'"
+            },
+            {
+              "rel": 27,
+              "text": "];"
+            }
+          ]
+        },
+        {
+          "line": 26,
+          "keyword": "chick",
+          "context": [
+            {
+              "rel": 25,
+              "text": "'img/4_enemie_boss_chicken/1_walk/G3.png',"
+            },
+            {
+              "rel": 26,
+              "text": "'img/4_enemie_boss_chicken/1_walk/G4.png'"
+            },
+            {
+              "rel": 27,
+              "text": "];"
+            }
+          ]
+        },
+        {
+          "line": 31,
+          "keyword": "chicken",
+          "context": [
+            {
+              "rel": 30,
+              "text": "IMAGES_ALERT = [  // Platzhalter Bilder für den Aggro-Modus"
+            },
+            {
+              "rel": 31,
+              "text": "'/img/4_enemie_boss_chicken/2_alert/G5.png',"
+            },
+            {
+              "rel": 32,
+              "text": "'/img/4_enemie_boss_chicken/2_alert/G6.png',"
+            }
+          ]
+        },
+        {
+          "line": 31,
+          "keyword": "chick",
+          "context": [
+            {
+              "rel": 30,
+              "text": "IMAGES_ALERT = [  // Platzhalter Bilder für den Aggro-Modus"
+            },
+            {
+              "rel": 31,
+              "text": "'/img/4_enemie_boss_chicken/2_alert/G5.png',"
+            },
+            {
+              "rel": 32,
+              "text": "'/img/4_enemie_boss_chicken/2_alert/G6.png',"
+            }
+          ]
+        },
+        {
+          "line": 32,
+          "keyword": "chicken",
+          "context": [
+            {
+              "rel": 31,
+              "text": "'/img/4_enemie_boss_chicken/2_alert/G5.png',"
+            },
+            {
+              "rel": 32,
+              "text": "'/img/4_enemie_boss_chicken/2_alert/G6.png',"
+            },
+            {
+              "rel": 33,
+              "text": "'/img/4_enemie_boss_chicken/2_alert/G7.png',"
+            }
+          ]
+        },
+        {
+          "line": 32,
+          "keyword": "chick",
+          "context": [
+            {
+              "rel": 31,
+              "text": "'/img/4_enemie_boss_chicken/2_alert/G5.png',"
+            },
+            {
+              "rel": 32,
+              "text": "'/img/4_enemie_boss_chicken/2_alert/G6.png',"
+            },
+            {
+              "rel": 33,
+              "text": "'/img/4_enemie_boss_chicken/2_alert/G7.png',"
+            }
+          ]
+        },
+        {
+          "line": 33,
+          "keyword": "chicken",
+          "context": [
+            {
+              "rel": 32,
+              "text": "'/img/4_enemie_boss_chicken/2_alert/G6.png',"
+            },
+            {
+              "rel": 33,
+              "text": "'/img/4_enemie_boss_chicken/2_alert/G7.png',"
+            },
+            {
+              "rel": 34,
+              "text": "'/img/4_enemie_boss_chicken/2_alert/G8.png',"
+            }
+          ]
+        },
+        {
+          "line": 33,
+          "keyword": "chick",
+          "context": [
+            {
+              "rel": 32,
+              "text": "'/img/4_enemie_boss_chicken/2_alert/G6.png',"
+            },
+            {
+              "rel": 33,
+              "text": "'/img/4_enemie_boss_chicken/2_alert/G7.png',"
+            },
+            {
+              "rel": 34,
+              "text": "'/img/4_enemie_boss_chicken/2_alert/G8.png',"
+            }
+          ]
+        },
+        {
+          "line": 34,
+          "keyword": "chicken",
+          "context": [
+            {
+              "rel": 33,
+              "text": "'/img/4_enemie_boss_chicken/2_alert/G7.png',"
+            },
+            {
+              "rel": 34,
+              "text": "'/img/4_enemie_boss_chicken/2_alert/G8.png',"
+            },
+            {
+              "rel": 35,
+              "text": "'/img/4_enemie_boss_chicken/2_alert/G9.png',"
+            }
+          ]
+        },
+        {
+          "line": 34,
+          "keyword": "chick",
+          "context": [
+            {
+              "rel": 33,
+              "text": "'/img/4_enemie_boss_chicken/2_alert/G7.png',"
+            },
+            {
+              "rel": 34,
+              "text": "'/img/4_enemie_boss_chicken/2_alert/G8.png',"
+            },
+            {
+              "rel": 35,
+              "text": "'/img/4_enemie_boss_chicken/2_alert/G9.png',"
+            }
+          ]
+        },
+        {
+          "line": 35,
+          "keyword": "chicken",
+          "context": [
+            {
+              "rel": 34,
+              "text": "'/img/4_enemie_boss_chicken/2_alert/G8.png',"
+            },
+            {
+              "rel": 35,
+              "text": "'/img/4_enemie_boss_chicken/2_alert/G9.png',"
+            },
+            {
+              "rel": 36,
+              "text": "'/img/4_enemie_boss_chicken/2_alert/G10.png',"
+            }
+          ]
+        },
+        {
+          "line": 35,
+          "keyword": "chick",
+          "context": [
+            {
+              "rel": 34,
+              "text": "'/img/4_enemie_boss_chicken/2_alert/G8.png',"
+            },
+            {
+              "rel": 35,
+              "text": "'/img/4_enemie_boss_chicken/2_alert/G9.png',"
+            },
+            {
+              "rel": 36,
+              "text": "'/img/4_enemie_boss_chicken/2_alert/G10.png',"
+            }
+          ]
+        },
+        {
+          "line": 36,
+          "keyword": "chicken",
+          "context": [
+            {
+              "rel": 35,
+              "text": "'/img/4_enemie_boss_chicken/2_alert/G9.png',"
+            },
+            {
+              "rel": 36,
+              "text": "'/img/4_enemie_boss_chicken/2_alert/G10.png',"
+            },
+            {
+              "rel": 37,
+              "text": "'/img/4_enemie_boss_chicken/2_alert/G11.png',"
+            }
+          ]
+        },
+        {
+          "line": 36,
+          "keyword": "chick",
+          "context": [
+            {
+              "rel": 35,
+              "text": "'/img/4_enemie_boss_chicken/2_alert/G9.png',"
+            },
+            {
+              "rel": 36,
+              "text": "'/img/4_enemie_boss_chicken/2_alert/G10.png',"
+            },
+            {
+              "rel": 37,
+              "text": "'/img/4_enemie_boss_chicken/2_alert/G11.png',"
+            }
+          ]
+        },
+        {
+          "line": 37,
+          "keyword": "chicken",
+          "context": [
+            {
+              "rel": 36,
+              "text": "'/img/4_enemie_boss_chicken/2_alert/G10.png',"
+            },
+            {
+              "rel": 37,
+              "text": "'/img/4_enemie_boss_chicken/2_alert/G11.png',"
+            },
+            {
+              "rel": 38,
+              "text": "'/img/4_enemie_boss_chicken/2_alert/G12.png',"
+            }
+          ]
+        },
+        {
+          "line": 37,
+          "keyword": "chick",
+          "context": [
+            {
+              "rel": 36,
+              "text": "'/img/4_enemie_boss_chicken/2_alert/G10.png',"
+            },
+            {
+              "rel": 37,
+              "text": "'/img/4_enemie_boss_chicken/2_alert/G11.png',"
+            },
+            {
+              "rel": 38,
+              "text": "'/img/4_enemie_boss_chicken/2_alert/G12.png',"
+            }
+          ]
+        },
+        {
+          "line": 38,
+          "keyword": "chicken",
+          "context": [
+            {
+              "rel": 37,
+              "text": "'/img/4_enemie_boss_chicken/2_alert/G11.png',"
+            },
+            {
+              "rel": 38,
+              "text": "'/img/4_enemie_boss_chicken/2_alert/G12.png',"
+            },
+            {
+              "rel": 39,
+              "text": "'/img/4_enemie_boss_chicken/3_attack/G13.png',"
+            }
+          ]
+        },
+        {
+          "line": 38,
+          "keyword": "chick",
+          "context": [
+            {
+              "rel": 37,
+              "text": "'/img/4_enemie_boss_chicken/2_alert/G11.png',"
+            },
+            {
+              "rel": 38,
+              "text": "'/img/4_enemie_boss_chicken/2_alert/G12.png',"
+            },
+            {
+              "rel": 39,
+              "text": "'/img/4_enemie_boss_chicken/3_attack/G13.png',"
+            }
+          ]
+        },
+        {
+          "line": 39,
+          "keyword": "chicken",
+          "context": [
+            {
+              "rel": 38,
+              "text": "'/img/4_enemie_boss_chicken/2_alert/G12.png',"
+            },
+            {
+              "rel": 39,
+              "text": "'/img/4_enemie_boss_chicken/3_attack/G13.png',"
+            },
+            {
+              "rel": 40,
+              "text": "'/img/4_enemie_boss_chicken/3_attack/G14.png',"
+            }
+          ]
+        },
+        {
+          "line": 39,
+          "keyword": "chick",
+          "context": [
+            {
+              "rel": 38,
+              "text": "'/img/4_enemie_boss_chicken/2_alert/G12.png',"
+            },
+            {
+              "rel": 39,
+              "text": "'/img/4_enemie_boss_chicken/3_attack/G13.png',"
+            },
+            {
+              "rel": 40,
+              "text": "'/img/4_enemie_boss_chicken/3_attack/G14.png',"
+            }
+          ]
+        },
+        {
+          "line": 40,
+          "keyword": "chicken",
+          "context": [
+            {
+              "rel": 39,
+              "text": "'/img/4_enemie_boss_chicken/3_attack/G13.png',"
+            },
+            {
+              "rel": 40,
+              "text": "'/img/4_enemie_boss_chicken/3_attack/G14.png',"
+            },
+            {
+              "rel": 41,
+              "text": "'/img/4_enemie_boss_chicken/3_attack/G15.png',"
+            }
+          ]
+        },
+        {
+          "line": 40,
+          "keyword": "chick",
+          "context": [
+            {
+              "rel": 39,
+              "text": "'/img/4_enemie_boss_chicken/3_attack/G13.png',"
+            },
+            {
+              "rel": 40,
+              "text": "'/img/4_enemie_boss_chicken/3_attack/G14.png',"
+            },
+            {
+              "rel": 41,
+              "text": "'/img/4_enemie_boss_chicken/3_attack/G15.png',"
+            }
+          ]
+        },
+        {
+          "line": 41,
+          "keyword": "chicken",
+          "context": [
+            {
+              "rel": 40,
+              "text": "'/img/4_enemie_boss_chicken/3_attack/G14.png',"
+            },
+            {
+              "rel": 41,
+              "text": "'/img/4_enemie_boss_chicken/3_attack/G15.png',"
+            },
+            {
+              "rel": 42,
+              "text": "'/img/4_enemie_boss_chicken/3_attack/G16.png',"
+            }
+          ]
+        },
+        {
+          "line": 41,
+          "keyword": "chick",
+          "context": [
+            {
+              "rel": 40,
+              "text": "'/img/4_enemie_boss_chicken/3_attack/G14.png',"
+            },
+            {
+              "rel": 41,
+              "text": "'/img/4_enemie_boss_chicken/3_attack/G15.png',"
+            },
+            {
+              "rel": 42,
+              "text": "'/img/4_enemie_boss_chicken/3_attack/G16.png',"
+            }
+          ]
+        },
+        {
+          "line": 42,
+          "keyword": "chicken",
+          "context": [
+            {
+              "rel": 41,
+              "text": "'/img/4_enemie_boss_chicken/3_attack/G15.png',"
+            },
+            {
+              "rel": 42,
+              "text": "'/img/4_enemie_boss_chicken/3_attack/G16.png',"
+            },
+            {
+              "rel": 43,
+              "text": "'/img/4_enemie_boss_chicken/3_attack/G17.png',"
+            }
+          ]
+        },
+        {
+          "line": 42,
+          "keyword": "chick",
+          "context": [
+            {
+              "rel": 41,
+              "text": "'/img/4_enemie_boss_chicken/3_attack/G15.png',"
+            },
+            {
+              "rel": 42,
+              "text": "'/img/4_enemie_boss_chicken/3_attack/G16.png',"
+            },
+            {
+              "rel": 43,
+              "text": "'/img/4_enemie_boss_chicken/3_attack/G17.png',"
+            }
+          ]
+        },
+        {
+          "line": 43,
+          "keyword": "chicken",
+          "context": [
+            {
+              "rel": 42,
+              "text": "'/img/4_enemie_boss_chicken/3_attack/G16.png',"
+            },
+            {
+              "rel": 43,
+              "text": "'/img/4_enemie_boss_chicken/3_attack/G17.png',"
+            },
+            {
+              "rel": 44,
+              "text": "'/img/4_enemie_boss_chicken/3_attack/G18.png',"
+            }
+          ]
+        },
+        {
+          "line": 43,
+          "keyword": "chick",
+          "context": [
+            {
+              "rel": 42,
+              "text": "'/img/4_enemie_boss_chicken/3_attack/G16.png',"
+            },
+            {
+              "rel": 43,
+              "text": "'/img/4_enemie_boss_chicken/3_attack/G17.png',"
+            },
+            {
+              "rel": 44,
+              "text": "'/img/4_enemie_boss_chicken/3_attack/G18.png',"
+            }
+          ]
+        },
+        {
+          "line": 44,
+          "keyword": "chicken",
+          "context": [
+            {
+              "rel": 43,
+              "text": "'/img/4_enemie_boss_chicken/3_attack/G17.png',"
+            },
+            {
+              "rel": 44,
+              "text": "'/img/4_enemie_boss_chicken/3_attack/G18.png',"
+            },
+            {
+              "rel": 45,
+              "text": "'/img/4_enemie_boss_chicken/3_attack/G19.png',"
+            }
+          ]
+        },
+        {
+          "line": 44,
+          "keyword": "chick",
+          "context": [
+            {
+              "rel": 43,
+              "text": "'/img/4_enemie_boss_chicken/3_attack/G17.png',"
+            },
+            {
+              "rel": 44,
+              "text": "'/img/4_enemie_boss_chicken/3_attack/G18.png',"
+            },
+            {
+              "rel": 45,
+              "text": "'/img/4_enemie_boss_chicken/3_attack/G19.png',"
+            }
+          ]
+        },
+        {
+          "line": 45,
+          "keyword": "chicken",
+          "context": [
+            {
+              "rel": 44,
+              "text": "'/img/4_enemie_boss_chicken/3_attack/G18.png',"
+            },
+            {
+              "rel": 45,
+              "text": "'/img/4_enemie_boss_chicken/3_attack/G19.png',"
+            },
+            {
+              "rel": 46,
+              "text": "'/img/4_enemie_boss_chicken/3_attack/G20.png'"
+            }
+          ]
+        },
+        {
+          "line": 45,
+          "keyword": "chick",
+          "context": [
+            {
+              "rel": 44,
+              "text": "'/img/4_enemie_boss_chicken/3_attack/G18.png',"
+            },
+            {
+              "rel": 45,
+              "text": "'/img/4_enemie_boss_chicken/3_attack/G19.png',"
+            },
+            {
+              "rel": 46,
+              "text": "'/img/4_enemie_boss_chicken/3_attack/G20.png'"
+            }
+          ]
+        },
+        {
+          "line": 46,
+          "keyword": "chicken",
+          "context": [
+            {
+              "rel": 45,
+              "text": "'/img/4_enemie_boss_chicken/3_attack/G19.png',"
+            },
+            {
+              "rel": 46,
+              "text": "'/img/4_enemie_boss_chicken/3_attack/G20.png'"
+            },
+            {
+              "rel": 47,
+              "text": "];"
+            }
+          ]
+        },
+        {
+          "line": 46,
+          "keyword": "chick",
+          "context": [
+            {
+              "rel": 45,
+              "text": "'/img/4_enemie_boss_chicken/3_attack/G19.png',"
+            },
+            {
+              "rel": 46,
+              "text": "'/img/4_enemie_boss_chicken/3_attack/G20.png'"
+            },
+            {
+              "rel": 47,
+              "text": "];"
+            }
+          ]
+        },
+        {
+          "line": 51,
+          "keyword": "chicken",
+          "context": [
+            {
+              "rel": 50,
+              "text": "IMAGES_HURT = ["
+            },
+            {
+              "rel": 51,
+              "text": "'/img/4_enemie_boss_chicken/4_hurt/G21.png',"
+            },
+            {
+              "rel": 52,
+              "text": "'/img/4_enemie_boss_chicken/4_hurt/G22.png',"
+            }
+          ]
+        },
+        {
+          "line": 51,
+          "keyword": "chick",
+          "context": [
+            {
+              "rel": 50,
+              "text": "IMAGES_HURT = ["
+            },
+            {
+              "rel": 51,
+              "text": "'/img/4_enemie_boss_chicken/4_hurt/G21.png',"
+            },
+            {
+              "rel": 52,
+              "text": "'/img/4_enemie_boss_chicken/4_hurt/G22.png',"
+            }
+          ]
+        },
+        {
+          "line": 52,
+          "keyword": "chicken",
+          "context": [
+            {
+              "rel": 51,
+              "text": "'/img/4_enemie_boss_chicken/4_hurt/G21.png',"
+            },
+            {
+              "rel": 52,
+              "text": "'/img/4_enemie_boss_chicken/4_hurt/G22.png',"
+            },
+            {
+              "rel": 53,
+              "text": "'/img/4_enemie_boss_chicken/4_hurt/G23.png'"
+            }
+          ]
+        },
+        {
+          "line": 52,
+          "keyword": "chick",
+          "context": [
+            {
+              "rel": 51,
+              "text": "'/img/4_enemie_boss_chicken/4_hurt/G21.png',"
+            },
+            {
+              "rel": 52,
+              "text": "'/img/4_enemie_boss_chicken/4_hurt/G22.png',"
+            },
+            {
+              "rel": 53,
+              "text": "'/img/4_enemie_boss_chicken/4_hurt/G23.png'"
+            }
+          ]
+        },
+        {
+          "line": 53,
+          "keyword": "chicken",
+          "context": [
+            {
+              "rel": 52,
+              "text": "'/img/4_enemie_boss_chicken/4_hurt/G22.png',"
+            },
+            {
+              "rel": 53,
+              "text": "'/img/4_enemie_boss_chicken/4_hurt/G23.png'"
+            },
+            {
+              "rel": 54,
+              "text": "];"
+            }
+          ]
+        },
+        {
+          "line": 53,
+          "keyword": "chick",
+          "context": [
+            {
+              "rel": 52,
+              "text": "'/img/4_enemie_boss_chicken/4_hurt/G22.png',"
+            },
+            {
+              "rel": 53,
+              "text": "'/img/4_enemie_boss_chicken/4_hurt/G23.png'"
+            },
+            {
+              "rel": 54,
+              "text": "];"
+            }
+          ]
+        },
+        {
+          "line": 58,
+          "keyword": "chicken",
+          "context": [
+            {
+              "rel": 57,
+              "text": "IMAGES_DEAD = ["
+            },
+            {
+              "rel": 58,
+              "text": "'/img/4_enemie_boss_chicken/5_dead/G24.png',"
+            },
+            {
+              "rel": 59,
+              "text": "'/img/4_enemie_boss_chicken/5_dead/G25.png',"
+            }
+          ]
+        },
+        {
+          "line": 58,
+          "keyword": "chick",
+          "context": [
+            {
+              "rel": 57,
+              "text": "IMAGES_DEAD = ["
+            },
+            {
+              "rel": 58,
+              "text": "'/img/4_enemie_boss_chicken/5_dead/G24.png',"
+            },
+            {
+              "rel": 59,
+              "text": "'/img/4_enemie_boss_chicken/5_dead/G25.png',"
+            }
+          ]
+        },
+        {
+          "line": 59,
+          "keyword": "chicken",
+          "context": [
+            {
+              "rel": 58,
+              "text": "'/img/4_enemie_boss_chicken/5_dead/G24.png',"
+            },
+            {
+              "rel": 59,
+              "text": "'/img/4_enemie_boss_chicken/5_dead/G25.png',"
+            },
+            {
+              "rel": 60,
+              "text": "'/img/4_enemie_boss_chicken/5_dead/G26.png'"
+            }
+          ]
+        },
+        {
+          "line": 59,
+          "keyword": "chick",
+          "context": [
+            {
+              "rel": 58,
+              "text": "'/img/4_enemie_boss_chicken/5_dead/G24.png',"
+            },
+            {
+              "rel": 59,
+              "text": "'/img/4_enemie_boss_chicken/5_dead/G25.png',"
+            },
+            {
+              "rel": 60,
+              "text": "'/img/4_enemie_boss_chicken/5_dead/G26.png'"
+            }
+          ]
+        },
+        {
+          "line": 60,
+          "keyword": "chicken",
+          "context": [
+            {
+              "rel": 59,
+              "text": "'/img/4_enemie_boss_chicken/5_dead/G25.png',"
+            },
+            {
+              "rel": 60,
+              "text": "'/img/4_enemie_boss_chicken/5_dead/G26.png'"
+            },
+            {
+              "rel": 61,
+              "text": "];"
+            }
+          ]
+        },
+        {
+          "line": 60,
+          "keyword": "chick",
+          "context": [
+            {
+              "rel": 59,
+              "text": "'/img/4_enemie_boss_chicken/5_dead/G25.png',"
+            },
+            {
+              "rel": 60,
+              "text": "'/img/4_enemie_boss_chicken/5_dead/G26.png'"
+            },
+            {
+              "rel": 61,
+              "text": "];"
+            }
+          ]
+        },
+        {
+          "line": 68,
+          "keyword": "endboss",
+          "context": [
+            {
+              "rel": 67,
+              "text": "this.loadImages(this.IMAGES_ALERT); // Platzhalter für den Aggromode"
+            },
+            {
+              "rel": 68,
+              "text": "this.loadImages(this.IMAGES_DEAD); // Platzhalter für den Tod von Endboss"
+            },
+            {
+              "rel": 69,
+              "text": "this.loadImages(this.IMAGES_HURT); // Hurt-Bilder laden"
+            }
+          ]
+        },
+        {
+          "line": 70,
+          "keyword": "endboss",
+          "context": [
+            {
+              "rel": 69,
+              "text": "this.loadImages(this.IMAGES_HURT); // Hurt-Bilder laden"
+            },
+            {
+              "rel": 70,
+              "text": "this.x = this.startPosition;  // Setze den Endboss an seine Startposition"
+            },
+            {
+              "rel": 71,
+              "text": "this.animate();"
+            }
+          ]
+        },
+        {
+          "line": 79,
+          "keyword": "endboss",
+          "context": [
+            {
+              "rel": 78,
+              "text": "this.isInSight = true;"
+            },
+            {
+              "rel": 79,
+              "text": "this.movingForward = true;  // Endboss bewegt sich vorwärts"
+            },
+            {
+              "rel": 80,
+              "text": "this.returning = false;  // Setze das Rückwärts-Flag zurück"
+            }
+          ]
+        },
+        {
+          "line": 94,
+          "keyword": "endboss",
+          "context": [
+            {
+              "rel": 93,
+              "text": "if (this.energy == 0) {"
+            },
+            {
+              "rel": 94,
+              "text": "this.die();  // Endboss stirbt, wenn Energie 0 ist"
+            },
+            {
+              "rel": 95,
+              "text": "} else {"
+            }
+          ]
+        },
+        {
+          "line": 104,
+          "keyword": "endboss",
+          "context": [
+            {
+              "rel": 103,
+              "text": ""
+            },
+            {
+              "rel": 104,
+              "text": "// Sicherstellen, dass der Endboss auf seiner Bodenposition landet"
+            },
+            {
+              "rel": 105,
+              "text": "this.ensureCorrectLanding();"
+            }
+          ]
+        },
+        {
+          "line": 112,
+          "keyword": "endboss",
+          "context": [
+            {
+              "rel": 111,
+              "text": "setInterval(() => {"
+            },
+            {
+              "rel": 112,
+              "text": "// Wenn der Endboss unterhalb seiner eigentlichen Position ist, korrigieren wir ihn"
+            },
+            {
+              "rel": 113,
+              "text": "if (this.y > 60) {"
+            }
+          ]
+        },
+        {
+          "line": 114,
+          "keyword": "endboss",
+          "context": [
+            {
+              "rel": 113,
+              "text": "if (this.y > 60) {"
+            },
+            {
+              "rel": 114,
+              "text": "this.y = 60;  // Setze den Endboss auf die Bodenposition"
+            },
+            {
+              "rel": 115,
+              "text": "this.speedY = 0;  // Stoppe die Bewegung nach unten"
+            }
+          ]
+        },
+        {
+          "line": 131,
+          "keyword": "endboss",
+          "context": [
+            {
+              "rel": 130,
+              "text": "this.loadImages(this.IMAGES_HURT);  // Hurt-Animation Bilder setzen"
+            },
+            {
+              "rel": 131,
+              "text": "this.speedY = -20; // Endboss springt in die Luft"
+            },
+            {
+              "rel": 132,
+              "text": "this.applyGravity(); // Gravitationslogik anwenden"
+            }
+          ]
+        },
+        {
+          "line": 151,
+          "keyword": "endboss",
+          "context": [
+            {
+              "rel": 150,
+              "text": "if (this.isInSight && !this.isHurtAnimation) {"
+            },
+            {
+              "rel": 151,
+              "text": "this.moveLeft();  // Endboss bewegt sich vorwärts"
+            },
+            {
+              "rel": 152,
+              "text": "this.otherDirection = false;  // Nach links schauen"
+            }
+          ]
+        },
+        {
+          "line": 155,
+          "keyword": "endboss",
+          "context": [
+            {
+              "rel": 154,
+              "text": "} else if (!this.isInSight && !this.isHurtAnimation && this.x < this.startPosition) {"
+            },
+            {
+              "rel": 155,
+              "text": "this.returnToStart();  // Endboss kehrt zur Startposition zurück"
+            },
+            {
+              "rel": 156,
+              "text": "} else if (this.isHurtAnimation) {"
+            }
+          ]
+        },
+        {
+          "line": 166,
+          "keyword": "endboss",
+          "context": [
+            {
+              "rel": 165,
+              "text": "this.isHurtAnimation = false;"
+            },
+            {
+              "rel": 166,
+              "text": "this.y = 60;  // Setze die Y-Position des Endbosses wieder auf die ursprüngliche Höhe zurück"
+            },
+            {
+              "rel": 167,
+              "text": "}"
+            }
+          ]
+        },
+        {
+          "line": 171,
+          "keyword": "endboss",
+          "context": [
+            {
+              "rel": 170,
+              "text": "returnToStart() {"
+            },
+            {
+              "rel": 171,
+              "text": "this.returning = true;  // Endboss kehrt zurück"
+            },
+            {
+              "rel": 172,
+              "text": "if (this.x < this.startPosition) {"
+            }
+          ]
+        },
+        {
+          "line": 173,
+          "keyword": "endboss",
+          "context": [
+            {
+              "rel": 172,
+              "text": "if (this.x < this.startPosition) {"
+            },
+            {
+              "rel": 173,
+              "text": "this.moveRight();  // Endboss läuft zurück"
+            },
+            {
+              "rel": 174,
+              "text": "this.otherDirection = true;  // Nach rechts schauen"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "js\\class.models\\level.class.js",
+      "hits": [
+        {
+          "line": 5,
+          "keyword": "bottle",
+          "context": [
+            {
+              "rel": 4,
+              "text": "backgroundObjects;"
+            },
+            {
+              "rel": 5,
+              "text": "bottles;"
+            },
+            {
+              "rel": 6,
+              "text": "level_end_x = 4500;"
+            }
+          ]
+        },
+        {
+          "line": 8,
+          "keyword": "bottle",
+          "context": [
+            {
+              "rel": 7,
+              "text": ""
+            },
+            {
+              "rel": 8,
+              "text": "constructor(enemies, clouds, backgroundObjects, bottles) {"
+            },
+            {
+              "rel": 9,
+              "text": "this.enemies = enemies;"
+            }
+          ]
+        },
+        {
+          "line": 12,
+          "keyword": "bottle",
+          "context": [
+            {
+              "rel": 11,
+              "text": "this.backgroundObjects = backgroundObjects;"
+            },
+            {
+              "rel": 12,
+              "text": "this.bottles = bottles; // Flaschen initialisieren"
+            },
+            {
+              "rel": 13,
+              "text": "}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "js\\class.models\\mini-chicken.class.js",
+      "hits": [
+        {
+          "line": 1,
+          "keyword": "chicken",
+          "context": [
+            {
+              "rel": 1,
+              "text": "class MiniChicken extends MovableObject {"
+            },
+            {
+              "rel": 2,
+              "text": "y = 340;"
+            }
+          ]
+        },
+        {
+          "line": 1,
+          "keyword": "chick",
+          "context": [
+            {
+              "rel": 1,
+              "text": "class MiniChicken extends MovableObject {"
+            },
+            {
+              "rel": 2,
+              "text": "y = 340;"
+            }
+          ]
+        },
+        {
+          "line": 8,
+          "keyword": "chicken",
+          "context": [
+            {
+              "rel": 7,
+              "text": "IMAGES_WALKING = ["
+            },
+            {
+              "rel": 8,
+              "text": "'/img/3_enemies_chicken/chicken_small/1_walk/1_w.png',"
+            },
+            {
+              "rel": 9,
+              "text": "'/img/3_enemies_chicken/chicken_small/1_walk/2_w.png',"
+            }
+          ]
+        },
+        {
+          "line": 8,
+          "keyword": "chick",
+          "context": [
+            {
+              "rel": 7,
+              "text": "IMAGES_WALKING = ["
+            },
+            {
+              "rel": 8,
+              "text": "'/img/3_enemies_chicken/chicken_small/1_walk/1_w.png',"
+            },
+            {
+              "rel": 9,
+              "text": "'/img/3_enemies_chicken/chicken_small/1_walk/2_w.png',"
+            }
+          ]
+        },
+        {
+          "line": 9,
+          "keyword": "chicken",
+          "context": [
+            {
+              "rel": 8,
+              "text": "'/img/3_enemies_chicken/chicken_small/1_walk/1_w.png',"
+            },
+            {
+              "rel": 9,
+              "text": "'/img/3_enemies_chicken/chicken_small/1_walk/2_w.png',"
+            },
+            {
+              "rel": 10,
+              "text": "'/img/3_enemies_chicken/chicken_small/1_walk/3_w.png'"
+            }
+          ]
+        },
+        {
+          "line": 9,
+          "keyword": "chick",
+          "context": [
+            {
+              "rel": 8,
+              "text": "'/img/3_enemies_chicken/chicken_small/1_walk/1_w.png',"
+            },
+            {
+              "rel": 9,
+              "text": "'/img/3_enemies_chicken/chicken_small/1_walk/2_w.png',"
+            },
+            {
+              "rel": 10,
+              "text": "'/img/3_enemies_chicken/chicken_small/1_walk/3_w.png'"
+            }
+          ]
+        },
+        {
+          "line": 10,
+          "keyword": "chicken",
+          "context": [
+            {
+              "rel": 9,
+              "text": "'/img/3_enemies_chicken/chicken_small/1_walk/2_w.png',"
+            },
+            {
+              "rel": 10,
+              "text": "'/img/3_enemies_chicken/chicken_small/1_walk/3_w.png'"
+            },
+            {
+              "rel": 11,
+              "text": "];"
+            }
+          ]
+        },
+        {
+          "line": 10,
+          "keyword": "chick",
+          "context": [
+            {
+              "rel": 9,
+              "text": "'/img/3_enemies_chicken/chicken_small/1_walk/2_w.png',"
+            },
+            {
+              "rel": 10,
+              "text": "'/img/3_enemies_chicken/chicken_small/1_walk/3_w.png'"
+            },
+            {
+              "rel": 11,
+              "text": "];"
+            }
+          ]
+        },
+        {
+          "line": 14,
+          "keyword": "chicken",
+          "context": [
+            {
+              "rel": 13,
+              "text": "IMAGES_DEAD = ["
+            },
+            {
+              "rel": 14,
+              "text": "'/img/3_enemies_chicken/chicken_small/2_dead/dead.png'"
+            },
+            {
+              "rel": 15,
+              "text": "];"
+            }
+          ]
+        },
+        {
+          "line": 14,
+          "keyword": "chick",
+          "context": [
+            {
+              "rel": 13,
+              "text": "IMAGES_DEAD = ["
+            },
+            {
+              "rel": 14,
+              "text": "'/img/3_enemies_chicken/chicken_small/2_dead/dead.png'"
+            },
+            {
+              "rel": 15,
+              "text": "];"
+            }
+          ]
+        },
+        {
+          "line": 28,
+          "keyword": "chicken",
+          "context": [
+            {
+              "rel": 27,
+              "text": "this.energy = 0;  // Setze die Lebensenergie auf 0"
+            },
+            {
+              "rel": 28,
+              "text": "this.die();  // Lasse das MiniChicken sterben"
+            },
+            {
+              "rel": 29,
+              "text": "}"
+            }
+          ]
+        },
+        {
+          "line": 28,
+          "keyword": "chick",
+          "context": [
+            {
+              "rel": 27,
+              "text": "this.energy = 0;  // Setze die Lebensenergie auf 0"
+            },
+            {
+              "rel": 28,
+              "text": "this.die();  // Lasse das MiniChicken sterben"
+            },
+            {
+              "rel": 29,
+              "text": "}"
+            }
+          ]
+        },
+        {
+          "line": 32,
+          "keyword": "chicken",
+          "context": [
+            {
+              "rel": 31,
+              "text": "die() {"
+            },
+            {
+              "rel": 32,
+              "text": "this.loadImage(this.IMAGES_DEAD[0]);  // Zeige das Bild des toten Mini-Chickens"
+            },
+            {
+              "rel": 33,
+              "text": "this.speed = 0;  // Stoppe die Bewegung"
+            }
+          ]
+        },
+        {
+          "line": 32,
+          "keyword": "chick",
+          "context": [
+            {
+              "rel": 31,
+              "text": "die() {"
+            },
+            {
+              "rel": 32,
+              "text": "this.loadImage(this.IMAGES_DEAD[0]);  // Zeige das Bild des toten Mini-Chickens"
+            },
+            {
+              "rel": 33,
+              "text": "this.speed = 0;  // Stoppe die Bewegung"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "js\\class.models\\movable-object.class.js",
+      "hits": [
+        {
+          "line": 39,
+          "keyword": "chicken",
+          "context": [
+            {
+              "rel": 38,
+              "text": ""
+            },
+            {
+              "rel": 39,
+              "text": "// character.isColliding(chicken);"
+            },
+            {
+              "rel": 40,
+              "text": "isColliding(mo) {"
+            }
+          ]
+        },
+        {
+          "line": 39,
+          "keyword": "chick",
+          "context": [
+            {
+              "rel": 38,
+              "text": ""
+            },
+            {
+              "rel": 39,
+              "text": "// character.isColliding(chicken);"
+            },
+            {
+              "rel": 40,
+              "text": "isColliding(mo) {"
+            }
+          ]
+        },
+        {
+          "line": 48,
+          "keyword": "chicken",
+          "context": [
+            {
+              "rel": 47,
+              "text": ""
+            },
+            {
+              "rel": 48,
+              "text": "// Bessere Formel zur Kollisionsberechnung mit den Chicken (Genauer)"
+            },
+            {
+              "rel": 49,
+              "text": "// isColliding (obj) {"
+            }
+          ]
+        },
+        {
+          "line": 48,
+          "keyword": "chick",
+          "context": [
+            {
+              "rel": 47,
+              "text": ""
+            },
+            {
+              "rel": 48,
+              "text": "// Bessere Formel zur Kollisionsberechnung mit den Chicken (Genauer)"
+            },
+            {
+              "rel": 49,
+              "text": "// isColliding (obj) {"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "js\\class.models\\status-bar.class.js",
+      "hits": [
+        {
+          "line": 1,
+          "keyword": "status",
+          "context": [
+            {
+              "rel": 1,
+              "text": "class StatusBar extends DrawableObject {"
+            },
+            {
+              "rel": 2,
+              "text": ""
+            }
+          ]
+        },
+        {
+          "line": 1,
+          "keyword": "bar",
+          "context": [
+            {
+              "rel": 1,
+              "text": "class StatusBar extends DrawableObject {"
+            },
+            {
+              "rel": 2,
+              "text": ""
+            }
+          ]
+        },
+        {
+          "line": 4,
+          "keyword": "status",
+          "context": [
+            {
+              "rel": 3,
+              "text": "IMAGES = ["
+            },
+            {
+              "rel": 4,
+              "text": "'/img/7_statusbars/1_statusbar/2_statusbar_health/blue/0.png',"
+            },
+            {
+              "rel": 5,
+              "text": "'/img/7_statusbars/1_statusbar/2_statusbar_health/orange/20.png',"
+            }
+          ]
+        },
+        {
+          "line": 4,
+          "keyword": "bar",
+          "context": [
+            {
+              "rel": 3,
+              "text": "IMAGES = ["
+            },
+            {
+              "rel": 4,
+              "text": "'/img/7_statusbars/1_statusbar/2_statusbar_health/blue/0.png',"
+            },
+            {
+              "rel": 5,
+              "text": "'/img/7_statusbars/1_statusbar/2_statusbar_health/orange/20.png',"
+            }
+          ]
+        },
+        {
+          "line": 5,
+          "keyword": "status",
+          "context": [
+            {
+              "rel": 4,
+              "text": "'/img/7_statusbars/1_statusbar/2_statusbar_health/blue/0.png',"
+            },
+            {
+              "rel": 5,
+              "text": "'/img/7_statusbars/1_statusbar/2_statusbar_health/orange/20.png',"
+            },
+            {
+              "rel": 6,
+              "text": "'/img/7_statusbars/1_statusbar/2_statusbar_health/orange/40.png',"
+            }
+          ]
+        },
+        {
+          "line": 5,
+          "keyword": "bar",
+          "context": [
+            {
+              "rel": 4,
+              "text": "'/img/7_statusbars/1_statusbar/2_statusbar_health/blue/0.png',"
+            },
+            {
+              "rel": 5,
+              "text": "'/img/7_statusbars/1_statusbar/2_statusbar_health/orange/20.png',"
+            },
+            {
+              "rel": 6,
+              "text": "'/img/7_statusbars/1_statusbar/2_statusbar_health/orange/40.png',"
+            }
+          ]
+        },
+        {
+          "line": 6,
+          "keyword": "status",
+          "context": [
+            {
+              "rel": 5,
+              "text": "'/img/7_statusbars/1_statusbar/2_statusbar_health/orange/20.png',"
+            },
+            {
+              "rel": 6,
+              "text": "'/img/7_statusbars/1_statusbar/2_statusbar_health/orange/40.png',"
+            },
+            {
+              "rel": 7,
+              "text": "'/img/7_statusbars/1_statusbar/2_statusbar_health/blue/60.png',"
+            }
+          ]
+        },
+        {
+          "line": 6,
+          "keyword": "bar",
+          "context": [
+            {
+              "rel": 5,
+              "text": "'/img/7_statusbars/1_statusbar/2_statusbar_health/orange/20.png',"
+            },
+            {
+              "rel": 6,
+              "text": "'/img/7_statusbars/1_statusbar/2_statusbar_health/orange/40.png',"
+            },
+            {
+              "rel": 7,
+              "text": "'/img/7_statusbars/1_statusbar/2_statusbar_health/blue/60.png',"
+            }
+          ]
+        },
+        {
+          "line": 7,
+          "keyword": "status",
+          "context": [
+            {
+              "rel": 6,
+              "text": "'/img/7_statusbars/1_statusbar/2_statusbar_health/orange/40.png',"
+            },
+            {
+              "rel": 7,
+              "text": "'/img/7_statusbars/1_statusbar/2_statusbar_health/blue/60.png',"
+            },
+            {
+              "rel": 8,
+              "text": "'/img/7_statusbars/1_statusbar/2_statusbar_health/blue/80.png',"
+            }
+          ]
+        },
+        {
+          "line": 7,
+          "keyword": "bar",
+          "context": [
+            {
+              "rel": 6,
+              "text": "'/img/7_statusbars/1_statusbar/2_statusbar_health/orange/40.png',"
+            },
+            {
+              "rel": 7,
+              "text": "'/img/7_statusbars/1_statusbar/2_statusbar_health/blue/60.png',"
+            },
+            {
+              "rel": 8,
+              "text": "'/img/7_statusbars/1_statusbar/2_statusbar_health/blue/80.png',"
+            }
+          ]
+        },
+        {
+          "line": 8,
+          "keyword": "status",
+          "context": [
+            {
+              "rel": 7,
+              "text": "'/img/7_statusbars/1_statusbar/2_statusbar_health/blue/60.png',"
+            },
+            {
+              "rel": 8,
+              "text": "'/img/7_statusbars/1_statusbar/2_statusbar_health/blue/80.png',"
+            },
+            {
+              "rel": 9,
+              "text": "'/img/7_statusbars/1_statusbar/2_statusbar_health/blue/100.png' // Bild Nr. 5"
+            }
+          ]
+        },
+        {
+          "line": 8,
+          "keyword": "bar",
+          "context": [
+            {
+              "rel": 7,
+              "text": "'/img/7_statusbars/1_statusbar/2_statusbar_health/blue/60.png',"
+            },
+            {
+              "rel": 8,
+              "text": "'/img/7_statusbars/1_statusbar/2_statusbar_health/blue/80.png',"
+            },
+            {
+              "rel": 9,
+              "text": "'/img/7_statusbars/1_statusbar/2_statusbar_health/blue/100.png' // Bild Nr. 5"
+            }
+          ]
+        },
+        {
+          "line": 9,
+          "keyword": "status",
+          "context": [
+            {
+              "rel": 8,
+              "text": "'/img/7_statusbars/1_statusbar/2_statusbar_health/blue/80.png',"
+            },
+            {
+              "rel": 9,
+              "text": "'/img/7_statusbars/1_statusbar/2_statusbar_health/blue/100.png' // Bild Nr. 5"
+            },
+            {
+              "rel": 10,
+              "text": "];"
+            }
+          ]
+        },
+        {
+          "line": 9,
+          "keyword": "bar",
+          "context": [
+            {
+              "rel": 8,
+              "text": "'/img/7_statusbars/1_statusbar/2_statusbar_health/blue/80.png',"
+            },
+            {
+              "rel": 9,
+              "text": "'/img/7_statusbars/1_statusbar/2_statusbar_health/blue/100.png' // Bild Nr. 5"
+            },
+            {
+              "rel": 10,
+              "text": "];"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "js\\class.models\\throwable-object.class.js",
+      "hits": [
+        {
+          "line": 4,
+          "keyword": "bottle",
+          "context": [
+            {
+              "rel": 3,
+              "text": "constructor(x, y) {"
+            },
+            {
+              "rel": 4,
+              "text": "super().loadImage('/img/6_salsa_bottle/bottle_rotation/1_bottle_rotation.png');"
+            },
+            {
+              "rel": 5,
+              "text": "this.x = x;"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "js\\class.models\\world.class.js",
+      "hits": [
+        {
+          "line": 8,
+          "keyword": "status",
+          "context": [
+            {
+              "rel": 7,
+              "text": "camera_x = 0;"
+            },
+            {
+              "rel": 8,
+              "text": "statusBar = new StatusBar();"
+            },
+            {
+              "rel": 9,
+              "text": "bottleStatusBar = new BottleStatusBar(); // Flaschen StatusBar hinzufügen"
+            }
+          ]
+        },
+        {
+          "line": 8,
+          "keyword": "bar",
+          "context": [
+            {
+              "rel": 7,
+              "text": "camera_x = 0;"
+            },
+            {
+              "rel": 8,
+              "text": "statusBar = new StatusBar();"
+            },
+            {
+              "rel": 9,
+              "text": "bottleStatusBar = new BottleStatusBar(); // Flaschen StatusBar hinzufügen"
+            }
+          ]
+        },
+        {
+          "line": 9,
+          "keyword": "bottle",
+          "context": [
+            {
+              "rel": 8,
+              "text": "statusBar = new StatusBar();"
+            },
+            {
+              "rel": 9,
+              "text": "bottleStatusBar = new BottleStatusBar(); // Flaschen StatusBar hinzufügen"
+            },
+            {
+              "rel": 10,
+              "text": "endbossStatusBar = new EndbossStatusBar();  // Endboss StatusBar hinzufügen"
+            }
+          ]
+        },
+        {
+          "line": 9,
+          "keyword": "status",
+          "context": [
+            {
+              "rel": 8,
+              "text": "statusBar = new StatusBar();"
+            },
+            {
+              "rel": 9,
+              "text": "bottleStatusBar = new BottleStatusBar(); // Flaschen StatusBar hinzufügen"
+            },
+            {
+              "rel": 10,
+              "text": "endbossStatusBar = new EndbossStatusBar();  // Endboss StatusBar hinzufügen"
+            }
+          ]
+        },
+        {
+          "line": 9,
+          "keyword": "bar",
+          "context": [
+            {
+              "rel": 8,
+              "text": "statusBar = new StatusBar();"
+            },
+            {
+              "rel": 9,
+              "text": "bottleStatusBar = new BottleStatusBar(); // Flaschen StatusBar hinzufügen"
+            },
+            {
+              "rel": 10,
+              "text": "endbossStatusBar = new EndbossStatusBar();  // Endboss StatusBar hinzufügen"
+            }
+          ]
+        },
+        {
+          "line": 10,
+          "keyword": "endboss",
+          "context": [
+            {
+              "rel": 9,
+              "text": "bottleStatusBar = new BottleStatusBar(); // Flaschen StatusBar hinzufügen"
+            },
+            {
+              "rel": 10,
+              "text": "endbossStatusBar = new EndbossStatusBar();  // Endboss StatusBar hinzufügen"
+            },
+            {
+              "rel": 11,
+              "text": "endbossInSight = false;  // Flag für das Sichtfeld des Endbosses"
+            }
+          ]
+        },
+        {
+          "line": 10,
+          "keyword": "status",
+          "context": [
+            {
+              "rel": 9,
+              "text": "bottleStatusBar = new BottleStatusBar(); // Flaschen StatusBar hinzufügen"
+            },
+            {
+              "rel": 10,
+              "text": "endbossStatusBar = new EndbossStatusBar();  // Endboss StatusBar hinzufügen"
+            },
+            {
+              "rel": 11,
+              "text": "endbossInSight = false;  // Flag für das Sichtfeld des Endbosses"
+            }
+          ]
+        },
+        {
+          "line": 10,
+          "keyword": "bar",
+          "context": [
+            {
+              "rel": 9,
+              "text": "bottleStatusBar = new BottleStatusBar(); // Flaschen StatusBar hinzufügen"
+            },
+            {
+              "rel": 10,
+              "text": "endbossStatusBar = new EndbossStatusBar();  // Endboss StatusBar hinzufügen"
+            },
+            {
+              "rel": 11,
+              "text": "endbossInSight = false;  // Flag für das Sichtfeld des Endbosses"
+            }
+          ]
+        },
+        {
+          "line": 11,
+          "keyword": "endboss",
+          "context": [
+            {
+              "rel": 10,
+              "text": "endbossStatusBar = new EndbossStatusBar();  // Endboss StatusBar hinzufügen"
+            },
+            {
+              "rel": 11,
+              "text": "endbossInSight = false;  // Flag für das Sichtfeld des Endbosses"
+            },
+            {
+              "rel": 12,
+              "text": "dramaticAudio = new Audio('/audio/fear-back.mp3');  // Audio für den Endboss"
+            }
+          ]
+        },
+        {
+          "line": 12,
+          "keyword": "endboss",
+          "context": [
+            {
+              "rel": 11,
+              "text": "endbossInSight = false;  // Flag für das Sichtfeld des Endbosses"
+            },
+            {
+              "rel": 12,
+              "text": "dramaticAudio = new Audio('/audio/fear-back.mp3');  // Audio für den Endboss"
+            },
+            {
+              "rel": 13,
+              "text": "throwableObjects = [];"
+            }
+          ]
+        },
+        {
+          "line": 12,
+          "keyword": "audio",
+          "context": [
+            {
+              "rel": 11,
+              "text": "endbossInSight = false;  // Flag für das Sichtfeld des Endbosses"
+            },
+            {
+              "rel": 12,
+              "text": "dramaticAudio = new Audio('/audio/fear-back.mp3');  // Audio für den Endboss"
+            },
+            {
+              "rel": 13,
+              "text": "throwableObjects = [];"
+            }
+          ]
+        },
+        {
+          "line": 14,
+          "keyword": "bottle",
+          "context": [
+            {
+              "rel": 13,
+              "text": "throwableObjects = [];"
+            },
+            {
+              "rel": 14,
+              "text": "bottlesCollected = 0; // Anzahl gesammalter Flaschen"
+            },
+            {
+              "rel": 15,
+              "text": "maxBottles = 5; // Maximale Anzahl an Flaschen, die gesammelt werden können"
+            }
+          ]
+        },
+        {
+          "line": 15,
+          "keyword": "bottle",
+          "context": [
+            {
+              "rel": 14,
+              "text": "bottlesCollected = 0; // Anzahl gesammalter Flaschen"
+            },
+            {
+              "rel": 15,
+              "text": "maxBottles = 5; // Maximale Anzahl an Flaschen, die gesammelt werden können"
+            },
+            {
+              "rel": 16,
+              "text": ""
+            }
+          ]
+        },
+        {
+          "line": 21,
+          "keyword": "audio",
+          "context": [
+            {
+              "rel": 20,
+              "text": "this.keyboard = keyboard;"
+            },
+            {
+              "rel": 21,
+              "text": "this.enemyDeathAudio = new Audio('/audio/punch-1.mp3');  // Soundeffekt für den Tod eines Gegners"
+            },
+            {
+              "rel": 22,
+              "text": "this.draw();"
+            }
+          ]
+        },
+        {
+          "line": 21,
+          "keyword": "sound",
+          "context": [
+            {
+              "rel": 20,
+              "text": "this.keyboard = keyboard;"
+            },
+            {
+              "rel": 21,
+              "text": "this.enemyDeathAudio = new Audio('/audio/punch-1.mp3');  // Soundeffekt für den Tod eines Gegners"
+            },
+            {
+              "rel": 22,
+              "text": "this.draw();"
+            }
+          ]
+        },
+        {
+          "line": 28,
+          "keyword": "sound",
+          "context": [
+            {
+              "rel": 27,
+              "text": ""
+            },
+            {
+              "rel": 28,
+              "text": "playEnemyDeathSound() {"
+            },
+            {
+              "rel": 29,
+              "text": "this.enemyDeathAudio.play();  // Spielt den Sound ab, wenn ein Gegner stirbt"
+            }
+          ]
+        },
+        {
+          "line": 29,
+          "keyword": "audio",
+          "context": [
+            {
+              "rel": 28,
+              "text": "playEnemyDeathSound() {"
+            },
+            {
+              "rel": 29,
+              "text": "this.enemyDeathAudio.play();  // Spielt den Sound ab, wenn ein Gegner stirbt"
+            },
+            {
+              "rel": 30,
+              "text": "}"
+            }
+          ]
+        },
+        {
+          "line": 29,
+          "keyword": "sound",
+          "context": [
+            {
+              "rel": 28,
+              "text": "playEnemyDeathSound() {"
+            },
+            {
+              "rel": 29,
+              "text": "this.enemyDeathAudio.play();  // Spielt den Sound ab, wenn ein Gegner stirbt"
+            },
+            {
+              "rel": 30,
+              "text": "}"
+            }
+          ]
+        },
+        {
+          "line": 38,
+          "keyword": "bottle",
+          "context": [
+            {
+              "rel": 37,
+              "text": ""
+            },
+            {
+              "rel": 38,
+              "text": "checkBottleCollection() {"
+            },
+            {
+              "rel": 39,
+              "text": "this.level.bottles.forEach((bottle, index) => {"
+            }
+          ]
+        },
+        {
+          "line": 39,
+          "keyword": "bottle",
+          "context": [
+            {
+              "rel": 38,
+              "text": "checkBottleCollection() {"
+            },
+            {
+              "rel": 39,
+              "text": "this.level.bottles.forEach((bottle, index) => {"
+            },
+            {
+              "rel": 40,
+              "text": "if (this.character.isColliding(bottle)) {"
+            }
+          ]
+        },
+        {
+          "line": 40,
+          "keyword": "bottle",
+          "context": [
+            {
+              "rel": 39,
+              "text": "this.level.bottles.forEach((bottle, index) => {"
+            },
+            {
+              "rel": 40,
+              "text": "if (this.character.isColliding(bottle)) {"
+            },
+            {
+              "rel": 41,
+              "text": "if (this.bottlesCollected < this.maxBottles) { // Überprüfen, ob die maximale Anzahl erreicht ist"
+            }
+          ]
+        },
+        {
+          "line": 41,
+          "keyword": "bottle",
+          "context": [
+            {
+              "rel": 40,
+              "text": "if (this.character.isColliding(bottle)) {"
+            },
+            {
+              "rel": 41,
+              "text": "if (this.bottlesCollected < this.maxBottles) { // Überprüfen, ob die maximale Anzahl erreicht ist"
+            },
+            {
+              "rel": 42,
+              "text": "this.level.bottles.splice(index, 1); // Entfernt die Flasche vom Spielfeld"
+            }
+          ]
+        },
+        {
+          "line": 42,
+          "keyword": "bottle",
+          "context": [
+            {
+              "rel": 41,
+              "text": "if (this.bottlesCollected < this.maxBottles) { // Überprüfen, ob die maximale Anzahl erreicht ist"
+            },
+            {
+              "rel": 42,
+              "text": "this.level.bottles.splice(index, 1); // Entfernt die Flasche vom Spielfeld"
+            },
+            {
+              "rel": 43,
+              "text": "this.bottlesCollected++;"
+            }
+          ]
+        },
+        {
+          "line": 43,
+          "keyword": "bottle",
+          "context": [
+            {
+              "rel": 42,
+              "text": "this.level.bottles.splice(index, 1); // Entfernt die Flasche vom Spielfeld"
+            },
+            {
+              "rel": 43,
+              "text": "this.bottlesCollected++;"
+            },
+            {
+              "rel": 44,
+              "text": "let percentage = (this.bottlesCollected / this.maxBottles) * 100; // Berechne den Prozentsatz"
+            }
+          ]
+        },
+        {
+          "line": 44,
+          "keyword": "bottle",
+          "context": [
+            {
+              "rel": 43,
+              "text": "this.bottlesCollected++;"
+            },
+            {
+              "rel": 44,
+              "text": "let percentage = (this.bottlesCollected / this.maxBottles) * 100; // Berechne den Prozentsatz"
+            },
+            {
+              "rel": 45,
+              "text": "this.bottleStatusBar.setPercentage(percentage); // Aktualisiere die StatusBar"
+            }
+          ]
+        },
+        {
+          "line": 45,
+          "keyword": "bottle",
+          "context": [
+            {
+              "rel": 44,
+              "text": "let percentage = (this.bottlesCollected / this.maxBottles) * 100; // Berechne den Prozentsatz"
+            },
+            {
+              "rel": 45,
+              "text": "this.bottleStatusBar.setPercentage(percentage); // Aktualisiere die StatusBar"
+            },
+            {
+              "rel": 46,
+              "text": "}"
+            }
+          ]
+        },
+        {
+          "line": 45,
+          "keyword": "status",
+          "context": [
+            {
+              "rel": 44,
+              "text": "let percentage = (this.bottlesCollected / this.maxBottles) * 100; // Berechne den Prozentsatz"
+            },
+            {
+              "rel": 45,
+              "text": "this.bottleStatusBar.setPercentage(percentage); // Aktualisiere die StatusBar"
+            },
+            {
+              "rel": 46,
+              "text": "}"
+            }
+          ]
+        },
+        {
+          "line": 45,
+          "keyword": "bar",
+          "context": [
+            {
+              "rel": 44,
+              "text": "let percentage = (this.bottlesCollected / this.maxBottles) * 100; // Berechne den Prozentsatz"
+            },
+            {
+              "rel": 45,
+              "text": "this.bottleStatusBar.setPercentage(percentage); // Aktualisiere die StatusBar"
+            },
+            {
+              "rel": 46,
+              "text": "}"
+            }
+          ]
+        },
+        {
+          "line": 52,
+          "keyword": "bottle",
+          "context": [
+            {
+              "rel": 51,
+              "text": ""
+            },
+            {
+              "rel": 52,
+              "text": "throwBottle() {"
+            },
+            {
+              "rel": 53,
+              "text": "if (this.bottlesCollected > 0) {  // Nur Flaschen werfen, wenn welche vorhanden sind"
+            }
+          ]
+        },
+        {
+          "line": 53,
+          "keyword": "bottle",
+          "context": [
+            {
+              "rel": 52,
+              "text": "throwBottle() {"
+            },
+            {
+              "rel": 53,
+              "text": "if (this.bottlesCollected > 0) {  // Nur Flaschen werfen, wenn welche vorhanden sind"
+            },
+            {
+              "rel": 54,
+              "text": "let bottle = new ThrowableObject(this.character.x + 100, this.character.y + 100);"
+            }
+          ]
+        },
+        {
+          "line": 54,
+          "keyword": "bottle",
+          "context": [
+            {
+              "rel": 53,
+              "text": "if (this.bottlesCollected > 0) {  // Nur Flaschen werfen, wenn welche vorhanden sind"
+            },
+            {
+              "rel": 54,
+              "text": "let bottle = new ThrowableObject(this.character.x + 100, this.character.y + 100);"
+            },
+            {
+              "rel": 55,
+              "text": "this.throwableObjects.push(bottle);"
+            }
+          ]
+        },
+        {
+          "line": 55,
+          "keyword": "bottle",
+          "context": [
+            {
+              "rel": 54,
+              "text": "let bottle = new ThrowableObject(this.character.x + 100, this.character.y + 100);"
+            },
+            {
+              "rel": 55,
+              "text": "this.throwableObjects.push(bottle);"
+            },
+            {
+              "rel": 56,
+              "text": "this.bottlesCollected--;  // Anzahl der Flaschen verringern"
+            }
+          ]
+        },
+        {
+          "line": 56,
+          "keyword": "bottle",
+          "context": [
+            {
+              "rel": 55,
+              "text": "this.throwableObjects.push(bottle);"
+            },
+            {
+              "rel": 56,
+              "text": "this.bottlesCollected--;  // Anzahl der Flaschen verringern"
+            },
+            {
+              "rel": 57,
+              "text": ""
+            }
+          ]
+        },
+        {
+          "line": 59,
+          "keyword": "bottle",
+          "context": [
+            {
+              "rel": 58,
+              "text": "// Berechnet den neuen Prozentsatz basierend auf den verbleibenden Flaschen"
+            },
+            {
+              "rel": 59,
+              "text": "let percentage = (this.bottlesCollected / this.maxBottles) * 100;  // Berechne den neuen Prozentsatz"
+            },
+            {
+              "rel": 60,
+              "text": "this.bottleStatusBar.setPercentage(percentage);  // Aktualisiere die StatusBar"
+            }
+          ]
+        },
+        {
+          "line": 60,
+          "keyword": "bottle",
+          "context": [
+            {
+              "rel": 59,
+              "text": "let percentage = (this.bottlesCollected / this.maxBottles) * 100;  // Berechne den neuen Prozentsatz"
+            },
+            {
+              "rel": 60,
+              "text": "this.bottleStatusBar.setPercentage(percentage);  // Aktualisiere die StatusBar"
+            },
+            {
+              "rel": 61,
+              "text": "}"
+            }
+          ]
+        },
+        {
+          "line": 60,
+          "keyword": "status",
+          "context": [
+            {
+              "rel": 59,
+              "text": "let percentage = (this.bottlesCollected / this.maxBottles) * 100;  // Berechne den neuen Prozentsatz"
+            },
+            {
+              "rel": 60,
+              "text": "this.bottleStatusBar.setPercentage(percentage);  // Aktualisiere die StatusBar"
+            },
+            {
+              "rel": 61,
+              "text": "}"
+            }
+          ]
+        },
+        {
+          "line": 60,
+          "keyword": "bar",
+          "context": [
+            {
+              "rel": 59,
+              "text": "let percentage = (this.bottlesCollected / this.maxBottles) * 100;  // Berechne den neuen Prozentsatz"
+            },
+            {
+              "rel": 60,
+              "text": "this.bottleStatusBar.setPercentage(percentage);  // Aktualisiere die StatusBar"
+            },
+            {
+              "rel": 61,
+              "text": "}"
+            }
+          ]
+        },
+        {
+          "line": 64,
+          "keyword": "endboss",
+          "context": [
+            {
+              "rel": 63,
+              "text": ""
+            },
+            {
+              "rel": 64,
+              "text": "checkEndbossSight() {"
+            },
+            {
+              "rel": 65,
+              "text": "let sightRange = 400; // Sichtbereich des Endbosses"
+            }
+          ]
+        },
+        {
+          "line": 65,
+          "keyword": "endboss",
+          "context": [
+            {
+              "rel": 64,
+              "text": "checkEndbossSight() {"
+            },
+            {
+              "rel": 65,
+              "text": "let sightRange = 400; // Sichtbereich des Endbosses"
+            },
+            {
+              "rel": 66,
+              "text": "let endboss = this.level.enemies.find(enemy => enemy instanceof Endboss);  // Finde den Endboss"
+            }
+          ]
+        },
+        {
+          "line": 66,
+          "keyword": "endboss",
+          "context": [
+            {
+              "rel": 65,
+              "text": "let sightRange = 400; // Sichtbereich des Endbosses"
+            },
+            {
+              "rel": 66,
+              "text": "let endboss = this.level.enemies.find(enemy => enemy instanceof Endboss);  // Finde den Endboss"
+            },
+            {
+              "rel": 67,
+              "text": ""
+            }
+          ]
+        },
+        {
+          "line": 68,
+          "keyword": "endboss",
+          "context": [
+            {
+              "rel": 67,
+              "text": ""
+            },
+            {
+              "rel": 68,
+              "text": "if (endboss) {"
+            },
+            {
+              "rel": 69,
+              "text": "// Überprüfen, ob der Charakter im Sichtbereich des Endbosses ist"
+            }
+          ]
+        },
+        {
+          "line": 69,
+          "keyword": "endboss",
+          "context": [
+            {
+              "rel": 68,
+              "text": "if (endboss) {"
+            },
+            {
+              "rel": 69,
+              "text": "// Überprüfen, ob der Charakter im Sichtbereich des Endbosses ist"
+            },
+            {
+              "rel": 70,
+              "text": "if (this.character.x > endboss.x - sightRange) {"
+            }
+          ]
+        },
+        {
+          "line": 70,
+          "keyword": "endboss",
+          "context": [
+            {
+              "rel": 69,
+              "text": "// Überprüfen, ob der Charakter im Sichtbereich des Endbosses ist"
+            },
+            {
+              "rel": 70,
+              "text": "if (this.character.x > endboss.x - sightRange) {"
+            },
+            {
+              "rel": 71,
+              "text": "if (!endboss.isInSight) {"
+            }
+          ]
+        },
+        {
+          "line": 71,
+          "keyword": "endboss",
+          "context": [
+            {
+              "rel": 70,
+              "text": "if (this.character.x > endboss.x - sightRange) {"
+            },
+            {
+              "rel": 71,
+              "text": "if (!endboss.isInSight) {"
+            },
+            {
+              "rel": 72,
+              "text": "endboss.isInSight = true;"
+            }
+          ]
+        },
+        {
+          "line": 72,
+          "keyword": "endboss",
+          "context": [
+            {
+              "rel": 71,
+              "text": "if (!endboss.isInSight) {"
+            },
+            {
+              "rel": 72,
+              "text": "endboss.isInSight = true;"
+            },
+            {
+              "rel": 73,
+              "text": "this.endbossInSight = true; // Zeige den Lebensbalken des Endbosses an"
+            }
+          ]
+        },
+        {
+          "line": 73,
+          "keyword": "endboss",
+          "context": [
+            {
+              "rel": 72,
+              "text": "endboss.isInSight = true;"
+            },
+            {
+              "rel": 73,
+              "text": "this.endbossInSight = true; // Zeige den Lebensbalken des Endbosses an"
+            },
+            {
+              "rel": 74,
+              "text": "this.dramaticAudio.play();  // Dramatische Musik abspielen"
+            }
+          ]
+        },
+        {
+          "line": 74,
+          "keyword": "audio",
+          "context": [
+            {
+              "rel": 73,
+              "text": "this.endbossInSight = true; // Zeige den Lebensbalken des Endbosses an"
+            },
+            {
+              "rel": 74,
+              "text": "this.dramaticAudio.play();  // Dramatische Musik abspielen"
+            },
+            {
+              "rel": 75,
+              "text": "}"
+            }
+          ]
+        },
+        {
+          "line": 76,
+          "keyword": "endboss",
+          "context": [
+            {
+              "rel": 75,
+              "text": "}"
+            },
+            {
+              "rel": 76,
+              "text": "} else if (this.character.x < endboss.x - sightRange && endboss.isInSight) {"
+            },
+            {
+              "rel": 77,
+              "text": "endboss.isInSight = false;"
+            }
+          ]
+        },
+        {
+          "line": 77,
+          "keyword": "endboss",
+          "context": [
+            {
+              "rel": 76,
+              "text": "} else if (this.character.x < endboss.x - sightRange && endboss.isInSight) {"
+            },
+            {
+              "rel": 77,
+              "text": "endboss.isInSight = false;"
+            },
+            {
+              "rel": 78,
+              "text": "endboss.returning = true;  // Flag setzen, dass er zurückläuft"
+            }
+          ]
+        },
+        {
+          "line": 78,
+          "keyword": "endboss",
+          "context": [
+            {
+              "rel": 77,
+              "text": "endboss.isInSight = false;"
+            },
+            {
+              "rel": 78,
+              "text": "endboss.returning = true;  // Flag setzen, dass er zurückläuft"
+            },
+            {
+              "rel": 79,
+              "text": "this.endbossInSight = false;"
+            }
+          ]
+        },
+        {
+          "line": 79,
+          "keyword": "endboss",
+          "context": [
+            {
+              "rel": 78,
+              "text": "endboss.returning = true;  // Flag setzen, dass er zurückläuft"
+            },
+            {
+              "rel": 79,
+              "text": "this.endbossInSight = false;"
+            },
+            {
+              "rel": 80,
+              "text": "}"
+            }
+          ]
+        },
+        {
+          "line": 89,
+          "keyword": "bottle",
+          "context": [
+            {
+              "rel": 88,
+              "text": "this.checkThrowObjects();"
+            },
+            {
+              "rel": 89,
+              "text": "this.checkBottleCollection(); // Überprüft die Flaschenkollision"
+            },
+            {
+              "rel": 90,
+              "text": "this.checkBottleCollisions();  // Neue Methode zur Kollisionserkennung"
+            }
+          ]
+        },
+        {
+          "line": 90,
+          "keyword": "bottle",
+          "context": [
+            {
+              "rel": 89,
+              "text": "this.checkBottleCollection(); // Überprüft die Flaschenkollision"
+            },
+            {
+              "rel": 90,
+              "text": "this.checkBottleCollisions();  // Neue Methode zur Kollisionserkennung"
+            },
+            {
+              "rel": 91,
+              "text": "this.checkEndbossSight();  // Überprüft, ob der Endboss im Sichtfeld ist"
+            }
+          ]
+        },
+        {
+          "line": 91,
+          "keyword": "endboss",
+          "context": [
+            {
+              "rel": 90,
+              "text": "this.checkBottleCollisions();  // Neue Methode zur Kollisionserkennung"
+            },
+            {
+              "rel": 91,
+              "text": "this.checkEndbossSight();  // Überprüft, ob der Endboss im Sichtfeld ist"
+            },
+            {
+              "rel": 92,
+              "text": "}, 200); // vielleicht auf 200, 100 oder 50 setzen?"
+            }
+          ]
+        },
+        {
+          "line": 98,
+          "keyword": "bottle",
+          "context": [
+            {
+              "rel": 97,
+              "text": "// Überprüfen, ob der Spieler genügend Flaschen gesammelt hat"
+            },
+            {
+              "rel": 98,
+              "text": "if (this.keyboard.D && this.bottlesCollected > 0) {"
+            },
+            {
+              "rel": 99,
+              "text": "let bottle = new ThrowableObject(this.character.x + 100, this.character.y + 100);"
+            }
+          ]
+        },
+        {
+          "line": 99,
+          "keyword": "bottle",
+          "context": [
+            {
+              "rel": 98,
+              "text": "if (this.keyboard.D && this.bottlesCollected > 0) {"
+            },
+            {
+              "rel": 99,
+              "text": "let bottle = new ThrowableObject(this.character.x + 100, this.character.y + 100);"
+            },
+            {
+              "rel": 100,
+              "text": "this.throwableObjects.push(bottle);"
+            }
+          ]
+        },
+        {
+          "line": 100,
+          "keyword": "bottle",
+          "context": [
+            {
+              "rel": 99,
+              "text": "let bottle = new ThrowableObject(this.character.x + 100, this.character.y + 100);"
+            },
+            {
+              "rel": 100,
+              "text": "this.throwableObjects.push(bottle);"
+            },
+            {
+              "rel": 101,
+              "text": "this.bottlesCollected--; // Anzahl der Flaschen verringern"
+            }
+          ]
+        },
+        {
+          "line": 101,
+          "keyword": "bottle",
+          "context": [
+            {
+              "rel": 100,
+              "text": "this.throwableObjects.push(bottle);"
+            },
+            {
+              "rel": 101,
+              "text": "this.bottlesCollected--; // Anzahl der Flaschen verringern"
+            },
+            {
+              "rel": 102,
+              "text": ""
+            }
+          ]
+        },
+        {
+          "line": 104,
+          "keyword": "bottle",
+          "context": [
+            {
+              "rel": 103,
+              "text": "// Berechnet den neuen Prozentsatz"
+            },
+            {
+              "rel": 104,
+              "text": "let percentage = (this.bottlesCollected / this.maxBottles) * 100;"
+            },
+            {
+              "rel": 105,
+              "text": "this.bottleStatusBar.setPercentage(percentage); // Aktualisiert die StatusBar"
+            }
+          ]
+        },
+        {
+          "line": 105,
+          "keyword": "bottle",
+          "context": [
+            {
+              "rel": 104,
+              "text": "let percentage = (this.bottlesCollected / this.maxBottles) * 100;"
+            },
+            {
+              "rel": 105,
+              "text": "this.bottleStatusBar.setPercentage(percentage); // Aktualisiert die StatusBar"
+            },
+            {
+              "rel": 106,
+              "text": "}"
+            }
+          ]
+        },
+        {
+          "line": 105,
+          "keyword": "status",
+          "context": [
+            {
+              "rel": 104,
+              "text": "let percentage = (this.bottlesCollected / this.maxBottles) * 100;"
+            },
+            {
+              "rel": 105,
+              "text": "this.bottleStatusBar.setPercentage(percentage); // Aktualisiert die StatusBar"
+            },
+            {
+              "rel": 106,
+              "text": "}"
+            }
+          ]
+        },
+        {
+          "line": 105,
+          "keyword": "bar",
+          "context": [
+            {
+              "rel": 104,
+              "text": "let percentage = (this.bottlesCollected / this.maxBottles) * 100;"
+            },
+            {
+              "rel": 105,
+              "text": "this.bottleStatusBar.setPercentage(percentage); // Aktualisiert die StatusBar"
+            },
+            {
+              "rel": 106,
+              "text": "}"
+            }
+          ]
+        },
+        {
+          "line": 110,
+          "keyword": "bottle",
+          "context": [
+            {
+              "rel": 109,
+              "text": ""
+            },
+            {
+              "rel": 110,
+              "text": "checkBottleCollisions() {"
+            },
+            {
+              "rel": 111,
+              "text": "this.throwableObjects.forEach((bottle, bottleIndex) => {"
+            }
+          ]
+        },
+        {
+          "line": 111,
+          "keyword": "bottle",
+          "context": [
+            {
+              "rel": 110,
+              "text": "checkBottleCollisions() {"
+            },
+            {
+              "rel": 111,
+              "text": "this.throwableObjects.forEach((bottle, bottleIndex) => {"
+            },
+            {
+              "rel": 112,
+              "text": "this.level.enemies.forEach((enemy, enemyIndex) => {"
+            }
+          ]
+        },
+        {
+          "line": 113,
+          "keyword": "bottle",
+          "context": [
+            {
+              "rel": 112,
+              "text": "this.level.enemies.forEach((enemy, enemyIndex) => {"
+            },
+            {
+              "rel": 113,
+              "text": "if (bottle.isColliding(enemy)) {"
+            },
+            {
+              "rel": 114,
+              "text": "if (enemy instanceof Chicken || enemy instanceof MiniChicken) {"
+            }
+          ]
+        },
+        {
+          "line": 114,
+          "keyword": "chicken",
+          "context": [
+            {
+              "rel": 113,
+              "text": "if (bottle.isColliding(enemy)) {"
+            },
+            {
+              "rel": 114,
+              "text": "if (enemy instanceof Chicken || enemy instanceof MiniChicken) {"
+            },
+            {
+              "rel": 115,
+              "text": "this.level.enemies.splice(enemyIndex, 1);  // Chicken oder MiniChicken entfernen"
+            }
+          ]
+        },
+        {
+          "line": 114,
+          "keyword": "chick",
+          "context": [
+            {
+              "rel": 113,
+              "text": "if (bottle.isColliding(enemy)) {"
+            },
+            {
+              "rel": 114,
+              "text": "if (enemy instanceof Chicken || enemy instanceof MiniChicken) {"
+            },
+            {
+              "rel": 115,
+              "text": "this.level.enemies.splice(enemyIndex, 1);  // Chicken oder MiniChicken entfernen"
+            }
+          ]
+        },
+        {
+          "line": 115,
+          "keyword": "chicken",
+          "context": [
+            {
+              "rel": 114,
+              "text": "if (enemy instanceof Chicken || enemy instanceof MiniChicken) {"
+            },
+            {
+              "rel": 115,
+              "text": "this.level.enemies.splice(enemyIndex, 1);  // Chicken oder MiniChicken entfernen"
+            },
+            {
+              "rel": 116,
+              "text": "enemy.die();  // Sterbeanimation für Chicken/MiniChicken"
+            }
+          ]
+        },
+        {
+          "line": 115,
+          "keyword": "chick",
+          "context": [
+            {
+              "rel": 114,
+              "text": "if (enemy instanceof Chicken || enemy instanceof MiniChicken) {"
+            },
+            {
+              "rel": 115,
+              "text": "this.level.enemies.splice(enemyIndex, 1);  // Chicken oder MiniChicken entfernen"
+            },
+            {
+              "rel": 116,
+              "text": "enemy.die();  // Sterbeanimation für Chicken/MiniChicken"
+            }
+          ]
+        },
+        {
+          "line": 116,
+          "keyword": "chicken",
+          "context": [
+            {
+              "rel": 115,
+              "text": "this.level.enemies.splice(enemyIndex, 1);  // Chicken oder MiniChicken entfernen"
+            },
+            {
+              "rel": 116,
+              "text": "enemy.die();  // Sterbeanimation für Chicken/MiniChicken"
+            },
+            {
+              "rel": 117,
+              "text": "} else if (enemy instanceof Endboss) {"
+            }
+          ]
+        },
+        {
+          "line": 116,
+          "keyword": "chick",
+          "context": [
+            {
+              "rel": 115,
+              "text": "this.level.enemies.splice(enemyIndex, 1);  // Chicken oder MiniChicken entfernen"
+            },
+            {
+              "rel": 116,
+              "text": "enemy.die();  // Sterbeanimation für Chicken/MiniChicken"
+            },
+            {
+              "rel": 117,
+              "text": "} else if (enemy instanceof Endboss) {"
+            }
+          ]
+        },
+        {
+          "line": 117,
+          "keyword": "endboss",
+          "context": [
+            {
+              "rel": 116,
+              "text": "enemy.die();  // Sterbeanimation für Chicken/MiniChicken"
+            },
+            {
+              "rel": 117,
+              "text": "} else if (enemy instanceof Endboss) {"
+            },
+            {
+              "rel": 118,
+              "text": "enemy.hit();  // Endboss verliert Lebenspunkte"
+            }
+          ]
+        },
+        {
+          "line": 118,
+          "keyword": "endboss",
+          "context": [
+            {
+              "rel": 117,
+              "text": "} else if (enemy instanceof Endboss) {"
+            },
+            {
+              "rel": 118,
+              "text": "enemy.hit();  // Endboss verliert Lebenspunkte"
+            },
+            {
+              "rel": 119,
+              "text": "this.endbossStatusBar.setPercentage(enemy.energy);  // StatusBar des Endbosses aktualisieren"
+            }
+          ]
+        },
+        {
+          "line": 119,
+          "keyword": "endboss",
+          "context": [
+            {
+              "rel": 118,
+              "text": "enemy.hit();  // Endboss verliert Lebenspunkte"
+            },
+            {
+              "rel": 119,
+              "text": "this.endbossStatusBar.setPercentage(enemy.energy);  // StatusBar des Endbosses aktualisieren"
+            },
+            {
+              "rel": 120,
+              "text": "}"
+            }
+          ]
+        },
+        {
+          "line": 119,
+          "keyword": "status",
+          "context": [
+            {
+              "rel": 118,
+              "text": "enemy.hit();  // Endboss verliert Lebenspunkte"
+            },
+            {
+              "rel": 119,
+              "text": "this.endbossStatusBar.setPercentage(enemy.energy);  // StatusBar des Endbosses aktualisieren"
+            },
+            {
+              "rel": 120,
+              "text": "}"
+            }
+          ]
+        },
+        {
+          "line": 119,
+          "keyword": "bar",
+          "context": [
+            {
+              "rel": 118,
+              "text": "enemy.hit();  // Endboss verliert Lebenspunkte"
+            },
+            {
+              "rel": 119,
+              "text": "this.endbossStatusBar.setPercentage(enemy.energy);  // StatusBar des Endbosses aktualisieren"
+            },
+            {
+              "rel": 120,
+              "text": "}"
+            }
+          ]
+        },
+        {
+          "line": 121,
+          "keyword": "bottle",
+          "context": [
+            {
+              "rel": 120,
+              "text": "}"
+            },
+            {
+              "rel": 121,
+              "text": "this.throwableObjects.splice(bottleIndex, 1);  // Flasche nach Kollision entfernen"
+            },
+            {
+              "rel": 122,
+              "text": "}"
+            }
+          ]
+        },
+        {
+          "line": 134,
+          "keyword": "audio",
+          "context": [
+            {
+              "rel": 133,
+              "text": "enemy.die();  // Gegner sterben lassen (Animation starten)"
+            },
+            {
+              "rel": 134,
+              "text": "this.playEnemyDeathSound();  // Audio abspielen, wenn der Gegner stirbt"
+            },
+            {
+              "rel": 135,
+              "text": "this.character.makeInvulnerable();  // Charakter unverwundbar machen"
+            }
+          ]
+        },
+        {
+          "line": 134,
+          "keyword": "sound",
+          "context": [
+            {
+              "rel": 133,
+              "text": "enemy.die();  // Gegner sterben lassen (Animation starten)"
+            },
+            {
+              "rel": 134,
+              "text": "this.playEnemyDeathSound();  // Audio abspielen, wenn der Gegner stirbt"
+            },
+            {
+              "rel": 135,
+              "text": "this.character.makeInvulnerable();  // Charakter unverwundbar machen"
+            }
+          ]
+        },
+        {
+          "line": 135,
+          "keyword": "bar",
+          "context": [
+            {
+              "rel": 134,
+              "text": "this.playEnemyDeathSound();  // Audio abspielen, wenn der Gegner stirbt"
+            },
+            {
+              "rel": 135,
+              "text": "this.character.makeInvulnerable();  // Charakter unverwundbar machen"
+            },
+            {
+              "rel": 136,
+              "text": "setTimeout(() => {"
+            }
+          ]
+        },
+        {
+          "line": 138,
+          "keyword": "bar",
+          "context": [
+            {
+              "rel": 137,
+              "text": "this.level.enemies.splice(index, 1);  // Gegner aus dem Array entfernen (nach kurzer Verzögerung)"
+            },
+            {
+              "rel": 138,
+              "text": "}, 500);  // Gegner bleibt für 0.5 Sekunden sichtbar, bevor er entfernt wird"
+            },
+            {
+              "rel": 139,
+              "text": "} else if (!this.character.invulnerable) {"
+            }
+          ]
+        },
+        {
+          "line": 140,
+          "keyword": "bar",
+          "context": [
+            {
+              "rel": 139,
+              "text": "} else if (!this.character.invulnerable) {"
+            },
+            {
+              "rel": 140,
+              "text": "// Wenn der Charakter nicht unverwundbar ist und frontal kollidiert -> Schaden für den Charakter"
+            },
+            {
+              "rel": 141,
+              "text": "// Der Charakter kollidiert seitlich oder frontal mit dem Gegner -> Der Charakter erleidet Schaden"
+            }
+          ]
+        },
+        {
+          "line": 143,
+          "keyword": "status",
+          "context": [
+            {
+              "rel": 142,
+              "text": "this.character.hit();"
+            },
+            {
+              "rel": 143,
+              "text": "this.statusBar.setPercentage(this.character.energy); // Lebensanzeige aktualisieren"
+            },
+            {
+              "rel": 144,
+              "text": "}"
+            }
+          ]
+        },
+        {
+          "line": 143,
+          "keyword": "bar",
+          "context": [
+            {
+              "rel": 142,
+              "text": "this.character.hit();"
+            },
+            {
+              "rel": 143,
+              "text": "this.statusBar.setPercentage(this.character.energy); // Lebensanzeige aktualisieren"
+            },
+            {
+              "rel": 144,
+              "text": "}"
+            }
+          ]
+        },
+        {
+          "line": 154,
+          "keyword": "translate",
+          "context": [
+            {
+              "rel": 153,
+              "text": "// Kamera verschieben"
+            },
+            {
+              "rel": 154,
+              "text": "this.ctx.translate(this.camera_x, 0);"
+            },
+            {
+              "rel": 155,
+              "text": ""
+            }
+          ]
+        },
+        {
+          "line": 160,
+          "keyword": "translate",
+          "context": [
+            {
+              "rel": 159,
+              "text": "// Kamera wieder zurück verschieben"
+            },
+            {
+              "rel": 160,
+              "text": "this.ctx.translate(-this.camera_x, 0);"
+            },
+            {
+              "rel": 161,
+              "text": ""
+            }
+          ]
+        },
+        {
+          "line": 164,
+          "keyword": "status",
+          "context": [
+            {
+              "rel": 163,
+              "text": ""
+            },
+            {
+              "rel": 164,
+              "text": "// StatusBars (Lebensenergie, Flaschen) zeichnen"
+            },
+            {
+              "rel": 165,
+              "text": "this.addToMap(this.statusBar); // Lebens-StatusBar"
+            }
+          ]
+        },
+        {
+          "line": 164,
+          "keyword": "bar",
+          "context": [
+            {
+              "rel": 163,
+              "text": ""
+            },
+            {
+              "rel": 164,
+              "text": "// StatusBars (Lebensenergie, Flaschen) zeichnen"
+            },
+            {
+              "rel": 165,
+              "text": "this.addToMap(this.statusBar); // Lebens-StatusBar"
+            }
+          ]
+        },
+        {
+          "line": 165,
+          "keyword": "status",
+          "context": [
+            {
+              "rel": 164,
+              "text": "// StatusBars (Lebensenergie, Flaschen) zeichnen"
+            },
+            {
+              "rel": 165,
+              "text": "this.addToMap(this.statusBar); // Lebens-StatusBar"
+            },
+            {
+              "rel": 166,
+              "text": "this.addToMap(this.bottleStatusBar); // Flaschen StatusBar wird gezeichnet"
+            }
+          ]
+        },
+        {
+          "line": 165,
+          "keyword": "bar",
+          "context": [
+            {
+              "rel": 164,
+              "text": "// StatusBars (Lebensenergie, Flaschen) zeichnen"
+            },
+            {
+              "rel": 165,
+              "text": "this.addToMap(this.statusBar); // Lebens-StatusBar"
+            },
+            {
+              "rel": 166,
+              "text": "this.addToMap(this.bottleStatusBar); // Flaschen StatusBar wird gezeichnet"
+            }
+          ]
+        },
+        {
+          "line": 166,
+          "keyword": "bottle",
+          "context": [
+            {
+              "rel": 165,
+              "text": "this.addToMap(this.statusBar); // Lebens-StatusBar"
+            },
+            {
+              "rel": 166,
+              "text": "this.addToMap(this.bottleStatusBar); // Flaschen StatusBar wird gezeichnet"
+            },
+            {
+              "rel": 167,
+              "text": ""
+            }
+          ]
+        },
+        {
+          "line": 166,
+          "keyword": "status",
+          "context": [
+            {
+              "rel": 165,
+              "text": "this.addToMap(this.statusBar); // Lebens-StatusBar"
+            },
+            {
+              "rel": 166,
+              "text": "this.addToMap(this.bottleStatusBar); // Flaschen StatusBar wird gezeichnet"
+            },
+            {
+              "rel": 167,
+              "text": ""
+            }
+          ]
+        },
+        {
+          "line": 166,
+          "keyword": "bar",
+          "context": [
+            {
+              "rel": 165,
+              "text": "this.addToMap(this.statusBar); // Lebens-StatusBar"
+            },
+            {
+              "rel": 166,
+              "text": "this.addToMap(this.bottleStatusBar); // Flaschen StatusBar wird gezeichnet"
+            },
+            {
+              "rel": 167,
+              "text": ""
+            }
+          ]
+        },
+        {
+          "line": 168,
+          "keyword": "endboss",
+          "context": [
+            {
+              "rel": 167,
+              "text": ""
+            },
+            {
+              "rel": 168,
+              "text": "// Endboss StatusBar wird nur gezeichnet, wenn er im Sichtfeld ist"
+            },
+            {
+              "rel": 169,
+              "text": "if (this.endbossInSight) {"
+            }
+          ]
+        },
+        {
+          "line": 168,
+          "keyword": "status",
+          "context": [
+            {
+              "rel": 167,
+              "text": ""
+            },
+            {
+              "rel": 168,
+              "text": "// Endboss StatusBar wird nur gezeichnet, wenn er im Sichtfeld ist"
+            },
+            {
+              "rel": 169,
+              "text": "if (this.endbossInSight) {"
+            }
+          ]
+        },
+        {
+          "line": 168,
+          "keyword": "bar",
+          "context": [
+            {
+              "rel": 167,
+              "text": ""
+            },
+            {
+              "rel": 168,
+              "text": "// Endboss StatusBar wird nur gezeichnet, wenn er im Sichtfeld ist"
+            },
+            {
+              "rel": 169,
+              "text": "if (this.endbossInSight) {"
+            }
+          ]
+        },
+        {
+          "line": 169,
+          "keyword": "endboss",
+          "context": [
+            {
+              "rel": 168,
+              "text": "// Endboss StatusBar wird nur gezeichnet, wenn er im Sichtfeld ist"
+            },
+            {
+              "rel": 169,
+              "text": "if (this.endbossInSight) {"
+            },
+            {
+              "rel": 170,
+              "text": "this.addToMap(this.endbossStatusBar); // Endboss StatusBar"
+            }
+          ]
+        },
+        {
+          "line": 170,
+          "keyword": "endboss",
+          "context": [
+            {
+              "rel": 169,
+              "text": "if (this.endbossInSight) {"
+            },
+            {
+              "rel": 170,
+              "text": "this.addToMap(this.endbossStatusBar); // Endboss StatusBar"
+            },
+            {
+              "rel": 171,
+              "text": "}"
+            }
+          ]
+        },
+        {
+          "line": 170,
+          "keyword": "status",
+          "context": [
+            {
+              "rel": 169,
+              "text": "if (this.endbossInSight) {"
+            },
+            {
+              "rel": 170,
+              "text": "this.addToMap(this.endbossStatusBar); // Endboss StatusBar"
+            },
+            {
+              "rel": 171,
+              "text": "}"
+            }
+          ]
+        },
+        {
+          "line": 170,
+          "keyword": "bar",
+          "context": [
+            {
+              "rel": 169,
+              "text": "if (this.endbossInSight) {"
+            },
+            {
+              "rel": 170,
+              "text": "this.addToMap(this.endbossStatusBar); // Endboss StatusBar"
+            },
+            {
+              "rel": 171,
+              "text": "}"
+            }
+          ]
+        },
+        {
+          "line": 173,
+          "keyword": "endboss",
+          "context": [
+            {
+              "rel": 172,
+              "text": ""
+            },
+            {
+              "rel": 173,
+              "text": "// this.addToMap(this.endbossStatusBar);"
+            },
+            {
+              "rel": 174,
+              "text": ""
+            }
+          ]
+        },
+        {
+          "line": 173,
+          "keyword": "status",
+          "context": [
+            {
+              "rel": 172,
+              "text": ""
+            },
+            {
+              "rel": 173,
+              "text": "// this.addToMap(this.endbossStatusBar);"
+            },
+            {
+              "rel": 174,
+              "text": ""
+            }
+          ]
+        },
+        {
+          "line": 173,
+          "keyword": "bar",
+          "context": [
+            {
+              "rel": 172,
+              "text": ""
+            },
+            {
+              "rel": 173,
+              "text": "// this.addToMap(this.endbossStatusBar);"
+            },
+            {
+              "rel": 174,
+              "text": ""
+            }
+          ]
+        },
+        {
+          "line": 176,
+          "keyword": "translate",
+          "context": [
+            {
+              "rel": 175,
+              "text": "// Kamera verschieben, um die restlichen Objekte zu zeichnen"
+            },
+            {
+              "rel": 176,
+              "text": "this.ctx.translate(this.camera_x, 0);"
+            },
+            {
+              "rel": 177,
+              "text": ""
+            }
+          ]
+        },
+        {
+          "line": 183,
+          "keyword": "bottle",
+          "context": [
+            {
+              "rel": 182,
+              "text": "// Flaschen und Gegner zeichnen"
+            },
+            {
+              "rel": 183,
+              "text": "this.addObjectsToMap(this.level.bottles); // Flaschen zeichnen"
+            },
+            {
+              "rel": 184,
+              "text": "this.addObjectsToMap(this.level.enemies);"
+            }
+          ]
+        },
+        {
+          "line": 189,
+          "keyword": "translate",
+          "context": [
+            {
+              "rel": 188,
+              "text": "// Kamera wieder zurück verschieben"
+            },
+            {
+              "rel": 189,
+              "text": "this.ctx.translate(-this.camera_x, 0);"
+            },
+            {
+              "rel": 190,
+              "text": ""
+            }
+          ]
+        },
+        {
+          "line": 219,
+          "keyword": "translate",
+          "context": [
+            {
+              "rel": 218,
+              "text": "this.ctx.save();"
+            },
+            {
+              "rel": 219,
+              "text": "this.ctx.translate(mo.width, 0);"
+            },
+            {
+              "rel": 220,
+              "text": "this.ctx.scale(-1, 1);"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "js\\levels\\level1.js",
+      "hits": [
+        {
+          "line": 2,
+          "keyword": "chicken",
+          "context": [
+            {
+              "rel": 1,
+              "text": "const level1 = new Level(["
+            },
+            {
+              "rel": 2,
+              "text": "new Chicken(),"
+            },
+            {
+              "rel": 3,
+              "text": "new MiniChicken(),"
+            }
+          ]
+        },
+        {
+          "line": 2,
+          "keyword": "chick",
+          "context": [
+            {
+              "rel": 1,
+              "text": "const level1 = new Level(["
+            },
+            {
+              "rel": 2,
+              "text": "new Chicken(),"
+            },
+            {
+              "rel": 3,
+              "text": "new MiniChicken(),"
+            }
+          ]
+        },
+        {
+          "line": 3,
+          "keyword": "chicken",
+          "context": [
+            {
+              "rel": 2,
+              "text": "new Chicken(),"
+            },
+            {
+              "rel": 3,
+              "text": "new MiniChicken(),"
+            },
+            {
+              "rel": 4,
+              "text": "new Chicken(),"
+            }
+          ]
+        },
+        {
+          "line": 3,
+          "keyword": "chick",
+          "context": [
+            {
+              "rel": 2,
+              "text": "new Chicken(),"
+            },
+            {
+              "rel": 3,
+              "text": "new MiniChicken(),"
+            },
+            {
+              "rel": 4,
+              "text": "new Chicken(),"
+            }
+          ]
+        },
+        {
+          "line": 4,
+          "keyword": "chicken",
+          "context": [
+            {
+              "rel": 3,
+              "text": "new MiniChicken(),"
+            },
+            {
+              "rel": 4,
+              "text": "new Chicken(),"
+            },
+            {
+              "rel": 5,
+              "text": "new MiniChicken(),"
+            }
+          ]
+        },
+        {
+          "line": 4,
+          "keyword": "chick",
+          "context": [
+            {
+              "rel": 3,
+              "text": "new MiniChicken(),"
+            },
+            {
+              "rel": 4,
+              "text": "new Chicken(),"
+            },
+            {
+              "rel": 5,
+              "text": "new MiniChicken(),"
+            }
+          ]
+        },
+        {
+          "line": 5,
+          "keyword": "chicken",
+          "context": [
+            {
+              "rel": 4,
+              "text": "new Chicken(),"
+            },
+            {
+              "rel": 5,
+              "text": "new MiniChicken(),"
+            },
+            {
+              "rel": 6,
+              "text": "new Chicken(),"
+            }
+          ]
+        },
+        {
+          "line": 5,
+          "keyword": "chick",
+          "context": [
+            {
+              "rel": 4,
+              "text": "new Chicken(),"
+            },
+            {
+              "rel": 5,
+              "text": "new MiniChicken(),"
+            },
+            {
+              "rel": 6,
+              "text": "new Chicken(),"
+            }
+          ]
+        },
+        {
+          "line": 6,
+          "keyword": "chicken",
+          "context": [
+            {
+              "rel": 5,
+              "text": "new MiniChicken(),"
+            },
+            {
+              "rel": 6,
+              "text": "new Chicken(),"
+            },
+            {
+              "rel": 7,
+              "text": "new Chicken(),"
+            }
+          ]
+        },
+        {
+          "line": 6,
+          "keyword": "chick",
+          "context": [
+            {
+              "rel": 5,
+              "text": "new MiniChicken(),"
+            },
+            {
+              "rel": 6,
+              "text": "new Chicken(),"
+            },
+            {
+              "rel": 7,
+              "text": "new Chicken(),"
+            }
+          ]
+        },
+        {
+          "line": 7,
+          "keyword": "chicken",
+          "context": [
+            {
+              "rel": 6,
+              "text": "new Chicken(),"
+            },
+            {
+              "rel": 7,
+              "text": "new Chicken(),"
+            },
+            {
+              "rel": 8,
+              "text": "new MiniChicken(),"
+            }
+          ]
+        },
+        {
+          "line": 7,
+          "keyword": "chick",
+          "context": [
+            {
+              "rel": 6,
+              "text": "new Chicken(),"
+            },
+            {
+              "rel": 7,
+              "text": "new Chicken(),"
+            },
+            {
+              "rel": 8,
+              "text": "new MiniChicken(),"
+            }
+          ]
+        },
+        {
+          "line": 8,
+          "keyword": "chicken",
+          "context": [
+            {
+              "rel": 7,
+              "text": "new Chicken(),"
+            },
+            {
+              "rel": 8,
+              "text": "new MiniChicken(),"
+            },
+            {
+              "rel": 9,
+              "text": "new Chicken(),"
+            }
+          ]
+        },
+        {
+          "line": 8,
+          "keyword": "chick",
+          "context": [
+            {
+              "rel": 7,
+              "text": "new Chicken(),"
+            },
+            {
+              "rel": 8,
+              "text": "new MiniChicken(),"
+            },
+            {
+              "rel": 9,
+              "text": "new Chicken(),"
+            }
+          ]
+        },
+        {
+          "line": 9,
+          "keyword": "chicken",
+          "context": [
+            {
+              "rel": 8,
+              "text": "new MiniChicken(),"
+            },
+            {
+              "rel": 9,
+              "text": "new Chicken(),"
+            },
+            {
+              "rel": 10,
+              "text": "new Chicken(),"
+            }
+          ]
+        },
+        {
+          "line": 9,
+          "keyword": "chick",
+          "context": [
+            {
+              "rel": 8,
+              "text": "new MiniChicken(),"
+            },
+            {
+              "rel": 9,
+              "text": "new Chicken(),"
+            },
+            {
+              "rel": 10,
+              "text": "new Chicken(),"
+            }
+          ]
+        },
+        {
+          "line": 10,
+          "keyword": "chicken",
+          "context": [
+            {
+              "rel": 9,
+              "text": "new Chicken(),"
+            },
+            {
+              "rel": 10,
+              "text": "new Chicken(),"
+            },
+            {
+              "rel": 11,
+              "text": "new Endboss()"
+            }
+          ]
+        },
+        {
+          "line": 10,
+          "keyword": "chick",
+          "context": [
+            {
+              "rel": 9,
+              "text": "new Chicken(),"
+            },
+            {
+              "rel": 10,
+              "text": "new Chicken(),"
+            },
+            {
+              "rel": 11,
+              "text": "new Endboss()"
+            }
+          ]
+        },
+        {
+          "line": 11,
+          "keyword": "endboss",
+          "context": [
+            {
+              "rel": 10,
+              "text": "new Chicken(),"
+            },
+            {
+              "rel": 11,
+              "text": "new Endboss()"
+            },
+            {
+              "rel": 12,
+              "text": "],"
+            }
+          ]
+        },
+        {
+          "line": 72,
+          "keyword": "bottle",
+          "context": [
+            {
+              "rel": 71,
+              "text": "["
+            },
+            {
+              "rel": 72,
+              "text": "new Bottle(380, 350),"
+            },
+            {
+              "rel": 73,
+              "text": "new Bottle(800, 330),"
+            }
+          ]
+        },
+        {
+          "line": 73,
+          "keyword": "bottle",
+          "context": [
+            {
+              "rel": 72,
+              "text": "new Bottle(380, 350),"
+            },
+            {
+              "rel": 73,
+              "text": "new Bottle(800, 330),"
+            },
+            {
+              "rel": 74,
+              "text": "new Bottle(1200, 380),"
+            }
+          ]
+        },
+        {
+          "line": 74,
+          "keyword": "bottle",
+          "context": [
+            {
+              "rel": 73,
+              "text": "new Bottle(800, 330),"
+            },
+            {
+              "rel": 74,
+              "text": "new Bottle(1200, 380),"
+            },
+            {
+              "rel": 75,
+              "text": "new Bottle(1800, 300),"
+            }
+          ]
+        },
+        {
+          "line": 75,
+          "keyword": "bottle",
+          "context": [
+            {
+              "rel": 74,
+              "text": "new Bottle(1200, 380),"
+            },
+            {
+              "rel": 75,
+              "text": "new Bottle(1800, 300),"
+            },
+            {
+              "rel": 76,
+              "text": "new Bottle(2300, 400),"
+            }
+          ]
+        },
+        {
+          "line": 76,
+          "keyword": "bottle",
+          "context": [
+            {
+              "rel": 75,
+              "text": "new Bottle(1800, 300),"
+            },
+            {
+              "rel": 76,
+              "text": "new Bottle(2300, 400),"
+            },
+            {
+              "rel": 77,
+              "text": "new Bottle(3000, 370),"
+            }
+          ]
+        },
+        {
+          "line": 77,
+          "keyword": "bottle",
+          "context": [
+            {
+              "rel": 76,
+              "text": "new Bottle(2300, 400),"
+            },
+            {
+              "rel": 77,
+              "text": "new Bottle(3000, 370),"
+            },
+            {
+              "rel": 78,
+              "text": "new Bottle(3200, 350),"
+            }
+          ]
+        },
+        {
+          "line": 78,
+          "keyword": "bottle",
+          "context": [
+            {
+              "rel": 77,
+              "text": "new Bottle(3000, 370),"
+            },
+            {
+              "rel": 78,
+              "text": "new Bottle(3200, 350),"
+            },
+            {
+              "rel": 79,
+              "text": "new Bottle(3400, 350),"
+            }
+          ]
+        },
+        {
+          "line": 79,
+          "keyword": "bottle",
+          "context": [
+            {
+              "rel": 78,
+              "text": "new Bottle(3200, 350),"
+            },
+            {
+              "rel": 79,
+              "text": "new Bottle(3400, 350),"
+            },
+            {
+              "rel": 80,
+              "text": "new Bottle(3600, 350),"
+            }
+          ]
+        },
+        {
+          "line": 80,
+          "keyword": "bottle",
+          "context": [
+            {
+              "rel": 79,
+              "text": "new Bottle(3400, 350),"
+            },
+            {
+              "rel": 80,
+              "text": "new Bottle(3600, 350),"
+            },
+            {
+              "rel": 81,
+              "text": "new Bottle(3700, 450),"
+            }
+          ]
+        },
+        {
+          "line": 81,
+          "keyword": "bottle",
+          "context": [
+            {
+              "rel": 80,
+              "text": "new Bottle(3600, 350),"
+            },
+            {
+              "rel": 81,
+              "text": "new Bottle(3700, 450),"
+            },
+            {
+              "rel": 82,
+              "text": "new Bottle(3800, 350),"
+            }
+          ]
+        },
+        {
+          "line": 82,
+          "keyword": "bottle",
+          "context": [
+            {
+              "rel": 81,
+              "text": "new Bottle(3700, 450),"
+            },
+            {
+              "rel": 82,
+              "text": "new Bottle(3800, 350),"
+            },
+            {
+              "rel": 83,
+              "text": "new Bottle(3900, 350),"
+            }
+          ]
+        },
+        {
+          "line": 83,
+          "keyword": "bottle",
+          "context": [
+            {
+              "rel": 82,
+              "text": "new Bottle(3800, 350),"
+            },
+            {
+              "rel": 83,
+              "text": "new Bottle(3900, 350),"
+            },
+            {
+              "rel": 84,
+              "text": "new Bottle(4000, 390)"
+            }
+          ]
+        },
+        {
+          "line": 84,
+          "keyword": "bottle",
+          "context": [
+            {
+              "rel": 83,
+              "text": "new Bottle(3900, 350),"
+            },
+            {
+              "rel": 84,
+              "text": "new Bottle(4000, 390)"
+            },
+            {
+              "rel": 85,
+              "text": "]"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "style.css",
+      "hits": [
+        {
+          "line": 2,
+          "keyword": "bar",
+          "context": [
+            {
+              "rel": 1,
+              "text": "@font-face {"
+            },
+            {
+              "rel": 2,
+              "text": "font-family: 'zabars';"
+            },
+            {
+              "rel": 3,
+              "text": "src: url('./fonts/zabars.ttf') format('truetype');"
+            }
+          ]
+        },
+        {
+          "line": 3,
+          "keyword": "bar",
+          "context": [
+            {
+              "rel": 2,
+              "text": "font-family: 'zabars';"
+            },
+            {
+              "rel": 3,
+              "text": "src: url('./fonts/zabars.ttf') format('truetype');"
+            },
+            {
+              "rel": 4,
+              "text": "}"
+            }
+          ]
+        },
+        {
+          "line": 17,
+          "keyword": "bar",
+          "context": [
+            {
+              "rel": 16,
+              "text": "min-height: 100vh;"
+            },
+            {
+              "rel": 17,
+              "text": "font-family: 'zabars', Arial, Helvetica, sans-serif;"
+            },
+            {
+              "rel": 18,
+              "text": "position: relative;"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "tools\\scan-repo.js",
+      "hits": [
+        {
+          "line": 7,
+          "keyword": "translate",
+          "context": [
+            {
+              "rel": 6,
+              "text": "const KEYWORDS = ["
+            },
+            {
+              "rel": 7,
+              "text": "'translate', 'scroll', 'language', 'lang', 'btn',"
+            },
+            {
+              "rel": 8,
+              "text": "'bottle', 'supersalsa', 'endboss', 'chicken', 'chick',"
+            }
+          ]
+        },
+        {
+          "line": 7,
+          "keyword": "scroll",
+          "context": [
+            {
+              "rel": 6,
+              "text": "const KEYWORDS = ["
+            },
+            {
+              "rel": 7,
+              "text": "'translate', 'scroll', 'language', 'lang', 'btn',"
+            },
+            {
+              "rel": 8,
+              "text": "'bottle', 'supersalsa', 'endboss', 'chicken', 'chick',"
+            }
+          ]
+        },
+        {
+          "line": 7,
+          "keyword": "language",
+          "context": [
+            {
+              "rel": 6,
+              "text": "const KEYWORDS = ["
+            },
+            {
+              "rel": 7,
+              "text": "'translate', 'scroll', 'language', 'lang', 'btn',"
+            },
+            {
+              "rel": 8,
+              "text": "'bottle', 'supersalsa', 'endboss', 'chicken', 'chick',"
+            }
+          ]
+        },
+        {
+          "line": 7,
+          "keyword": "lang",
+          "context": [
+            {
+              "rel": 6,
+              "text": "const KEYWORDS = ["
+            },
+            {
+              "rel": 7,
+              "text": "'translate', 'scroll', 'language', 'lang', 'btn',"
+            },
+            {
+              "rel": 8,
+              "text": "'bottle', 'supersalsa', 'endboss', 'chicken', 'chick',"
+            }
+          ]
+        },
+        {
+          "line": 7,
+          "keyword": "btn",
+          "context": [
+            {
+              "rel": 6,
+              "text": "const KEYWORDS = ["
+            },
+            {
+              "rel": 7,
+              "text": "'translate', 'scroll', 'language', 'lang', 'btn',"
+            },
+            {
+              "rel": 8,
+              "text": "'bottle', 'supersalsa', 'endboss', 'chicken', 'chick',"
+            }
+          ]
+        },
+        {
+          "line": 8,
+          "keyword": "bottle",
+          "context": [
+            {
+              "rel": 7,
+              "text": "'translate', 'scroll', 'language', 'lang', 'btn',"
+            },
+            {
+              "rel": 8,
+              "text": "'bottle', 'supersalsa', 'endboss', 'chicken', 'chick',"
+            },
+            {
+              "rel": 9,
+              "text": "'audio', 'sound', 'status', 'bar', 'hp'"
+            }
+          ]
+        },
+        {
+          "line": 8,
+          "keyword": "supersalsa",
+          "context": [
+            {
+              "rel": 7,
+              "text": "'translate', 'scroll', 'language', 'lang', 'btn',"
+            },
+            {
+              "rel": 8,
+              "text": "'bottle', 'supersalsa', 'endboss', 'chicken', 'chick',"
+            },
+            {
+              "rel": 9,
+              "text": "'audio', 'sound', 'status', 'bar', 'hp'"
+            }
+          ]
+        },
+        {
+          "line": 8,
+          "keyword": "endboss",
+          "context": [
+            {
+              "rel": 7,
+              "text": "'translate', 'scroll', 'language', 'lang', 'btn',"
+            },
+            {
+              "rel": 8,
+              "text": "'bottle', 'supersalsa', 'endboss', 'chicken', 'chick',"
+            },
+            {
+              "rel": 9,
+              "text": "'audio', 'sound', 'status', 'bar', 'hp'"
+            }
+          ]
+        },
+        {
+          "line": 8,
+          "keyword": "chicken",
+          "context": [
+            {
+              "rel": 7,
+              "text": "'translate', 'scroll', 'language', 'lang', 'btn',"
+            },
+            {
+              "rel": 8,
+              "text": "'bottle', 'supersalsa', 'endboss', 'chicken', 'chick',"
+            },
+            {
+              "rel": 9,
+              "text": "'audio', 'sound', 'status', 'bar', 'hp'"
+            }
+          ]
+        },
+        {
+          "line": 8,
+          "keyword": "chick",
+          "context": [
+            {
+              "rel": 7,
+              "text": "'translate', 'scroll', 'language', 'lang', 'btn',"
+            },
+            {
+              "rel": 8,
+              "text": "'bottle', 'supersalsa', 'endboss', 'chicken', 'chick',"
+            },
+            {
+              "rel": 9,
+              "text": "'audio', 'sound', 'status', 'bar', 'hp'"
+            }
+          ]
+        },
+        {
+          "line": 9,
+          "keyword": "audio",
+          "context": [
+            {
+              "rel": 8,
+              "text": "'bottle', 'supersalsa', 'endboss', 'chicken', 'chick',"
+            },
+            {
+              "rel": 9,
+              "text": "'audio', 'sound', 'status', 'bar', 'hp'"
+            },
+            {
+              "rel": 10,
+              "text": "];"
+            }
+          ]
+        },
+        {
+          "line": 9,
+          "keyword": "sound",
+          "context": [
+            {
+              "rel": 8,
+              "text": "'bottle', 'supersalsa', 'endboss', 'chicken', 'chick',"
+            },
+            {
+              "rel": 9,
+              "text": "'audio', 'sound', 'status', 'bar', 'hp'"
+            },
+            {
+              "rel": 10,
+              "text": "];"
+            }
+          ]
+        },
+        {
+          "line": 9,
+          "keyword": "status",
+          "context": [
+            {
+              "rel": 8,
+              "text": "'bottle', 'supersalsa', 'endboss', 'chicken', 'chick',"
+            },
+            {
+              "rel": 9,
+              "text": "'audio', 'sound', 'status', 'bar', 'hp'"
+            },
+            {
+              "rel": 10,
+              "text": "];"
+            }
+          ]
+        },
+        {
+          "line": 9,
+          "keyword": "bar",
+          "context": [
+            {
+              "rel": 8,
+              "text": "'bottle', 'supersalsa', 'endboss', 'chicken', 'chick',"
+            },
+            {
+              "rel": 9,
+              "text": "'audio', 'sound', 'status', 'bar', 'hp'"
+            },
+            {
+              "rel": 10,
+              "text": "];"
+            }
+          ]
+        },
+        {
+          "line": 9,
+          "keyword": "hp",
+          "context": [
+            {
+              "rel": 8,
+              "text": "'bottle', 'supersalsa', 'endboss', 'chicken', 'chick',"
+            },
+            {
+              "rel": 9,
+              "text": "'audio', 'sound', 'status', 'bar', 'hp'"
+            },
+            {
+              "rel": 10,
+              "text": "];"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
