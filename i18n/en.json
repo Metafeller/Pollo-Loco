@@ -1,0 +1,11 @@
+﻿{
+  "app": { "title": "El Pollo Loco" },
+  "ui": {
+    "language": "Language",
+    "start": "Start",
+    "pause": "Pause",
+    "restart": "Restart",
+    "lang_de": "DE",
+    "lang_en": "EN"
+  }
+}

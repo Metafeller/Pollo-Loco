@@ -55,6 +55,92 @@ canvas {
     box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.5); /* hebt nochmal den Fokus hevor */
 }
 
+/* === UI-Bar (Language & Controls) – passend zu deinem Stil === */
+.ui-bar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  width:100%;
+  max-width: 720px;          /* passt optisch zur Canvas-Breite */
+  padding: 8px 0px;
+  margin-bottom: 16px;
+  background: rgba(0,0,0,0.35);                 /* sichtbar auf deinem dunklen Overlay */
+  border: 1px solid rgba(242,212,162,0.35);     /* deine H1-Farbe halbtransparent */
+  border-radius: 12px;
+  position: relative;
+  z-index: 2; /* über dem dunklen Body-Overlay */
+}
+
+.ui-bar h1{
+  color: #F2D4A2;
+  font-size: 48px;
+  letter-spacing: 2px;
+  margin: 0;
+}
+
+.ui-right{
+  display:flex;
+  align-items:center;
+  gap: 12px;
+}
+
+.btn-row{
+  display:flex;
+  align-items:center;
+  gap: 8px;
+  padding-left: 12px;
+}
+
+.ui-btn{
+  background: transparent;
+  color: #F2D4A2;
+  border: 1px solid #F2D4A2;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-family: 'zabars', Arial, Helvetica, sans-serif;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: background 120ms ease;
+}
+
+.ui-btn:hover{
+  background: rgba(242,212,162,0.12);
+}
+
+.lang-switch{
+  display:flex;
+  align-items:center;
+  gap: 8px;
+  color: #F2D4A2;
+  padding-right: 12px;
+}
+
+.lang-label{ opacity: 0.9; }
+
+.lang-btn{
+  background: transparent;
+  color: #F2D4A2;
+  border: 1px solid #F2D4A2;
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-family: 'zabars', Arial, Helvetica, sans-serif;
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease;
+}
+
+.lang-btn.active{
+  background: #F2D4A2;
+  color: #1a1a1a;
+}
+
+/* Mobile: Titel ausblenden, Controls kompakter – Canvas bleibt Fokus */
+@media only screen and (max-width: 720px) {
+  .ui-bar h1{ display:none; }
+  .ui-btn{ padding: 6px 8px; }
+}
+
+
+
 /* ----- Smartphones w ----- */
 @media only screen and (max-width: 720px) {
     canvas {
