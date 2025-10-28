@@ -8,5 +8,16 @@
     "lang_de": "DE",
     "lang_en": "EN",
     "toTop": "Back to top"
+  },
+  "game": {
+    "winner": "Du hast gewonnen!",
+    "gameOver": "Game Over"
+  },
+  "status": {
+    "endboss": "Endboss",
+    "bottles": "Bottles",
+    "health": "Health",
+    "energy": "Energy",
+    "coins": "Coins"
   }
 }
