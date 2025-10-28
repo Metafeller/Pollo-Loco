@@ -11,7 +11,8 @@
     'btn-pause': 'ui.pause',
     'btn-restart': 'ui.restart',
     'btn-lang-de': 'ui.lang_de',
-    'btn-lang-en': 'ui.lang_en'
+    'btn-lang-en': 'ui.lang_en',
+    'btn-to-top': 'ui.toTop'
   };
 
   let current = 'de';
@@ -38,6 +39,13 @@
       if (!el) return;
       const key = I18N_MAP[id];
       el.textContent = t(dict, key);
+
+      if (id === 'btn-to-top') {
+        const label = t(dict, key);
+        el.setAttribute('title', label);
+        el.setAttribute('aria-label', label);
+      }
+
     });
   }
 
