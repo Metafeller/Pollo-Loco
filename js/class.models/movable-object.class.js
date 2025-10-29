@@ -36,13 +36,53 @@ class MovableObject extends DrawableObject {
     }
 
 
-    // character.isColliding(chicken);
-    isColliding(mo) {
-        return this.x + this.width > mo.x &&
-               this.y + this.height > mo.y &&
-               this.x < mo.x &&
-               this.y < mo.y + mo.height;
+      /**
+   * Returns the axis-aligned bounds of this object.
+   */
+    getBounds() {
+        // Guards: ensure numeric coordinates to avoid NaN issues
+        const x = typeof this.x === 'number' ? this.x : 0;
+        const y = typeof this.y === 'number' ? this.y : 0;
+        const w = typeof this.width === 'number' ? this.width : 0;
+        const h = typeof this.height === 'number' ? this.height : 0;
+
+        return {
+        left: x,
+        top: y,
+        right: x + w,
+        bottom: y + h
+        };
     }
+
+
+      /**
+   * Axis-aligned bounding box collision check (robust AABB).
+   * @param {Object} other - any object with x, y, width, height
+   * @returns {boolean}
+   */
+    isColliding(other) {
+        // Guards
+        if (!other || other === this) return false;
+        if (typeof other.x !== 'number' || typeof other.y !== 'number' ||
+            typeof other.width !== 'number' || typeof other.height !== 'number') {
+        return false;
+        }
+
+        const a = this.getBounds();
+        const b = {
+        left: other.x,
+        top: other.y,
+        right: other.x + other.width,
+        bottom: other.y + other.height
+        };
+
+        // AABB overlap
+        const overlapX = a.left < b.right && a.right > b.left;
+        const overlapY = a.top < b.bottom && a.bottom > b.top;
+
+        return overlapX && overlapY;
+    }
+
 
 
     // Bessere Formel zur Kollisionsberechnung mit den Chicken (Genauer)

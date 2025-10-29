@@ -108,9 +108,19 @@ class World {
     
 
     checkBottleCollisions() {
+        // Guards to avoid crashes with missing arrays
+        if (!Array.isArray(this.throwableObjects) || !this.level || !Array.isArray(this.level.enemies)) {
+            return;
+        }
+
+
         this.throwableObjects.forEach((bottle, bottleIndex) => {
             this.level.enemies.forEach((enemy, enemyIndex) => {
                 if (bottle.isColliding(enemy)) {
+                    if (bottle.hasHit === true) return; // prevent double-processing
+                        bottle.hasHit = true;               // mark as consumed
+                        this.onBottleHitsEnemy(bottle, enemy); // fire hook (no damage here)
+
                     if (enemy instanceof Chicken || enemy instanceof MiniChicken) {
                         this.level.enemies.splice(enemyIndex, 1);  // Chicken oder MiniChicken entfernen
                         enemy.die();  // Sterbeanimation für Chicken/MiniChicken
@@ -224,6 +234,20 @@ class World {
     flipImageBack(mo) {
         mo.x = mo.x * -1;
         this.ctx.restore();
+    }
+
+      /**
+   * Hook for bottle hit events (EPL-12: no damage logic here).
+   * Allows bottles to trigger custom behavior on hit.
+   */
+    onBottleHitsEnemy(bottle, enemy) {
+        if (bottle && typeof bottle.onHit === 'function') {
+        try {
+            bottle.onHit(enemy);
+        } catch (e) {
+            // Keep loop stable; swallow errors
+        }
+        }
     }
 
 }
