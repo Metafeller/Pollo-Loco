@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SOP – Merge-Workflows (Epic-Branch → main): GitHub Browser • GitHub Desktop • Terminal (PowerShell)</title>
+<style>
+  :root{
+    --fg:#121212; --muted:#616161; --ok:#0f9d58; --warn:#c0392b; --box:#f6f8fa;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  }
+  html,body{margin:0;padding:0;background:#fff;color:var(--fg);font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,"Helvetica Neue",Arial;}
+  main{max-width:980px;margin:36px auto;padding:0 24px 80px;}
+  h1{font-size:28px;margin:0 0 8px;}
+  h2{margin:28px 0 10px;}
+  h3{margin:20px 0 8px;}
+  p{margin:10px 0;}
+  .sub{color:var(--muted);margin:0 0 20px;}
+  .grid{display:grid;grid-template-columns:1fr;gap:18px;}
+  .card{background:#fff;border:1px solid #e6e6e6;border-radius:12px;box-shadow:0 1px 2px rgba(0,0,0,.04);padding:16px;}
+  .step{border-left:3px solid #e0e0e0;padding-left:12px;margin:14px 0;}
+  .ok{background:#f0fff4;border:1px solid #c6f6d5;padding:10px 12px;border-radius:8px;}
+  .warn{background:#fff5f5;border:1px solid #fed7d7;padding:10px 12px;border-radius:8px;}
+  .muted{color:var(--muted);}
+  pre{background:var(--box);padding:12px 14px;border-radius:8px;overflow:auto;font-family:var(--mono);font-size:14px;}
+  code{font-family:var(--mono);font-size:14px;}
+  ol,ul{padding-left:20px;}
+  .kbd{padding:.15em .45em;border:1px solid #ccc;border-bottom-width:2px;border-radius:6px;background:#fafafa;box-shadow:inset 0 -1px 0 #eee;font-family:var(--mono);font-size:.95em;}
+  .small{font-size:14px;color:#616161;}
+  .hr{height:1px;background:#eee;margin:26px 0;}
+  @media print{a{text-decoration:none;color:black} .card{box-shadow:none} .hr{display:none}}
+</style>
+</head>
+<body>
+<main>
+  <h1>SOP – Merge eines Epic-Branches in <code>main</code></h1>
+  <p class="sub">Projekt: El Pollo Loco • Arbeitsweise: Was / Warum / Wie • Code auf Englisch, Erklärungen auf Deutsch • Geeignet für Git-Einsteiger</p>
+
+  <div class="card">
+    <h2>Quickstart – Entscheidungsbaum</h2>
+    <ol>
+      <li><strong>Willst du klicken statt tippen?</strong> → Nutze <strong>Variante A: GitHub Browser</strong> oder <strong>Variante B: GitHub Desktop</strong>.</li>
+      <li><strong>Magst du Befehle?</strong> → Nutze <strong>Variante C: Terminal (PowerShell)</strong>.</li>
+      <li>Nach dem Merge: <strong>lokal <code>main</code> pullen</strong> und <strong>neuen Epic-Branch von <code>main</code></strong> erstellen.</li>
+    </ol>
+    <p class="ok"><strong>Definition of Done:</strong> PR gemerged → <code>origin/main</code> enthält die Änderungen → lokal <code>main</code> aktualisiert → neuer Epic-Branch erstellt.</p>
+  </div>
+
+  <div class="hr"></div>
+
+  <div class="grid">
+    <section class="card" id="browser">
+      <h2>Variante A – GitHub Browser (Pull Request)</h2>
+      <div class="step">
+        <h3>Was</h3>
+        <p>Merge des Epic-Branches in <code>main</code> über einen Pull Request im Browser.</p>
+        <h3>Warum</h3>
+        <p>Einfacher Review-Prozess, saubere Historie, sichtbare Contributions.</p>
+        <h3>Wie (Schritte)</h3>
+        <ol>
+          <li>Push sicherstellen (z. B. in GitHub Desktop: <em>Push origin</em>).</li>
+          <li>Im Repo auf GitHub: Reiter <strong>Pull requests</strong> → <strong>New pull request</strong>.</li>
+          <li><strong>Base:</strong> <code>main</code> • <strong>Compare:</strong> <code>epic/&lt;dein-epic&gt;</code>.</li>
+          <li>Falls „There isn’t anything to compare.“ erscheint, ist <code>main</code> bereits identisch → Merge nicht nötig.</li>
+          <li><strong>Create pull request</strong> (Titel &amp; Beschreibung ausfüllen) → <strong>Ready for review</strong> → <strong>Merge pull request</strong>.</li>
+          <li><strong>Merge-Methode:</strong> <em>Squash and merge</em> (empfohlen) oder <em>Create a merge commit</em> (granulare History).</li>
+        </ol>
+      </div>
+      <div class="step">
+        <h3>Nach dem Merge</h3>
+        <ol>
+          <li>Lokal auf <code>main</code> wechseln und <strong>pullen</strong>.</li>
+          <li>Neuen Branch von <code>main</code> erstellen (für den nächsten Epic).</li>
+          <li>Optional: alten Epic-Branch löschen (lokal &amp; remote) für Übersicht.</li>
+        </ol>
+      </div>
+      <div class="step">
+        <h3>Troubleshooting</h3>
+        <ul>
+          <li><strong>Nothing to compare:</strong> <code>main</code> ist bereits auf Stand des Epic-Branches.</li>
+          <li><strong>Konflikte:</strong> In PR auf <em>Update branch</em> klicken, Konflikte im Editor lösen, dann erneut pushen und mergen.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="card" id="desktop">
+      <h2>Variante B – GitHub Desktop</h2>
+      <div class="step">
+        <h3>Was</h3>
+        <p>PR aus GitHub Desktop starten und im Browser bestätigen.</p>
+        <h3>Warum</h3>
+        <p>Geführter Flow, weniger Terminal-Tipparbeit.</p>
+        <h3>Wie (Schritte)</h3>
+        <ol>
+          <li><strong>Current branch:</strong> <code>epic/&lt;dein-epic&gt;</code>.</li>
+          <li><strong>Repository → Push</strong> (falls aktiv).</li>
+          <li><strong>Branch → Preview pull request</strong> (oder <em>Compare to branch…</em> und Base = <code>main</code> setzen).</li>
+          <li>Im Browser die PR-Maske prüfen: Base <code>main</code>, Compare dein Epic-Branch → <strong>Create pull request</strong> → <strong>Merge</strong>.</li>
+          <li>Zurück in Desktop: <strong>Current branch → main</strong> → <strong>Pull origin</strong>.</li>
+          <li><strong>Branch → New branch…</strong> → neuen Epic-Branch von <code>main</code> erstellen → <strong>Publish branch</strong>.</li>
+          <li>Optional: <strong>Branch → Delete…</strong> (Epic-Branch lokal &amp; „Delete on GitHub“).</li>
+        </ol>
+      </div>
+      <div class="step">
+        <h3>Troubleshooting</h3>
+        <ul>
+          <li><strong>Preview pull request ist grau:</strong> erst <em>Compare to branch…</em> ausführen, Base <code>main</code>.</li>
+          <li><strong>„There isn’t anything to compare.“</strong> in der Compare-Ansicht: Merge nicht nötig.</li>
+          <li><strong>Konflikte:</strong> Desktop öffnet Editor → Konflikte lösen → <em>Mark as resolved</em> → <em>Commit merge</em> → <em>Push</em>.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="card" id="terminal">
+      <h2>Variante C – Terminal (PowerShell im VS Code)</h2>
+      <div class="step">
+        <h3>Was</h3>
+        <p>Merge über Befehle inkl. optionalem Stash-Fallback.</p>
+        <h3>Warum</h3>
+        <p>Schnell, transparent, funktioniert immer – ideal als Notfall-Plan.</p>
+        <h3>Wie (Schritte &amp; Befehle)</h3>
+        <ol>
+          <li><strong>Alles committen &amp; pushen</strong> (auf deinem Epic-Branch):
+            <pre><code>git status
+git add -A
+git commit -m "finalize epic before merge"  # falls noch Änderungen
+git push</code></pre>
+          </li>
+          <li><strong>PR im Browser öffnen</strong> (empfohlen) oder direkt mergen (nur wenn du Rechte hast):
+            <pre><code># PR-Route (empfohlen)
+# Öffne im Browser: https://github.com/&lt;user&gt;/&lt;repo&gt;/compare/main...epic/&lt;dein-epic&gt;</code></pre>
+          </li>
+          <li><strong>Nach dem Merge</strong> → lokal <code>main</code> aktualisieren:
+            <pre><code>git switch main
+git pull</code></pre>
+          </li>
+          <li><strong>Neuen Epic-Branch von main erstellen</strong>:
+            <pre><code>git switch -c epic/ep11-bottle-collision
+git push -u origin epic/ep11-bottle-collision</code></pre>
+          </li>
+          <li><strong>Aufräumen (optional)</strong>:
+            <pre><code>git branch -d epic/&lt;dein-epic&gt;
+git push origin --delete epic/&lt;dein-epic&gt;</code></pre>
+          </li>
+        </ol>
+      </div>
+
+      <div class="step">
+        <h3>Extras – Sicher wechseln ohne Datenverlust</h3>
+        <p class="small">Wenn Git beim Branchwechsel Dateien „löschen“ will, betrifft das nur die Arbeitskopie. Nutze Stash, um deinen Stand zwischenzuparken:</p>
+        <pre><code># Alles (inkl. untracked) zwischenparken und später wiederherstellen
+git stash -u
+git switch main
+# ... etwas tun ...
+git switch epic/&lt;dein-epic&gt;
+git stash pop</code></pre>
+      </div>
+
+      <div class="step">
+        <h3>Konflikte lösen (Kurzleitfaden)</h3>
+        <ol>
+          <li><code>git pull</code> oder PR-Update verursacht Konflikte → VS Code zeigt Konflikt-Marker.</li>
+          <li>„Accept Current/Incoming/Both“ wählen, Datei speichern.</li>
+          <li><code>git add &lt;file&gt;</code> → <code>git commit</code> → <code>git push</code>.</li>
+        </ol>
+      </div>
+    </section>
+  </div>
+
+  <div class="hr"></div>
+
+  <section class="card">
+    <h2>Checkliste: DoD nach dem Merge</h2>
+    <ul>
+      <li><code>origin/main</code> enthält die Änderungen (PR ist gemerged).</li>
+      <li>Lokal: <code>git switch main</code> &amp; <code>git pull</code> (oder Desktop: <em>Pull origin</em>).</li>
+      <li>Neuer Branch für nächsten Epic ist erstellt &amp; published.</li>
+      <li>Optional: Alter Epic-Branch lokal/remote gelöscht.</li>
+    </ul>
+  </section>
+
+  <p class="muted small">© Developer Academy Stil • Schritt-für-Schritt • Diese Datei kann direkt als PDF gedruckt/gespeichert werden.</p>
+</main>
+</body>
+</html>
