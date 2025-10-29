@@ -1,0 +1,67 @@
+{
+  "generatedAt": "2025-10-28T14:36:48.233Z",
+  "summary": {
+    "html": [
+      "index.html"
+    ],
+    "css": [
+      "style.css"
+    ],
+    "js": [
+      "js\\class.models\\bottle-status-bar-class.js",
+      "js\\class.models\\bottle.class.js",
+      "js\\class.models\\character.class.js",
+      "js\\class.models\\chicken.class.js",
+      "js\\class.models\\drawable-object.class.js",
+      "js\\class.models\\endboss-status-bar.class.js",
+      "js\\class.models\\endboss.class.js",
+      "js\\class.models\\level.class.js",
+      "js\\class.models\\mini-chicken.class.js",
+      "js\\class.models\\movable-object.class.js",
+      "js\\class.models\\status-bar.class.js",
+      "js\\class.models\\throwable-object.class.js",
+      "js\\class.models\\world.class.js",
+      "js\\levels\\level1.js",
+      "tools\\scan-repo.js"
+    ]
+  },
+  "htmlDetails": [
+    {
+      "file": "index.html",
+      "embeds": {
+        "scripts": [
+          "js/class.models/drawable-object.class.js",
+          "js/class.models/movable-object.class.js",
+          "js/class.models/character.class.js",
+          "js/class.models/chicken.class.js",
+          "/js/class.models/mini-chicken.class.js",
+          "js/class.models/cloud.class.js",
+          "js/class.models/bottle.class.js",
+          "js/class.models/status-bar.class.js",
+          "js/class.models/bottle-status-bar-class.js",
+          "js/class.models/endboss-status-bar.class.js",
+          "js/class.models/world.class.js",
+          "js/class.models/background-object.class.js",
+          "js/class.models/keyboard.class.js",
+          "js/class.models/level.class.js",
+          "js/class.models/throwable-object.class.js",
+          "js/class.models/endboss.class.js",
+          "js/levels/level1.js",
+          "js/game.js"
+        ],
+        "styles": [
+          "style.css"
+        ]
+      },
+      "regions": {
+        "header": [],
+        "nav": [],
+        "footer": [],
+        "sections": []
+      },
+      "elementIds": [
+        "canvas"
+      ]
+    }
+  ]
+}

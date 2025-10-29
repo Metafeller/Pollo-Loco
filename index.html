@@ -10,7 +10,7 @@
     <script src="js/class.models/movable-object.class.js"></script>
     <script src="js/class.models/character.class.js"></script>
     <script src="js/class.models/chicken.class.js"></script>
-    <script src="/js/class.models/mini-chicken.class.js"></script>
+    <script src="js/class.models/mini-chicken.class.js"></script>
     <script src="js/class.models/cloud.class.js"></script>
     <script src="js/class.models/bottle.class.js"></script>
     <script src="js/class.models/status-bar.class.js"></script>
@@ -24,15 +24,39 @@
     <script src="js/class.models/endboss.class.js"></script>
     <script src="js/levels/level1.js"></script>
     <script src="js/game.js"></script>
-
+    
 </head>
 
 <body onload="init()">
 
     <div class="game-container">
-        <h1>El Pollo Loco</h1>
+        <!-- <h1>El Pollo Loco</h1> -->
+        <h1 id="lbl-title">El Pollo Loco</h1> <!-- Fallback-Text, wird durch i18n überschrieben -->
+        <div id="ui-bar" class="ui-bar">
+            <!-- <h1 id="lbl-title">El Pollo Loco</h1> brauche ich nicht, habs nach oben verlegt -->
+             <div class="btn-row">
+                    <button id="btn-start" class="ui-btn">Start</button>
+                    <button id="btn-pause" class="ui-btn">Pause</button>
+                    <button id="btn-restart" class="ui-btn">Restart</button>
+                </div>
+            <div class="ui-right">
+                
+                <div class="lang-switch">
+                    <span id="lbl-language" class="lang-label">Sprache</span>
+                    <button id="btn-lang-de" class="lang-btn active">DE</button>
+                    <button id="btn-lang-en" class="lang-btn">EN</button>
+                </div>
+            </div>
+        </div>
+
         <canvas id="canvas" width="720" height="480"></canvas>
     </div>
 
 </body>
+<!-- Scroll-to-Top Button -->
+    <button id="btn-to-top" class="to-top" aria-label="Back to top" title="Back to top">↑</button>
+
+<script src="js/i18n.js" defer></script>
+<script src="js/scroll-to-top.js" defer></script>
+
 </html>
