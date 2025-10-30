@@ -10,7 +10,9 @@ class World {
     endbossStatusBar = new EndbossStatusBar();  // Endboss StatusBar hinzufügen
     endbossInSight = false;  // Flag für das Sichtfeld des Endbosses
     dramaticAudio = new Audio('/audio/fear-back.mp3');  // Audio für den Endboss
+    hitAudio = new Audio('/audio/punch-3.mp3'); // Treffer-SFX (anpassbar)
     throwableObjects = [];
+    effects = []; // VFX Visuelle Effekte (splash etc.)
     bottlesCollected = 0; // Anzahl gesammalter Flaschen
     maxBottles = 5; // Maximale Anzahl an Flaschen, die gesammelt werden können
 
@@ -89,6 +91,10 @@ class World {
             this.checkBottleCollection(); // Überprüft die Flaschenkollision
             this.checkBottleCollisions();  // Neue Methode zur Kollisionserkennung
             this.checkEndbossSight();  // Überprüft, ob der Endboss im Sichtfeld ist
+            
+            // auto-clean finished effects
+            this.effects = Array.isArray(this.effects) ? this.effects.filter(e => !e.done) : [];
+
         }, 200); // vielleicht auf 200, 100 oder 50 setzen?
     }
 
@@ -122,8 +128,17 @@ class World {
                         this.onBottleHitsEnemy(bottle, enemy); // fire hook (no damage here)
 
                     if (enemy instanceof Chicken || enemy instanceof MiniChicken) {
-                        this.level.enemies.splice(enemyIndex, 1);  // Chicken oder MiniChicken entfernen
-                        enemy.die();  // Sterbeanimation für Chicken/MiniChicken
+                        // 1) mark visually dead (shows dead sprite if still drawn this frame)
+                        if (typeof enemy.die === 'function') {
+                            enemy.die();
+                        }
+                        // 2) after splash (~320ms), play death sound and remove from simulation
+                        setTimeout(() => {
+                            try { this.playEnemyDeathSound(); } catch(e) {}
+                            // remove by identity to avoid stale index
+                            this.level.enemies = this.level.enemies.filter(e => e !== enemy);
+                        }, 320);
+                        
                     } else if (enemy instanceof Endboss) {
                         enemy.hit();  // Endboss verliert Lebenspunkte
                         this.endbossStatusBar.setPercentage(enemy.energy);  // StatusBar des Endbosses aktualisieren
@@ -194,6 +209,9 @@ class World {
         this.addObjectsToMap(this.level.enemies);
         
         this.addObjectsToMap(this.throwableObjects);
+
+        // VFX: draw transient hit effects on top
+        this.addObjectsToMap(this.effects);
         
         // Kamera wieder zurück verschieben
         this.ctx.translate(-this.camera_x, 0);
@@ -206,10 +224,16 @@ class World {
     }
 
     addObjectsToMap(objects) {
-        objects.forEach(o => {
-            this.addToMap(o);
-        });
+    if (!Array.isArray(objects) || objects.length === 0) {
+        return; // safe no-op
     }
+        for (let i = 0; i < objects.length; i++) {
+            const o = objects[i];
+            if (!o) continue;
+            this.addToMap(o);
+        }
+    }
+
 
     addToMap(mo) {
         if (mo.otherDirection) {
@@ -236,18 +260,56 @@ class World {
         this.ctx.restore();
     }
 
-      /**
-   * Hook for bottle hit events (EPL-12: no damage logic here).
-   * Allows bottles to trigger custom behavior on hit.
-   */
+    /**
+     * Hook for bottle hit events (EPL-14: add VFX/SFX; no damage logic here).
+     * Allows bottles to trigger custom behavior on hit.
+     */
     onBottleHitsEnemy(bottle, enemy) {
+        // Bottle-specific callback (keine Änderungen)
         if (bottle && typeof bottle.onHit === 'function') {
-        try {
-            bottle.onHit(enemy);
-        } catch (e) {
-            // Keep loop stable; swallow errors
+            try {
+                bottle.onHit(enemy);
+            } catch (e) {
+                // Keep loop stable; swallow errors
+            }
         }
+
+        // --- VFX: splash frames (paths based on your repo structure) ---
+        try {
+            const splashFrames = [
+                '/img/6_salsa_bottle/bottle_rotation/bottle_splash/1_bottle_splash.png',
+                '/img/6_salsa_bottle/bottle_rotation/bottle_splash/2_bottle_splash.png',
+                '/img/6_salsa_bottle/bottle_rotation/bottle_splash/3_bottle_splash.png',
+                '/img/6_salsa_bottle/bottle_rotation/bottle_splash/4_bottle_splash.png',
+                '/img/6_salsa_bottle/bottle_rotation/bottle_splash/5_bottle_splash.png',
+                '/img/6_salsa_bottle/bottle_rotation/bottle_splash/6_bottle_splash.png'
+            ];
+
+
+            // Spawn near the impact point (prefer bottle position, fallback to enemy)
+            const hitX = (bottle && typeof bottle.x === 'number') ? bottle.x + (bottle.width  || 0) * 0.5 - 45
+                                                                  : (enemy?.x || 0) + (enemy?.width  || 0) * 0.5 - 45;
+            const hitY = (bottle && typeof bottle.y === 'number') ? bottle.y + (bottle.height || 0) * 0.5 - 45
+                                                                  : (enemy?.y || 0) + (enemy?.height || 0) * 0.5 - 45;
+
+            const effect = new HitEffect(hitX, hitY, splashFrames, 320); // ~320ms total
+            effect.width = 100;  // feel free to tune
+            effect.height = 100;
+            this.effects.push(effect);
+        } catch (e) {
+            // ignore VFX errors to keep loop stable
+        }
+
+        // --- SFX: play short impact sound ---
+        try {
+            if (this.hitAudio) {
+                this.hitAudio.currentTime = 0;
+                this.hitAudio.play();
+            }
+        } catch (e) {
+            // ignore SFX errors
         }
     }
+
 
 }
