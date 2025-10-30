@@ -41,7 +41,8 @@ class World {
         this.level.bottles.forEach((bottle, index) => {
             if (this.character.isColliding(bottle)) {
                 if (this.bottlesCollected < this.maxBottles) { // Überprüfen, ob die maximale Anzahl erreicht ist
-                    this.level.bottles.splice(index, 1); // Entfernt die Flasche vom Spielfeld
+                    const picked = bottle;
+                    this.level.bottles = this.level.bottles.filter(b => b !== picked); // Entfernt die Flasche vom Spielfeld
                     this.bottlesCollected++;
                     let percentage = (this.bottlesCollected / this.maxBottles) * 100; // Berechne den Prozentsatz
                     this.bottleStatusBar.setPercentage(percentage); // Aktualisiere die StatusBar
@@ -152,6 +153,11 @@ class World {
 
     checkCollisions() {
         this.level.enemies.forEach((enemy, index) => {
+            // Skip already-dead enemies to avoid repeated handling
+            if (enemy && enemy.dead === true) {
+                return;
+            }
+
             if (this.character.isColliding(enemy)) {
                 if (this.character.isAboveGround() && this.character.speedY < 0) {
                     // Der Charakter springt von oben auf den Gegner -> Der Gegner stirbt
@@ -159,7 +165,8 @@ class World {
                     this.playEnemyDeathSound();  // Audio abspielen, wenn der Gegner stirbt
                     this.character.makeInvulnerable();  // Charakter unverwundbar machen
                     setTimeout(() => {
-                        this.level.enemies.splice(index, 1);  // Gegner aus dem Array entfernen (nach kurzer Verzögerung)
+                        const victim = enemy;
+                        this.level.enemies = this.level.enemies.filter(e => e !== victim);  // Gegner aus dem Array entfernen (nach kurzer Verzögerung)
                     }, 500);  // Gegner bleibt für 0.5 Sekunden sichtbar, bevor er entfernt wird
                 } else if (!this.character.invulnerable) {
                     // Wenn der Charakter nicht unverwundbar ist und frontal kollidiert -> Schaden für den Charakter

@@ -6,6 +6,9 @@ class MovableObject extends DrawableObject {
     energy = 100;
     lastHit = 0;
 
+    // Marks entity as visually dead (freezes animations & collisions)
+    dead = false;
+
 
     applyGravity() {
         setInterval(() => {
@@ -62,6 +65,12 @@ class MovableObject extends DrawableObject {
    */
     isColliding(other) {
         // Guards
+
+        // Ignore collisions if this or the other is already dead
+        if ((this && this.dead === true) || (other && other.dead === true)) {
+            return false;
+        }
+
         if (!other || other === this) return false;
         if (typeof other.x !== 'number' || typeof other.y !== 'number' ||
             typeof other.width !== 'number' || typeof other.height !== 'number') {
@@ -118,18 +127,30 @@ class MovableObject extends DrawableObject {
 
 
     moveRight() {
-    console.log('Moving right');
-        this.x += this.speed;  
+        if (this.dead === true) {
+            return;
+        }
+        // console.log('Moving right');
+        this.x += this.speed;
     }
 
 
+
     moveLeft() {
+        // Stop horizontal movement for dead entities
+        if (this.dead === true) {
+            return;
+        }
         this.x -= this.speed;
-        this.x -= 0.15;
+        this.x -= 0.15; // keep your original extra drift for living entities
     }
 
 
     playAnimation(images) {
+        // Freeze any animation when the entity is dead (keeps dead.png visible)
+        if (this.dead === true) {
+            return;
+        }
         let i = this.currentImage % images.length; // let i = 7 % "7 geteilt durch 6 ist Eins" 6; => (1, Rest 1)
         // i = 0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5, 0...
         let path = images[i];

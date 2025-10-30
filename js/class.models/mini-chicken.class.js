@@ -29,8 +29,9 @@ class MiniChicken extends MovableObject {
     }
 
     die() {
-        this.loadImage(this.IMAGES_DEAD[0]);  // Zeige das Bild des toten Mini-Chickens
+        this.dead = true; // block animations & collisions
         this.speed = 0;  // Stoppe die Bewegung
+        this.loadImage(this.IMAGES_DEAD[0]);  // Zeige das Bild des toten Mini-Chickens
     }
 
     animate() {
