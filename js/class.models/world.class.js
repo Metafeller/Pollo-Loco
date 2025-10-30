@@ -107,10 +107,11 @@ class World {
                 if (!endboss.isInSight) {
                 endboss.isInSight = true;
                 this.endbossInSight = true; // Zeige den Lebensbalken des Endbosses an
-                // Musik konsistent über den Ambience-Helper starten (Loop/Volume etc.)
-                this.startAmbienceLoop();
-                }
+                // WICHTIG: Ambience NICHT hier starten (nur bei Treffer, siehe checkBottleCollisions)
 
+                // Musik konsistent über den Ambience-Helper starten (Loop/Volume etc.)
+                // this.startAmbienceLoop();
+                }
 
             } else if (this.character.x < endboss.x - sightRange && endboss.isInSight) {
                 endboss.isInSight = false;
@@ -208,22 +209,41 @@ class World {
             }
 
             if (this.character.isColliding(enemy)) {
-                if (this.character.isAboveGround() && this.character.speedY < 0) {
-                    // Der Charakter springt von oben auf den Gegner -> Der Gegner stirbt
-                    enemy.die();  // Gegner sterben lassen (Animation starten)
-                    this.playEnemyDeathSound();  // Audio abspielen, wenn der Gegner stirbt
-                    this.character.makeInvulnerable();  // Charakter unverwundbar machen
-                    setTimeout(() => {
-                        const victim = enemy;
-                        this.level.enemies = this.level.enemies.filter(e => e !== victim);  // Gegner aus dem Array entfernen (nach kurzer Verzögerung)
-                    }, 500);  // Gegner bleibt für 0.5 Sekunden sichtbar, bevor er entfernt wird
+                const jumpedOn = this.character.isAboveGround() && this.character.speedY < 0;
+
+                if (jumpedOn) {
+                    // --- Fall A: Von oben auf den Gegner gesprungen ---
+                    if (enemy instanceof Chicken || enemy instanceof MiniChicken) {
+                        // Nur Chicken/MiniChicken dürfen durch Draufspringen sterben
+                        enemy.die();  // Sterbe-Animation starten (dead.png)
+                        this.playEnemyDeathSound();  // SFX
+
+                        // Kurze Verzögerung, damit dead.png sichtbar bleibt
+                        setTimeout(() => {
+                            const victim = enemy;
+                            // Sichere Entfernung nach Identität
+                            this.level.enemies = this.level.enemies.filter(e => e !== victim);
+                        }, 500);
+
+                        // Kleiner Bounce zurück nach oben (Feedback)
+                        this.character.speedY = 15;
+                        this.character.makeInvulnerable();
+
+                    } else if (enemy instanceof Endboss) {
+                        // --- Endboss: KEIN Tod durch Draufspringen! ---
+                        // Nur Bounce/Feedback; KEIN Schaden am Boss.
+                        this.character.speedY = 18;       // leichter Rückprall
+                        this.character.makeInvulnerable(); // kurzen Schutz geben
+                        // Kein Entfernen, keine Boss-Änderung.
+                    }
+
                 } else if (!this.character.invulnerable) {
-                    // Wenn der Charakter nicht unverwundbar ist und frontal kollidiert -> Schaden für den Charakter
-                    // Der Charakter kollidiert seitlich oder frontal mit dem Gegner -> Der Charakter erleidet Schaden
+                    // --- Fall B: Seitliche/Frontale Kollision → Spieler bekommt Schaden ---
                     this.character.hit();
-                    this.statusBar.setPercentage(this.character.energy); // Lebensanzeige aktualisieren
+                    this.statusBar.setPercentage(this.character.energy);
                 }
             }
+
         });
     }
 
