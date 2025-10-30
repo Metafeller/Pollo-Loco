@@ -9,7 +9,8 @@ class World {
     bottleStatusBar = new BottleStatusBar(); // Flaschen StatusBar hinzufügen
     endbossStatusBar = new EndbossStatusBar();  // Endboss StatusBar hinzufügen
     endbossInSight = false;  // Flag für das Sichtfeld des Endbosses
-    dramaticAudio = new Audio('/audio/spanish-guitar-thing.mp3');  // Audio für den Endboss
+    dramaticAudio = new Audio('/audio/superhero-theme.mp3');  // Audio für den Endbosskampf
+    bossDeathAudio = new Audio('/audio/cry-dead.mp3'); // Soundeffekt für den Tod des Endbosses
     hitAudio = new Audio('/audio/punch-3.mp3'); // Treffer-SFX (anpassbar)
     throwableObjects = [];
     effects = []; // VFX Visuelle Effekte (splash etc.)
@@ -17,18 +18,18 @@ class World {
     maxBottles = 5; // Maximale Anzahl an Flaschen, die gesammelt werden können
 
     
-    // EPL-17: ambience loop helpers
+    // EPL-17: Hilfsmittel für Ambient-Loops
     startAmbienceLoop() {
         try {
             if (this.dramaticAudio) {
                 this.dramaticAudio.loop = true;
-                this.dramaticAudio.volume = 0.5; // tune if needed
+                this.dramaticAudio.volume = 0.5; // bei Bedarf abstimmen
                 if (this.dramaticAudio.paused) {
                     this.dramaticAudio.currentTime = 0;
                     this.dramaticAudio.play();
                 }
             }
-        } catch (e) { /* keep game loop stable */ }
+        } catch (e) { /* Spielschleife stabil halten */ }
     }
 
     stopAmbienceLoop() {
@@ -37,7 +38,7 @@ class World {
                 this.dramaticAudio.pause();
                 this.dramaticAudio.currentTime = 0;
             }
-        } catch (e) { /* keep game loop stable */ }
+        } catch (e) { /* Spielschleife stabil halten */ }
     }
 
 
@@ -94,13 +95,23 @@ class World {
         let endboss = this.level.enemies.find(enemy => enemy instanceof Endboss);  // Finde den Endboss
     
         if (endboss) {
+            // Wenn der Endboss tot/stirbt: kein Sight-Update, keine Musik
+            if (endboss.dead === true || endboss.isDying === true) {
+                this.endbossInSight = false; // Statusbar ausblenden
+                return;
+            }
+
             // Überprüfen, ob der Charakter im Sichtbereich des Endbosses ist
             if (this.character.x > endboss.x - sightRange) {
+
                 if (!endboss.isInSight) {
-                    endboss.isInSight = true;
-                    this.endbossInSight = true; // Zeige den Lebensbalken des Endbosses an
-                    this.dramaticAudio.play();  // Dramatische Musik abspielen
+                endboss.isInSight = true;
+                this.endbossInSight = true; // Zeige den Lebensbalken des Endbosses an
+                // Musik konsistent über den Ambience-Helper starten (Loop/Volume etc.)
+                this.startAmbienceLoop();
                 }
+
+
             } else if (this.character.x < endboss.x - sightRange && endboss.isInSight) {
                 endboss.isInSight = false;
                 endboss.returning = true;  // Flag setzen, dass er zurückläuft
@@ -140,42 +151,47 @@ class World {
     
 
     checkBottleCollisions() {
-        // Guards to avoid crashes with missing arrays
+        // Schutzmaßnahmen zur Vermeidung von Abstürzen aufgrund fehlender Arrays
         if (!Array.isArray(this.throwableObjects) || !this.level || !Array.isArray(this.level.enemies)) {
             return;
         }
 
-
         this.throwableObjects.forEach((bottle, bottleIndex) => {
             this.level.enemies.forEach((enemy, enemyIndex) => {
                 if (bottle.isColliding(enemy)) {
-                    if (bottle.hasHit === true) return; // prevent double-processing
-                        bottle.hasHit = true;               // mark as consumed
-                        this.onBottleHitsEnemy(bottle, enemy); // fire hook (no damage here)
+                    if (bottle.hasHit === true) return; // doppelte Verarbeitung verhindern
+                        bottle.hasHit = true; // als verbraucht markieren              
+                        this.onBottleHitsEnemy(bottle, enemy); // Feuerhaken (hier kein Schaden)
 
                     if (enemy instanceof Chicken || enemy instanceof MiniChicken) {
-                        // 1) mark visually dead (shows dead sprite if still drawn this frame)
+                        // 1) als visuell tot markieren (zeigt totes Sprite, wenn es in diesem Frame noch gezeichnet wird)
                         if (typeof enemy.die === 'function') {
                             enemy.die();
                         }
-                        // 2) after splash (~320ms), play death sound and remove from simulation
+                        // 2) Nach dem Splash (~320 ms) den Todessound abspielen und aus der Simulation entfernen.
                         setTimeout(() => {
                             try { this.playEnemyDeathSound(); } catch(e) {}
-                            // remove by identity to avoid stale index
+                             // Nach Identität entfernen, um veralteten Index zu vermeiden
                             this.level.enemies = this.level.enemies.filter(e => e !== enemy);
                         }, 320);
                         
                     } else if (enemy instanceof Endboss) {
-                        // EPL-17: Aggro eingeben und Ambience-Loop beim ersten Treffer starten
+                        // EPL-17: Aggro-Modus aktivieren und Ambience-Loop beim ersten Treffer starten
                         if (typeof enemy.enterAggro === 'function') {
                             enemy.enterAggro();
                         }
                         this.startAmbienceLoop();
 
+                        // Schaden anwenden (-20%) und HP-Bar aktualisieren
                         enemy.hit();
                         this.endbossStatusBar.setPercentage(enemy.energy);
-                    }
 
+                        // EPL-19: Bei 0% HP – Death-Sequenz/SFX triggern und Ambience stoppen
+                        // (Guard: Methode optional prüfen, damit der Loop stabil bleibt)
+                        if (enemy.energy === 0 && typeof this.onEndbossDeath === 'function') {
+                            this.onEndbossDeath(enemy);
+                        }
+                    }
 
                     this.throwableObjects.splice(bottleIndex, 1);  // Flasche nach Kollision entfernen
                 }
@@ -351,5 +367,22 @@ class World {
         }
     }
 
+    onEndbossDeath(endboss) {
+        // UI-Zustand sichern (Statusbar ausblenden, Boss nicht mehr "in Sicht")
+        this.endbossInSight = false;
+        if (endboss) {
+            endboss.isInSight = false; // redundanter Guard, falls anderswo gesetzt
+        }
+
+        // Umgebungsgeräusch-Loop stoppen und Boss-Tod-SFX abspielen
+        try { this.stopAmbienceLoop(); } catch (e) {}
+        try {
+            if (this.bossDeathAudio) {
+                this.bossDeathAudio.currentTime = 0;
+                this.bossDeathAudio.play();
+            }
+        } catch (e) {}
+        // Optional: UI/Bereinigung folgt in EPL-20 (Gewinnerbildschirm)
+    }
 
 }

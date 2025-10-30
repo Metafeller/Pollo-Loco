@@ -12,9 +12,9 @@ class Endboss extends MovableObject {
 
     // EPL-17: Aggro mode (on bottle hit)
     inAggroMode = false;
-    baseSpeed = 0.3;  // keep your current default
-    aggroSpeed = 0.6; // faster while aggro
-
+    baseSpeed = 0.3;  // Behalten Sie Ihre aktuelle Standardeinstellung bei.
+    aggroSpeed = 0.6; // schneller während Aggro
+    isDying = false;  // Blockiert KI und ermöglicht One-Shot-Todesanimation
 
     /**
      * Platzhalter für den Aggromode, wenn der Endboss von einer Flasche getroffen wird, 
@@ -153,14 +153,52 @@ class Endboss extends MovableObject {
 
 
     die() {
-        clearTimeout(this.hurtTimeout);  // Timer beenden
-        this.loadImage(this.IMAGES_DEAD[2]);  // Zeige das letzte Bild der Sterbeanimation
+        clearTimeout(this.hurtTimeout);
+        if (this.isDying || this.dead) return;
+
+        // KI/Bewegung einfrieren, aber unsere One-Shot-Animation ausführen lassen
+        this.isDying = true;
+        this.isHurtAnimation = false;
+        this.isInSight = false;
+        this.returning = false;
+        this.speed = 0;
+
+        // Einmal durch 5_dead Frames schießen, dann letzten Frame halten und als tot markieren
+        const frames = this.IMAGES_DEAD;
+        let i = 0;
+        if (frames && frames.length > 0) {
+            this.img = this.imageCache[frames[0]];
+        }
+
+        this.deathTimer = setInterval(() => {
+            i++;
+            if (!frames || i >= frames.length) {
+                clearInterval(this.deathTimer);
+                this.isDying = false;
+                this.dead = true;
+                if (frames && frames.length > 0) {
+                    this.img = this.imageCache[frames[frames.length - 1]];
+                }
+                return;
+            }
+            this.img = this.imageCache[frames[i]];
+        }, 180); // ~540ms total bei 3 Frames; anpassbar
     }
 
 
     animate() {
         setInterval(() => {
+            // Tod/Death: Bei 'dead' oder 'isDying' keinerlei Bewegung/Animation mehr ausführen
+            if (this.dead === true || this.isDying === true) {
+                return; // das letzte Dead-Bild bleibt stehen (Leiche)
+            }
+
             if (this.isInSight && !this.isHurtAnimation) {
+                if (this.isDying) {
+                    // Während der Todesequenz: KI/Bewegung wird angehalten; Frames werden von die() verarbeitet.
+                    return;  // Keine Bewegung, wenn der Endboss stirbt
+                }
+
                 this.moveLeft();  // Endboss bewegt sich vorwärts
                 this.otherDirection = false;  // Nach links schauen
                 const frames = this.inAggroMode ? this.IMAGES_ALERT : this.IMAGES_WALKING;
