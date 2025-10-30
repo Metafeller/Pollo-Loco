@@ -10,6 +10,11 @@ class Endboss extends MovableObject {
     sightRange = 400;  // Verkleinertes Sichtfeld
     energy = 100;  // Endboss startet mit 100% Lebensenergie
 
+    // EPL-17: Aggro mode (on bottle hit)
+    inAggroMode = false;
+    baseSpeed = 0.3;  // keep your current default
+    aggroSpeed = 0.6; // faster while aggro
+
 
     /**
      * Platzhalter für den Aggromode, wenn der Endboss von einer Flasche getroffen wird, 
@@ -59,6 +64,14 @@ class Endboss extends MovableObject {
         '/img/4_enemie_boss_chicken/5_dead/G25.png',
         '/img/4_enemie_boss_chicken/5_dead/G26.png'
     ];
+
+
+    enterAggro() {
+        if (this.inAggroMode) return; // idempotent
+        this.inAggroMode = true;
+        this.speed = Math.max(this.speed, this.aggroSpeed);
+        // Frames switch happens in animate() by choosing IMAGES_ALERT when aggro.
+    }
 
 
     constructor() {
@@ -150,7 +163,9 @@ class Endboss extends MovableObject {
             if (this.isInSight && !this.isHurtAnimation) {
                 this.moveLeft();  // Endboss bewegt sich vorwärts
                 this.otherDirection = false;  // Nach links schauen
-                this.playAnimation(this.IMAGES_WALKING);
+                const frames = this.inAggroMode ? this.IMAGES_ALERT : this.IMAGES_WALKING;
+                this.playAnimation(frames);  // Entweder Aggro- oder Geh-Animation abspielen
+
             } else if (!this.isInSight && !this.isHurtAnimation && this.x < this.startPosition) {
                 this.returnToStart();  // Endboss kehrt zur Startposition zurück
             } else if (this.isHurtAnimation) {

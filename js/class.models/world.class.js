@@ -9,12 +9,37 @@ class World {
     bottleStatusBar = new BottleStatusBar(); // Flaschen StatusBar hinzufügen
     endbossStatusBar = new EndbossStatusBar();  // Endboss StatusBar hinzufügen
     endbossInSight = false;  // Flag für das Sichtfeld des Endbosses
-    dramaticAudio = new Audio('/audio/fear-back.mp3');  // Audio für den Endboss
+    dramaticAudio = new Audio('/audio/spanish-guitar-thing.mp3');  // Audio für den Endboss
     hitAudio = new Audio('/audio/punch-3.mp3'); // Treffer-SFX (anpassbar)
     throwableObjects = [];
     effects = []; // VFX Visuelle Effekte (splash etc.)
     bottlesCollected = 0; // Anzahl gesammalter Flaschen
     maxBottles = 5; // Maximale Anzahl an Flaschen, die gesammelt werden können
+
+    
+    // EPL-17: ambience loop helpers
+    startAmbienceLoop() {
+        try {
+            if (this.dramaticAudio) {
+                this.dramaticAudio.loop = true;
+                this.dramaticAudio.volume = 0.5; // tune if needed
+                if (this.dramaticAudio.paused) {
+                    this.dramaticAudio.currentTime = 0;
+                    this.dramaticAudio.play();
+                }
+            }
+        } catch (e) { /* keep game loop stable */ }
+    }
+
+    stopAmbienceLoop() {
+        try {
+            if (this.dramaticAudio && !this.dramaticAudio.paused) {
+                this.dramaticAudio.pause();
+                this.dramaticAudio.currentTime = 0;
+            }
+        } catch (e) { /* keep game loop stable */ }
+    }
+
 
     constructor(canvas, keyboard) {
         this.ctx = canvas.getContext('2d');
@@ -141,9 +166,17 @@ class World {
                         }, 320);
                         
                     } else if (enemy instanceof Endboss) {
-                        enemy.hit();  // Endboss verliert Lebenspunkte
-                        this.endbossStatusBar.setPercentage(enemy.energy);  // StatusBar des Endbosses aktualisieren
+                        // EPL-17: Aggro eingeben und Ambience-Loop beim ersten Treffer starten
+                        if (typeof enemy.enterAggro === 'function') {
+                            enemy.enterAggro();
+                        }
+                        this.startAmbienceLoop();
+
+                        enemy.hit();
+                        this.endbossStatusBar.setPercentage(enemy.energy);
                     }
+
+
                     this.throwableObjects.splice(bottleIndex, 1);  // Flasche nach Kollision entfernen
                 }
             });
