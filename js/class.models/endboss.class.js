@@ -10,11 +10,50 @@ class Endboss extends MovableObject {
     sightRange = 400;  // Verkleinertes Sichtfeld
     energy = 100;  // Endboss startet mit 100% Lebensenergie
 
+    // --- Bug-EPL-22: Spielfeld-Grenzen & Helfer ---
+    minX = 0; // Linkes Level-Limit (bei Bedarf anpassen)
+
+    /**
+     * Hält den Boss immer innerhalb [minX, startPosition].
+     * Verhindert, dass er rechts die Startposition überschreitet oder links das Spielfeld verlässt.
+     */
+    clampX() {
+        if (this.x > this.startPosition) this.x = this.startPosition;
+        if (this.x < this.minX) this.x = this.minX;
+    }
+
+    /**
+     * Setzt den Boss sauber auf die Startposition und beendet den Rücklauf.
+     */
+    snapToStart() {
+        this.x = this.startPosition;
+        this.returning = false;
+    }
+
+    /**
+     * Boss-Move-Left: nur um 'speed' verschieben und danach clampen.
+     * (Kein zusätzliches -0.15 wie bei manchen anderen Entities.)
+     */
+    moveLeft() {
+        this.x -= this.speed;
+        this.clampX();
+    }
+
+    /**
+     * Boss-Move-Right: nur um 'speed' verschieben und danach clampen.
+     */
+    moveRight() {
+        this.x += this.speed;
+        this.clampX();
+    }
+
+
     // EPL-17: Aggro mode (on bottle hit)
     inAggroMode = false;
     baseSpeed = 0.3;  // Behalten Sie Ihre aktuelle Standardeinstellung bei.
     aggroSpeed = 0.6; // schneller während Aggro
     isDying = false;  // Blockiert KI und ermöglicht One-Shot-Todesanimation
+    
 
     /**
      * Platzhalter für den Aggromode, wenn der Endboss von einer Flasche getroffen wird, 
@@ -209,7 +248,12 @@ class Endboss extends MovableObject {
             } else if (this.isHurtAnimation) {
                 this.playAnimation(this.IMAGES_HURT);  // Hurt-Animation abspielen
             }
+
+            // >>> Bug-EPL-22: Failsafe, falls x extern verändert wurde
+            this.clampX();
+
         }, 1000 / 60);
+
     }
 
     
@@ -221,14 +265,25 @@ class Endboss extends MovableObject {
     
 
     returnToStart() {
-        this.returning = true;  // Endboss kehrt zurück
-        if (this.x < this.startPosition) {
-            this.moveRight();  // Endboss läuft zurück
-            this.otherDirection = true;  // Nach rechts schauen
-            this.playAnimation(this.IMAGES_WALKING);  // Geh-Animation beim Zurücklaufen
-        } else {
-            this.returning = false;  // Erreicht die Startposition
+        // Boss kehrt nur zurück, wenn er nicht stirbt/tot ist
+        if (this.isDying || this.dead) { 
+            this.returning = false; // Erreicht die Startposition
+            return;
         }
+
+        this.returning = true; // Endboss kehrt zurück
+
+        // Schrittweise nach rechts, aber NIE an der Startposition vorbeischießen
+        if (this.x + this.speed < this.startPosition) {
+            this.moveRight(); // Endboss läuft zurück
+        } else {
+            // Snap exakt auf die Startposition & Retreat beenden
+            this.snapToStart();
+        }
+
+        // Optional: Rücklauf-Animation beibehalten
+        this.otherDirection = true; // Nach rechts schauen
+        this.playAnimation(this.IMAGES_WALKING); // Geh-Animation beim Zurücklaufen
     }
 
        
