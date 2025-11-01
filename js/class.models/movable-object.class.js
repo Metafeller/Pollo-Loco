@@ -6,6 +6,9 @@ class MovableObject extends DrawableObject {
     energy = 100;
     lastHit = 0;
 
+    // Marks entity as visually dead (freezes animations & collisions)
+    dead = false;
+
 
     applyGravity() {
         setInterval(() => {
@@ -36,13 +39,59 @@ class MovableObject extends DrawableObject {
     }
 
 
-    // character.isColliding(chicken);
-    isColliding(mo) {
-        return this.x + this.width > mo.x &&
-               this.y + this.height > mo.y &&
-               this.x < mo.x &&
-               this.y < mo.y + mo.height;
+      /**
+   * Returns the axis-aligned bounds of this object.
+   */
+    getBounds() {
+        // Guards: ensure numeric coordinates to avoid NaN issues
+        const x = typeof this.x === 'number' ? this.x : 0;
+        const y = typeof this.y === 'number' ? this.y : 0;
+        const w = typeof this.width === 'number' ? this.width : 0;
+        const h = typeof this.height === 'number' ? this.height : 0;
+
+        return {
+        left: x,
+        top: y,
+        right: x + w,
+        bottom: y + h
+        };
     }
+
+
+      /**
+   * Axis-aligned bounding box collision check (robust AABB).
+   * @param {Object} other - any object with x, y, width, height
+   * @returns {boolean}
+   */
+    isColliding(other) {
+        // Guards
+
+        // Ignore collisions if this or the other is already dead
+        if ((this && this.dead === true) || (other && other.dead === true)) {
+            return false;
+        }
+
+        if (!other || other === this) return false;
+        if (typeof other.x !== 'number' || typeof other.y !== 'number' ||
+            typeof other.width !== 'number' || typeof other.height !== 'number') {
+        return false;
+        }
+
+        const a = this.getBounds();
+        const b = {
+        left: other.x,
+        top: other.y,
+        right: other.x + other.width,
+        bottom: other.y + other.height
+        };
+
+        // AABB overlap
+        const overlapX = a.left < b.right && a.right > b.left;
+        const overlapY = a.top < b.bottom && a.bottom > b.top;
+
+        return overlapX && overlapY;
+    }
+
 
 
     // Bessere Formel zur Kollisionsberechnung mit den Chicken (Genauer)
@@ -78,18 +127,30 @@ class MovableObject extends DrawableObject {
 
 
     moveRight() {
-    console.log('Moving right');
-        this.x += this.speed;  
+        if (this.dead === true) {
+            return;
+        }
+        // console.log('Moving right');
+        this.x += this.speed;
     }
 
 
+
     moveLeft() {
+        // Stop horizontal movement for dead entities
+        if (this.dead === true) {
+            return;
+        }
         this.x -= this.speed;
-        this.x -= 0.15;
+        this.x -= 0.15; // keep your original extra drift for living entities
     }
 
 
     playAnimation(images) {
+        // Freeze any animation when the entity is dead (keeps dead.png visible)
+        if (this.dead === true) {
+            return;
+        }
         let i = this.currentImage % images.length; // let i = 7 % "7 geteilt durch 6 ist Eins" 6; => (1, Rest 1)
         // i = 0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5, 0...
         let path = images[i];

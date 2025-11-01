@@ -28,6 +28,12 @@ class Character extends MovableObject {
         '/img/2_character_pepe/3_jump/J-39.png'
     ];
 
+    IMAGES_HURT = [
+        '/img/2_character_pepe/4_hurt/H-41.png',
+        '/img/2_character_pepe/4_hurt/H-42.png',
+        '/img/2_character_pepe/4_hurt/H-43.png'
+    ];
+
     IMAGES_DEAD = [
         '/img/2_character_pepe/5_dead/D-51.png',
         '/img/2_character_pepe/5_dead/D-52.png',
@@ -38,15 +44,11 @@ class Character extends MovableObject {
         '/img/2_character_pepe/5_dead/D-57.png'
     ];
 
-    IMAGES_HURT = [
-        '/img/2_character_pepe/4_hurt/H-41.png',
-        '/img/2_character_pepe/4_hurt/H-42.png',
-        '/img/2_character_pepe/4_hurt/H-43.png'
-    ];
 
     world;
     walking_sound = new Audio('/audio/stamping.mp3');
     walking_sound_back = new Audio('/audio/stamping.mp3');
+
 
     constructor() {
         super().loadImage('/img/2_character_pepe/2_walk/W-21.png');
@@ -61,6 +63,13 @@ class Character extends MovableObject {
     animate() {
 
         setInterval(() => {
+            // EPL-20 Spiel gewonnen? → Eingaben ignorieren (Char bleibt stehen)
+            if (this.world?.gameWon) {
+                this.walking_sound.pause();
+                this.walking_sound_back.pause();
+                return;
+            }
+
             this.walking_sound.pause();
             // Bewegung nach rechts, aber nur bis zum Level-Ende
             if (this.world.keyboard.RIGHT && this.x < this.world.level.level_end_x) {
@@ -90,7 +99,12 @@ class Character extends MovableObject {
 
 
         setInterval(() => {
-        
+            // Auch die Animations-/Bewegungs-Schleife hart drosseln
+            if (this.world?.gameWon) {
+                // optional: idle halten (kein weiteres x+=speed)
+                return;
+            }
+
             if (this.isDead()) {
                 this.playAnimation(this.IMAGES_DEAD);
 
@@ -102,12 +116,11 @@ class Character extends MovableObject {
             } else {
                 if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
                     this.x += this.speed;
-
-                    // walk animation
                     this.playAnimation(this.IMAGES_WALKING);
                 }
             }   
         }, 50);
+
     }
 
     jump() {

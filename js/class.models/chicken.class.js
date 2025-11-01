@@ -30,8 +30,9 @@ class Chicken extends MovableObject {
     }
 
     die() {
-        this.loadImage(this.IMAGES_DEAD[0]);  // Zeige das Bild des toten Huhns
+        this.dead = true; // block animations & collisions
         this.speed = 0;  // Stoppe die Bewegung nach dem Tod
+        this.loadImage(this.IMAGES_DEAD[0]);  // Zeige das Bild des toten Huhns
     }
 
     animate() {
