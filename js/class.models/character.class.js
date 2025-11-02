@@ -63,6 +63,14 @@ class Character extends MovableObject {
     animate() {
 
         setInterval(() => {
+            if (this.world?.gameOver) {
+                this.walking_sound.pause();
+                this.walking_sound.currentTime = 0;
+                this.walking_sound_back.pause();
+                this.walking_sound_back.currentTime = 0;
+                return; // NICHTS mehr bewegen oder drehen
+            }
+
             // EPL-20 Spiel gewonnen? → Eingaben ignorieren (Char bleibt stehen)
             if (this.world?.gameWon) {
                 this.walking_sound.pause();
@@ -99,6 +107,10 @@ class Character extends MovableObject {
 
 
         setInterval(() => {
+            if (this.world?.gameOver) {
+                return; // keine Animationsframes mehr wechseln
+            }
+
             // Auch die Animations-/Bewegungs-Schleife hart drosseln
             if (this.world?.gameWon) {
                 // optional: idle halten (kein weiteres x+=speed)

@@ -11,6 +11,16 @@ class World {
     endbossStatusBar = new EndbossStatusBar();
     endbossInSight = false;
 
+    // === Game Over / Audio / Overlays ===
+    gameOver = false;
+    gravestone = null;
+
+    painAudio = new Audio('/audio/kung-fu-punch.mp3');
+    _painLock = false; // Anti-Spam
+
+    // Sterbe-Sound (einmaliger One-Shot beim Spieler-Tod)
+    playerDeathAudio = new Audio('/audio/cry-of-pain.mp3'); // Pfad bei Bedarf anpassen
+
     dramaticAudio = new Audio('/audio/superhero-theme.mp3');
     bossDeathAudio = new Audio('/audio/cry-dead.mp3');
     hitAudio = new Audio('/audio/punch-3.mp3');
@@ -56,7 +66,7 @@ class World {
         this.ctx = canvas.getContext('2d');
         this.canvas = canvas;
         this.keyboard = keyboard;
-        this.enemyDeathAudio = new Audio('/audio/punch-1.mp3');
+        this.enemyDeathAudio = new Audio('/audio/chicken-noise.mp3');
 
         // Level-Objekte referenzieren
         this.hutGate = this.level.hutGate || null;
@@ -141,7 +151,7 @@ class World {
     run() {
         setInterval(() => {
             // Gewinn-Zustand: Logik drosseln
-            if (this.gameWon) {
+            if (this.gameWon || this.gameOver) {
                 if (this.hutStory) this.hutStory.deactivate();
                 return;
             }
@@ -248,10 +258,103 @@ class World {
                 } else if (!this.character.invulnerable) {
                     this.character.hit();
                     this.statusBar.setPercentage(this.character.energy);
+
+                    // Pain-Sound mit Anti-Spam / einmalig pro Treffer
+                    this.playPainOnce();
+
+                    // Tod?
+                    if (this.character.energy <= 0) {
+                        this.onPlayerDeath();
+                    }
                 }
             }
         });
     }
+
+    /** Spielt den Schmerz-Sound einmalig (Anti-Spam über kurzen Lock). */
+    playPainOnce() {
+        if (this._painLock) return;
+        this._painLock = true;
+        try {
+            if (this.painAudio) {
+                this.painAudio.currentTime = 0;
+                this.painAudio.play();
+            }
+        } catch (e) {}
+        setTimeout(() => this._painLock = false, 300); // kurze Sperre reicht
+    }
+
+    /** Endgültiger Spieler-Tod: Logik stoppen, Grabstein setzen. */
+    onPlayerDeath() {
+        if (this.gameOver) return;
+        this.gameOver = true;
+
+        // Schritt-Sounds sicher stoppen
+        try {
+            this.character.walking_sound.pause();
+            this.character.walking_sound.currentTime = 0;
+            this.character.walking_sound_back.pause();
+            this.character.walking_sound_back.currentTime = 0;
+        } catch (e) {}
+
+        // Ambience stoppen
+        try { this.stopAmbienceLoop(); } catch (e) {}
+
+        // Enemies wirklich einfrieren (auch wenn deren Timer weiterlaufen)
+        try {
+            (this.level?.enemies || []).forEach(e => {
+                if (!e) return;
+                // 1) Bewegung hart deaktivieren
+                e.speed = 0;
+                e.baseSpeed = 0;
+                if (typeof e.moveLeft  === 'function') e.moveLeft  = function() {};
+                if (typeof e.moveRight === 'function') e.moveRight = function() {};
+                if (typeof e.updateAI  === 'function') e.updateAI  = function() {};
+
+                // 2) Endboss zusätzlich neutralisieren
+                if (e instanceof Endboss) {
+                    e.inAggroMode = false;
+                    e.aiState = 'IDLE';
+                    e.returning = false;
+                }
+            });
+        } catch (e) {}
+
+        // Charakter einfrieren
+        try {
+            this.character.dead = true;
+            this.character.speed = 0;
+            this.character.speedY = 0;
+        } catch (e) {}
+
+        // Grabstein an Pepes Füße
+        try {
+            const SW = 120, SH = 320;
+            const gx = this.character.x + (this.character.width * 0.5) - (SW / 2);
+            const gy = this.character.y + this.character.height - SH;
+            this.gravestone = new Gravestone(gx, gy, SW, SH);
+        } catch (e) {}
+
+        // Pain-Sound sicher stoppen, damit Death-Sound nicht überlappt
+        try {
+            if (this.painAudio) {
+                this.painAudio.pause();
+                this.painAudio.currentTime = 0;
+            }
+        } catch (e) {}
+
+        // Sterbe-Sound einmalig abspielen
+        try {
+            if (this.playerDeathAudio) {
+                this.playerDeathAudio.pause();
+                this.playerDeathAudio.currentTime = 0;
+                this.playerDeathAudio.volume = 0.85;  // hier setzen ist erlaubt
+                this.playerDeathAudio.play();
+            }
+        } catch (e) {}
+
+    }
+
 
     draw() {
         // Canvas löschen
@@ -281,12 +384,34 @@ class World {
         if (this.hutGate) this.addToMap(this.hutGate);
         if (this.hutStory && this.hutStory.visible) this.addToMap(this.hutStory);
 
-        // Spieler
-        this.addToMap(this.character);
+        // // Spieler
+        // this.addToMap(this.character);
+
+        // // Grabstein bei Game Over
+        // if (this.gameOver && this.gravestone) {
+        //     this.addToMap(this.gravestone);
+        // }
+
+        // Spieler ODER Grabstein
+        if (this.gameOver) {
+            if (this.gravestone) this.addToMap(this.gravestone);
+        } else {
+            this.addToMap(this.character);
+        }
 
         // Bottles, Enemies, Effekte
         this.addObjectsToMap(this.level.bottles);
-        this.addObjectsToMap(this.level.enemies);
+
+
+        // >>> NEU: Gegner bei Game Over NICHT rendern
+        if (!this.gameOver) {
+            this.addObjectsToMap(this.level.enemies);
+            // this.addObjectsToMap(this.throwableObjects);
+        } else {
+            // Bei Bedarf könntest du hier auch Effekte/Flaschen ausblenden.
+            // Aktuell lassen wir sie stehen – Fokus liegt nur auf Gegnern.
+        }
+
         this.addObjectsToMap(this.throwableObjects);
         this.addObjectsToMap(this.effects);
 

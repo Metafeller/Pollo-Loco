@@ -27,7 +27,12 @@ class HutGate extends DrawableObject {
             '/img/objects/gate_open_2.png',
             '/img/objects/gate_open_3.png',
             '/img/objects/gate_open_4.png',
-            '/img/objects/gate_open_5.png'
+            '/img/objects/gate_open_5.png',
+            '/img/objects/gate_open_6.png',
+            '/img/objects/gate_open_7.png',
+            '/img/objects/gate_open_8.png',
+            '/img/objects/gate_open_9.png',
+            '/img/objects/gate_open_10.png'
         ];
         this.loadImage(this.FRAME_CLOSED);
         this.loadImages([this.FRAME_CLOSED, ...this.FRAMES_OPENING]);
