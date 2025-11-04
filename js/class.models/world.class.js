@@ -15,13 +15,37 @@ class World {
     gameOver = false;
     gravestone = null;
 
+    // === Game-Over-Splash (EIN Bild, kein Filter) ===
+    goSplashImg = null;           // das tatsächliche Image-Objekt
+    goSplashActive = false;       // wird aktuell gezeigt?
+    goSplashPath = '/img/9_intro_outro_screens/game_over/1_game-over.png'; // nur dieses eine
+
+    // === Game-Over-Overlay-Objekt ===
+    gameOverScreen = null;
+
+    // === Sequencer-Timings (frame-gesteuert, keine setTimeouts) ===
+    goT0 = 0;               // performance.now() bei Tod
+    SPLASH_MS = 4000;       // 0–4s: Splash sichtbar
+    OVERLAY_AT_MS = 6000;   // ab 6s Overlay + Loops
+    BUTTON_AT_MS  = 10000;  // ab 10s Try-Again-Button
+    goOverlayShown = false; // Overlay schon aktiviert?
+    goButtonShown = false;  // Button schon aktiviert?
+    goLoopsStarted = false; // Audio-Loops schon gestartet?
+
+    // One-Shots
     painAudio = new Audio('/audio/kung-fu-punch.mp3');
     _painLock = false; // Anti-Spam
-
     // Sterbe-Sound (einmaliger One-Shot beim Spieler-Tod)
-    playerDeathAudio = new Audio('/audio/cry-of-pain.mp3'); // Pfad bei Bedarf anpassen
+    playerDeathAudio = new Audio('/audio/man-screaming.mp3');
 
-    dramaticAudio = new Audio('/audio/superhero-theme.mp3');
+    // Death-Song (One-Shot bei 0s)
+    deathSong = new Audio('/audio/spiel-mir-das-lied-vom-tod.mp3'); // ggf. Pfad anpassen
+
+    // GO-Loops (laufen im Overlay)
+    goCryLoop = new Audio('/audio/woman-cry-loop.mp3');
+    goRainLoop = new Audio('/audio/raindrops.mp3');
+
+    dramaticAudio = new Audio('/audio/dark-battle.mp3');
     bossDeathAudio = new Audio('/audio/cry-dead.mp3');
     hitAudio = new Audio('/audio/punch-3.mp3');
 
@@ -62,6 +86,18 @@ class World {
         } catch (e) {}
     }
 
+    stopAllGameOverAudio() {
+        try {
+            if (this.playerDeathAudio) { this.playerDeathAudio.pause(); this.playerDeathAudio.currentTime = 0; }
+            if (this.deathSong)        { this.deathSong.pause();        this.deathSong.currentTime = 0; }
+        } catch (e) {}
+
+        try {
+            if (this.goCryLoop)  { this.goCryLoop.pause();  this.goCryLoop.currentTime = 0; }
+            if (this.goRainLoop) { this.goRainLoop.pause(); this.goRainLoop.currentTime = 0; }
+        } catch (e) {}
+    }
+
     constructor(canvas, keyboard) {
         this.ctx = canvas.getContext('2d');
         this.canvas = canvas;
@@ -72,15 +108,28 @@ class World {
         this.hutGate = this.level.hutGate || null;
         this.hutStory = this.level.storyBillboard || null;
         if (this.hutStory && !this.hutStory.anchorGate && this.hutGate) {
-            // falls im Level nicht übergeben wurde
             this.hutStory.anchorGate = this.hutGate;
         }
+
+        // EIN Splash-Bild vorladen (robust, kein Zufall)
+        this.preloadGoSplash();
 
         this.winnerScreen = new WinnerScreen();
 
         this.draw();
         this.setWorld();
         this.run();
+    }
+
+    /** Preload nur des EINEN Splash-Bildes (keine Races). */
+    preloadGoSplash() {
+        try {
+            const img = new Image();
+            img.onload = () => { /* loaded ok */ };
+            img.onerror = () => { /* notfalls wird es trotzdem gesetzt – Canvas zeigt Fallback-Text */ };
+            img.src = this.goSplashPath;
+            this.goSplashImg = img;
+        } catch (e) {}
     }
 
     playEnemyDeathSound() { this.enemyDeathAudio.play(); }
@@ -112,79 +161,40 @@ class World {
         }
     }
 
-    // ===== Boss-Sicht =====
-    // checkEndbossSight() {
-    //     const sightRange = 400;
-    //     const endboss = this.level.enemies.find(e => e instanceof Endboss);
-
-    //     if (!endboss) return;
-
-    //     if (endboss.dead === true || endboss.isDying === true) {
-    //         this.endbossInSight = false;
-    //         return;
-    //     }
-
-    //     if (this.character.x > endboss.x - sightRange) {
-    //         if (!endboss.isInSight) {
-    //             endboss.isInSight = true;
-    //             this.endbossInSight = true;
-    //         }
-    //     } else if (this.character.x < endboss.x - sightRange && endboss.isInSight) {
-    //         endboss.isInSight = false;
-    //         endboss.returning = true;
-    //         this.endbossInSight = false;
-    //     }
-    // }
-
     // === OPTIONAL: world.class.js -> checkEndbossSight() entschärfen ===
     checkEndbossSight() {
-        // AI wird ausschließlich in endboss.updateAI() gesteuert.
-        // Hier höchstens die HP-Bar nachziehen, falls gewünscht:
         const endboss = this.level.enemies.find(e => e instanceof Endboss);
         if (!endboss) return;
         this.endbossInSight = (endboss.aiState === 'CHASE');
     }
-    // === /OPTIONAL ===
 
-
-   // === REPLACE: world.class.js -> run() ===
     run() {
         setInterval(() => {
-            // Gewinn-Zustand: Logik drosseln
             if (this.gameWon || this.gameOver) {
                 if (this.hutStory) this.hutStory.deactivate();
                 return;
             }
 
-            // Core-Logic
             this.checkCollisions();
             this.checkThrowObjects();
             this.checkBottleCollection();
             this.checkBottleCollisions();
 
-            // >>> WICHTIG: Boss-AI updaten (treibt CHASE/RETURN an)
             const endboss = (this.level?.enemies || []).find(e => e instanceof Endboss);
             if (endboss) {
                 endboss.updateAI(this.character?.x || 0);
-
-                // HP-Bar nur zeigen, wenn Boss aktiv jagt
                 this.endbossInSight = (endboss.aiState === 'CHASE');
             }
 
-            // Tor/Story updaten
             if (this.hutGate)  this.hutGate.update();
             if (this.hutStory) this.hutStory.update();
 
-            // Story einmal "einfangen" & Portal-Eintritt prüfen
             this.checkHutProximityAndStory();
             this.checkPortalEnter();
 
-            // Effekte aufräumen
             this.effects = Array.isArray(this.effects) ? this.effects.filter(e => !e.done) : [];
         }, 200);
     }
-    // === /REPLACE ===
-
 
     checkThrowObjects() {
         if (this.keyboard.D && this.bottlesCollected > 0) {
@@ -250,7 +260,6 @@ class World {
                         this.character.makeInvulnerable();
 
                     } else if (enemy instanceof Endboss) {
-                        // kein Boss-Schaden durch Draufspringen
                         this.character.speedY = 18;
                         this.character.makeInvulnerable();
                     }
@@ -259,10 +268,8 @@ class World {
                     this.character.hit();
                     this.statusBar.setPercentage(this.character.energy);
 
-                    // Pain-Sound mit Anti-Spam / einmalig pro Treffer
                     this.playPainOnce();
 
-                    // Tod?
                     if (this.character.energy <= 0) {
                         this.onPlayerDeath();
                     }
@@ -271,7 +278,7 @@ class World {
         });
     }
 
-    /** Spielt den Schmerz-Sound einmalig (Anti-Spam über kurzen Lock). */
+    /** Schmerz-Sound einmalig (Anti-Spam). */
     playPainOnce() {
         if (this._painLock) return;
         this._painLock = true;
@@ -281,15 +288,15 @@ class World {
                 this.painAudio.play();
             }
         } catch (e) {}
-        setTimeout(() => this._painLock = false, 300); // kurze Sperre reicht
+        setTimeout(() => this._painLock = false, 300);
     }
 
-    /** Endgültiger Spieler-Tod: Logik stoppen, Grabstein setzen. */
+    /** Endgültiger Spieler-Tod: Logik stoppen, Grabstein setzen + GO-Sequenz. */
     onPlayerDeath() {
         if (this.gameOver) return;
         this.gameOver = true;
 
-        // Schritt-Sounds sicher stoppen
+        // Schritt-Sounds stoppen
         try {
             this.character.walking_sound.pause();
             this.character.walking_sound.currentTime = 0;
@@ -300,18 +307,15 @@ class World {
         // Ambience stoppen
         try { this.stopAmbienceLoop(); } catch (e) {}
 
-        // Enemies wirklich einfrieren (auch wenn deren Timer weiterlaufen)
+        // Enemies hart einfrieren
         try {
             (this.level?.enemies || []).forEach(e => {
                 if (!e) return;
-                // 1) Bewegung hart deaktivieren
                 e.speed = 0;
                 e.baseSpeed = 0;
                 if (typeof e.moveLeft  === 'function') e.moveLeft  = function() {};
                 if (typeof e.moveRight === 'function') e.moveRight = function() {};
                 if (typeof e.updateAI  === 'function') e.updateAI  = function() {};
-
-                // 2) Endboss zusätzlich neutralisieren
                 if (e instanceof Endboss) {
                     e.inAggroMode = false;
                     e.aiState = 'IDLE';
@@ -335,7 +339,7 @@ class World {
             this.gravestone = new Gravestone(gx, gy, SW, SH);
         } catch (e) {}
 
-        // Pain-Sound sicher stoppen, damit Death-Sound nicht überlappt
+        // Pain-Sound stoppen, damit Death-Sound nicht überlappt
         try {
             if (this.painAudio) {
                 this.painAudio.pause();
@@ -343,22 +347,145 @@ class World {
             }
         } catch (e) {}
 
-        // Sterbe-Sound einmalig abspielen
+        // Sterbe-Sound einmalig
         try {
             if (this.playerDeathAudio) {
                 this.playerDeathAudio.pause();
                 this.playerDeathAudio.currentTime = 0;
-                this.playerDeathAudio.volume = 0.85;  // hier setzen ist erlaubt
+                this.playerDeathAudio.volume = 0.85;
                 this.playerDeathAudio.play();
             }
         } catch (e) {}
 
+        // 0s: Death-Song
+        try {
+            if (this.deathSong) {
+                this.deathSong.pause();
+                this.deathSong.currentTime = 0;
+                this.deathSong.volume = 0.75;
+                this.deathSong.play();
+            }
+        } catch (e) {}
+
+        // Overlay-Objekt + TryAgain Hook
+        try {
+            if (!this.gameOverScreen) this.gameOverScreen = new GameOverScreen();
+            this.gameOverScreen.attachDom('.game-container');
+            this.gameOverScreen.onTryAgain(() => {
+                try { this.stopAllGameOverAudio(); } catch (e) {}
+                window.location.reload();
+            });
+        } catch (e) {}
+
+        // Sequencer starten
+        this.goT0 = performance.now();
+        this.goOverlayShown = false;
+        this.goButtonShown = false;
+        this.goLoopsStarted = false;
+
+        // Splash scharf setzen (kein Filter, EIN Bild)
+        try {
+            const setImg = () => {
+                this.goSplashActive = true;
+            };
+            if (this.goSplashImg && typeof this.goSplashImg.decode === 'function') {
+                this.goSplashImg.decode().then(setImg).catch(setImg);
+            } else {
+                setImg();
+            }
+        } catch (e) { this.goSplashActive = true; }
     }
 
+    /** Sequencer pro Frame – keine Timer-Races. */
+    updateGameOverSequence(now) {
+        if (!this.gameOver) return;
+        const elapsed = now - this.goT0;
+
+        // Splash beenden nach SPLASH_MS
+        if (this.goSplashActive && elapsed >= this.SPLASH_MS) {
+            this.goSplashActive = false;
+        }
+
+        // Overlay ab OVERLAY_AT_MS
+        if (!this.goOverlayShown && elapsed >= this.OVERLAY_AT_MS) {
+            this.startGameOverOverlay();
+            this.goOverlayShown = true;
+        }
+
+        // Button ab BUTTON_AT_MS
+        if (!this.goButtonShown && elapsed >= this.BUTTON_AT_MS) {
+            this.revealTryAgainButton();
+            this.goButtonShown = true;
+        }
+    }
+
+    /** Splash zeichnen – OHNE irgendeinen Filter. */
+    drawGameOverSplash(ctx, canvas) {
+        if (!this.goSplashActive || !this.goSplashImg) return;
+
+        const { width, height } = canvas;
+        const img = this.goSplashImg;
+
+        // draw ONLY the splash image, full-canvas, no tint, no text, no overlay
+        if (img.complete && (img.naturalWidth || 0) > 0) {
+            const iw = img.naturalWidth;
+            const ih = img.naturalHeight;
+
+            // cover-fit to fill the entire canvas
+            const scale = Math.max(width / iw, height / ih);
+            const drawW = iw * scale;
+            const drawH = ih * scale;
+            const dx = (width - drawW) / 2;
+            const dy = (height - drawH) / 2;
+
+            ctx.save();
+            ctx.globalAlpha = 1;                // ensure no inherited transparency
+            ctx.imageSmoothingEnabled = true;   // crisp scaling
+            ctx.drawImage(img, dx, dy, drawW, drawH);
+            ctx.restore();
+        }
+        // if the image isn't ready yet, draw nothing (no fallback tint/text)
+    }
+
+
+    startGameOverOverlay() {
+        if (!this.gameOverScreen) return;
+
+        // Sichtbar machen
+        this.gameOverScreen.show();
+
+        // Loops einmalig starten
+        if (this.goLoopsStarted) return;
+        this.goLoopsStarted = true;
+
+        try {
+            if (this.goCryLoop) {
+                this.goCryLoop.loop = true;
+                this.goCryLoop.volume = 0.7;
+                this.goCryLoop.currentTime = 0;
+                this.goCryLoop.play();
+            }
+            if (this.goRainLoop) {
+                this.goRainLoop.loop = true;
+                this.goRainLoop.volume = 0.5;
+                this.goRainLoop.currentTime = 0;
+                this.goRainLoop.play();
+            }
+        } catch (e) {}
+    }
+
+    revealTryAgainButton() {
+        if (!this.gameOverScreen) return;
+        this.gameOverScreen.showButton();
+    }
 
     draw() {
         // Canvas löschen
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        // Sequencer tick
+        const now = performance.now();
+        this.updateGameOverSequence(now);
 
         // Kamera an
         this.ctx.translate(this.camera_x, 0);
@@ -380,17 +507,9 @@ class World {
         // Wolken
         this.addObjectsToMap(this.level.clouds);
 
-        // Tor & Story (Story nur, wenn sichtbar)
+        // Tor & Story
         if (this.hutGate) this.addToMap(this.hutGate);
         if (this.hutStory && this.hutStory.visible) this.addToMap(this.hutStory);
-
-        // // Spieler
-        // this.addToMap(this.character);
-
-        // // Grabstein bei Game Over
-        // if (this.gameOver && this.gravestone) {
-        //     this.addToMap(this.gravestone);
-        // }
 
         // Spieler ODER Grabstein
         if (this.gameOver) {
@@ -402,14 +521,8 @@ class World {
         // Bottles, Enemies, Effekte
         this.addObjectsToMap(this.level.bottles);
 
-
-        // >>> NEU: Gegner bei Game Over NICHT rendern
         if (!this.gameOver) {
             this.addObjectsToMap(this.level.enemies);
-            // this.addObjectsToMap(this.throwableObjects);
-        } else {
-            // Bei Bedarf könntest du hier auch Effekte/Flaschen ausblenden.
-            // Aktuell lassen wir sie stehen – Fokus liegt nur auf Gegnern.
         }
 
         this.addObjectsToMap(this.throwableObjects);
@@ -422,6 +535,14 @@ class World {
         if (this.winnerScreen && this.winnerScreen.visible) {
             this.winnerScreen.drawOverlay(this.ctx, this.canvas);
         }
+
+        // Game-Over-Overlay (über allem)
+        if (this.gameOverScreen && this.gameOverScreen.visible) {
+            this.gameOverScreen.drawOverlay(this.ctx, this.canvas);
+        }
+
+        // 0–4s Game-Over-Splash (liegt über allem, solange aktiv)
+        this.drawGameOverSplash(this.ctx, this.canvas);
 
         // Loop
         let self = this;
@@ -492,29 +613,25 @@ class World {
     checkHutProximityAndStory() {
         if (!this.hutGate || !this.hutStory) return;
 
-        // Boss lebt?
         const bossAlive = (this.level?.enemies || []).some(e => e instanceof Endboss && !e.dead);
         if (!bossAlive) {
-            // Boss tot → Story aus
             this.hutStory.deactivate();
             this.storyLatched = false;
             return;
         }
 
-        // Wenn bereits "gelatched": sichtbar halten und weiterlaufen lassen
         if (this.storyLatched) {
             if (!this.hutStory.visible) this.hutStory.activate();
             return;
         }
 
-        // Noch nicht gelatched → Nähe prüfen & nur EINMAL aktivieren
         const playerX = this.character?.x || 0;
         const gateCenterX = this.hutGate.x + this.hutGate.width / 2;
         const near = Math.abs(playerX - gateCenterX) < 220;
 
         if (near && !this.hutGate.isOpen) {
             this.hutStory.activate();
-            this.storyLatched = true; // ab jetzt bleibt sie an (bis Boss stirbt)
+            this.storyLatched = true;
         }
     }
 
@@ -548,7 +665,6 @@ class World {
             }
         } catch (e) {}
 
-        // Tor öffnen & Story stoppen
         try { this.hutGate?.open(); } catch (e) {}
         try { this.hutStory?.deactivate(); } catch (e) {}
         this.storyLatched = false;
