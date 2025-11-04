@@ -24,13 +24,16 @@ class World {
     gameOverScreen = null;
 
     // === Sequencer-Timings (frame-gesteuert, keine setTimeouts) ===
-    goT0 = 0;               // performance.now() bei Tod
-    SPLASH_MS = 4000;       // 0–4s: Splash sichtbar
-    OVERLAY_AT_MS = 6000;   // ab 6s Overlay + Loops
-    BUTTON_AT_MS  = 10000;  // ab 10s Try-Again-Button
+    goT0 = 0;              // performance.now() bei Tod
+    SPLASH_DELAY_MS = 3000; // Splash startet nach 3s
+    SPLASH_MS = 3000;       // 0–4s: Splash sichtbar
+    OVERLAY_AT_MS = 7000;   // ab 6s Overlay + Loops
+    BUTTON_AT_MS  = 12000;  // ab 10s Try-Again-Button
+
     goOverlayShown = false; // Overlay schon aktiviert?
     goButtonShown = false;  // Button schon aktiviert?
     goLoopsStarted = false; // Audio-Loops schon gestartet?
+    goSplashShown   = false;     // NEU: Splash bereits gestartet?
 
     // One-Shots
     painAudio = new Audio('/audio/kung-fu-punch.mp3');
@@ -382,42 +385,46 @@ class World {
         this.goOverlayShown = false;
         this.goButtonShown = false;
         this.goLoopsStarted = false;
+        this.goSplashShown  = false;
+        this.goSplashActive = false; // NICHT sofort anzeigen
 
-        // Splash scharf setzen (kein Filter, EIN Bild)
+        // Splash nur vor-decodieren (für sauberes Rendern), aber NICHT aktivieren.
+        // Aktivierung übernimmt der Sequencer nach SPLASH_DELAY_MS.
+
         try {
-            const setImg = () => {
-                this.goSplashActive = true;
-            };
             if (this.goSplashImg && typeof this.goSplashImg.decode === 'function') {
-                this.goSplashImg.decode().then(setImg).catch(setImg);
-            } else {
-                setImg();
+                this.goSplashImg.decode().catch(() => {});
             }
-        } catch (e) { this.goSplashActive = true; }
+        } catch (e) {}
     }
 
     /** Sequencer pro Frame – keine Timer-Races. */
     updateGameOverSequence(now) {
-        if (!this.gameOver) return;
+    if (!this.gameOver) return;
         const elapsed = now - this.goT0;
 
-        // Splash beenden nach SPLASH_MS
-        if (this.goSplashActive && elapsed >= this.SPLASH_MS) {
-            this.goSplashActive = false;
+        // Splash verzögert starten (erst ab 3s) und nach insgesamt 3s wieder beenden
+        if (!this.goSplashShown && elapsed >= this.SPLASH_DELAY_MS) {
+            this.goSplashActive = true;   // jetzt erst zeigen
+            this.goSplashShown  = true;
+        }
+        if (this.goSplashActive && elapsed >= (this.SPLASH_DELAY_MS + this.SPLASH_MS)) {
+            this.goSplashActive = false;  // Splash aus nach Dauer
         }
 
-        // Overlay ab OVERLAY_AT_MS
+        // Overlay nach dem Splash-Fenster
         if (!this.goOverlayShown && elapsed >= this.OVERLAY_AT_MS) {
             this.startGameOverOverlay();
             this.goOverlayShown = true;
         }
 
-        // Button ab BUTTON_AT_MS
+        // Button noch später
         if (!this.goButtonShown && elapsed >= this.BUTTON_AT_MS) {
             this.revealTryAgainButton();
             this.goButtonShown = true;
         }
     }
+
 
     /** Splash zeichnen – OHNE irgendeinen Filter. */
     drawGameOverSplash(ctx, canvas) {
