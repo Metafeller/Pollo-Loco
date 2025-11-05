@@ -5,6 +5,10 @@ class Level {
     bottles;
     level_end_x = 6400;
 
+    // Neu:
+    coins = [];
+    whiskeys = [];
+
     // NEU: optionale Level-Objekte (Tor & Story)
     hutGate = null;          // wird im Level initialisiert
     storyBillboard = null;   // wird im Level initialisiert

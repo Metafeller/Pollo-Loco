@@ -19,10 +19,10 @@ const level1 = new Level([
     new Chicken(),
     new Chicken(),
     new MiniChicken(),
-    new Chicken(5400),
-    new Chicken(5800),
-    new MiniChicken(3000),
-    new MiniChicken(4000),
+    new Chicken(),
+    new Chicken(),
+    new MiniChicken(),
+    new MiniChicken(),
     new Endboss(6300) // Start direkt bei der Hütte (und Rücklaufziel = 500)
 ],
 
@@ -100,26 +100,40 @@ const level1 = new Level([
 [
     // Bottles – egal
     new Bottle(380, 350),
-    new Bottle(800, 330),
+    // new Bottle(800, 330),
     new Bottle(1200, 380),
     new Bottle(1800, 300),
-    new Bottle(2300, 400),
-    new Bottle(3000, 370),
-    new Bottle(3200, 350),
+    new Bottle(2400, 400),
+    // new Bottle(3000, 370),
     new Bottle(3400, 350),
-    new Bottle(3600, 350),
-    new Bottle(3700, 450),
-    new Bottle(3800, 350),
-    new Bottle(3900, 350),
+    // new Bottle(3600, 350),
+    // new Bottle(3600, 350),
+    // new Bottle(3700, 450),
+    // new Bottle(3800, 350),
+    // new Bottle(3900, 350),
     new Bottle(4000, 390),
-    new Bottle(4500, 350),
+    // new Bottle(4500, 350),
     new Bottle(4600, 390),
-    new Bottle(4700, 350),
-    new Bottle(4800, 390),
-    new Bottle(6000, 350),
-    new Bottle(6000, 380)
+    // new Bottle(4700, 350),
+    // new Bottle(4800, 390),
+    new Bottle(5900, 320),
+    new Bottle(6000, 360)
 ],
 
 gate,
 hutStory
 );
+
+// 2) DANACH Coins & Whiskeys anhängen:
+level1.coins = [
+    new Coin(1200, 240),  new Coin(1700, 200),  new Coin(1800, 160),
+    new Coin(1900,120),  new Coin(2000,160),  new Coin(2100, 200),
+    new Coin(3200,160),  new Coin(4200,160),  new Coin(5200, 160),
+    new Coin(5400,160)
+];
+
+level1.whiskeys = [
+    new WhiskeyPickup(940, 290),
+    new WhiskeyPickup(5250, 420),
+    new WhiskeyPickup(5950, 320)
+];

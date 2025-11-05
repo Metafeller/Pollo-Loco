@@ -11,6 +11,21 @@ class World {
     endbossStatusBar = new EndbossStatusBar();
     endbossInSight = false;
 
+    // === Coins & Superpower ===
+    coinStatusBar = new CoinStatusBar();
+    // coinHUD = new CoinHUD();
+    coinsCollected = 0;
+    totalCoins = 0;
+    coinAudio = new Audio('/audio/game-bonus-coins.mp3');
+
+    whiskeyCounter = new WhiskeyCounter();
+    whiskeyCount = 0; // Anzahl gesammelter Whiskey-Flaschen
+
+    // Wurf-/Pickup-Sounds
+    supernovaAudio = new Audio('/audio/supernova.mp3');           // F-Feuerball
+    bottlePickupAudio = new Audio('/audio/bottle.mp3');           // normale Flasche eingesammelt
+    whiskeyPickupAudio = new Audio('/audio/man-says-amazing.mp3');// Whiskey eingesammelt
+
     // === Game Over / Audio / Overlays ===
     gameOver = false;
     gravestone = null;
@@ -114,6 +129,14 @@ class World {
             this.hutStory.anchorGate = this.hutGate;
         }
 
+        // Totale Coins aus Level bestimmen
+        this.totalCoins = Array.isArray(this.level.coins) ? this.level.coins.length : 0;
+
+        // initiale UI-Werte
+        this.coinStatusBar.setPercentage(this.totalCoins > 0 ? 0 : 100);
+        // this.coinHUD.setCount(0);
+        this.whiskeyCounter.setCount(0);
+
         // EIN Splash-Bild vorladen (robust, kein Zufall)
         this.preloadGoSplash();
 
@@ -140,18 +163,38 @@ class World {
     setWorld() { this.character.world = this; }
 
     // ===== Sammeln / Werfen =====
+    // checkBottleCollection() {
+    //     this.level.bottles.forEach((bottle) => {
+    //         if (this.character.isColliding(bottle)) {
+    //             if (this.bottlesCollected < this.maxBottles) {
+    //                 const picked = bottle;
+    //                 this.level.bottles = this.level.bottles.filter(b => b !== picked);
+    //                 this.bottlesCollected++;
+    //                 const pct = (this.bottlesCollected / this.maxBottles) * 100;
+    //                 this.bottleStatusBar.setPercentage(pct);
+    //             }
+    //         }
+    //     });
+    // }
+
     checkBottleCollection() {
+        let picked = false;
         this.level.bottles.forEach((bottle) => {
             if (this.character.isColliding(bottle)) {
                 if (this.bottlesCollected < this.maxBottles) {
-                    const picked = bottle;
-                    this.level.bottles = this.level.bottles.filter(b => b !== picked);
+                    const pickedBottle = bottle;
+                    this.level.bottles = this.level.bottles.filter(b => b !== pickedBottle);
                     this.bottlesCollected++;
+                    picked = true;
                     const pct = (this.bottlesCollected / this.maxBottles) * 100;
                     this.bottleStatusBar.setPercentage(pct);
                 }
             }
         });
+
+        if (picked) {
+            try { this.bottlePickupAudio.currentTime = 0; this.bottlePickupAudio.play(); } catch(e) {}
+        }
     }
 
     throwBottle() {
@@ -181,7 +224,11 @@ class World {
             this.checkCollisions();
             this.checkThrowObjects();
             this.checkBottleCollection();
-            this.checkBottleCollisions();
+            // this.checkBottleCollisions();
+            // this.checkProjectileCollisions();
+            this.checkCoinCollection();
+            this.checkWhiskeyCollection();
+
 
             const endboss = (this.level?.enemies || []).find(e => e instanceof Endboss);
             if (endboss) {
@@ -200,48 +247,170 @@ class World {
     }
 
     checkThrowObjects() {
+        // Normale Flasche (D)
         if (this.keyboard.D && this.bottlesCollected > 0) {
-            let bottle = new ThrowableObject(this.character.x + 100, this.character.y + 100);
+            const facingRight = true; // optional: this.character.otherDirection ? false : true;
+            let bottle = new ThrowableObject(this.character.x + 100, this.character.y + 80, facingRight);
             this.throwableObjects.push(bottle);
             this.bottlesCollected--;
             const pct = (this.bottlesCollected / this.maxBottles) * 100;
             this.bottleStatusBar.setPercentage(pct);
         }
+
+        // Supernova (F) – nur wenn Whiskey vorhanden
+        if (this.keyboard.F && this.whiskeyCount > 0) {
+            const facingRight = true;
+            let fire = new Fireball(this.character.x + 110, this.character.y + 70, facingRight);
+            this.throwableObjects.push(fire);
+            this.whiskeyCount--;
+            this.whiskeyCounter.setCount(this.whiskeyCount);
+            try { this.supernovaAudio.currentTime = 0; this.supernovaAudio.play(); } catch (e) {}
+        }
+
+        // Aufräumen: fertig geflogene Projektile entfernen
+        this.throwableObjects = this.throwableObjects.filter(p => !p.done);
     }
 
-    checkBottleCollisions() {
+
+    // checkBottleCollisions() {
+    //     if (!Array.isArray(this.throwableObjects) || !this.level || !Array.isArray(this.level.enemies)) return;
+
+    //     this.throwableObjects.forEach((bottle, bottleIndex) => {
+    //         this.level.enemies.forEach((enemy) => {
+    //             if (bottle.isColliding(enemy)) {
+    //                 if (bottle.hasHit === true) return;
+    //                 bottle.hasHit = true;
+    //                 this.onBottleHitsEnemy(bottle, enemy);
+
+    //                 if (enemy instanceof Chicken || enemy instanceof MiniChicken) {
+    //                     if (typeof enemy.die === 'function') enemy.die();
+    //                     setTimeout(() => {
+    //                         try { this.playEnemyDeathSound(); } catch(e) {}
+    //                         this.level.enemies = this.level.enemies.filter(e => e !== enemy);
+    //                     }, 320);
+
+    //                 } else if (enemy instanceof Endboss) {
+    //                     if (typeof enemy.enterAggro === 'function') enemy.enterAggro();
+    //                     this.startAmbienceLoop();
+
+    //                     // Schaden ermitteln: default 20, Supernova 40
+    //                     const dmg = bottle.isSupernova ? 40 : 20;
+
+    //                     // Wenn Endboss.hit(dmg) nicht existiert → sicher manipulieren
+    //                     try {
+    //                         if (enemy.hit.length >= 1) {
+    //                             enemy.hit(dmg);
+    //                         } else {
+    //                             enemy.hit(); // klassische 20% Implementierung
+    //                             // zusätzliche Korrektur falls nötig:
+    //                             if (bottle.isSupernova && typeof enemy.energy === 'number') {
+    //                                 // wir wollen insgesamt 40%. Falls hit() schon 20% abgezogen hat:
+    //                                 enemy.energy = Math.max(0, enemy.energy - 20);
+    //                             }
+    //                         }
+    //                     } catch (e) {
+    //                         // Fallback: direkte Energie-Manipulation
+    //                         if (typeof enemy.energy === 'number') {
+    //                             enemy.energy = Math.max(0, enemy.energy - dmg);
+    //                         }
+    //                     }
+
+    //                     // UI aktualisieren
+    //                     this.endbossStatusBar.setPercentage(enemy.energy);
+
+    //                     // Boss tot?
+    //                     if (enemy.energy === 0 && typeof this.onEndbossDeath === 'function') {
+    //                         this.onEndbossDeath(enemy);
+    //                     }
+    //                 }
+
+
+    //                 this.throwableObjects.splice(bottleIndex, 1);
+    //             }
+    //         });
+    //     });
+    // }
+
+    checkProjectileCollisions() {
         if (!Array.isArray(this.throwableObjects) || !this.level || !Array.isArray(this.level.enemies)) return;
 
-        this.throwableObjects.forEach((bottle, bottleIndex) => {
+        this.throwableObjects.forEach((proj, idx) => {
             this.level.enemies.forEach((enemy) => {
-                if (bottle.isColliding(enemy)) {
-                    if (bottle.hasHit === true) return;
-                    bottle.hasHit = true;
-                    this.onBottleHitsEnemy(bottle, enemy);
+                if (!proj.isColliding(enemy)) return;
 
+                // === FIREBALL: nur Endboss & "fliegende" Gegner (future: enemy.canBeHitByFireball === true)
+                if (proj instanceof Fireball) {
                     if (enemy instanceof Chicken || enemy instanceof MiniChicken) {
-                        if (typeof enemy.die === 'function') enemy.die();
-                        setTimeout(() => {
-                            try { this.playEnemyDeathSound(); } catch(e) {}
-                            this.level.enemies = this.level.enemies.filter(e => e !== enemy);
-                        }, 320);
-
-                    } else if (enemy instanceof Endboss) {
+                        // Ignorieren – fliegt durch kleine Bodengegner
+                        return;
+                    }
+                    if (enemy instanceof Endboss || enemy.canBeHitByFireball === true) {
                         if (typeof enemy.enterAggro === 'function') enemy.enterAggro();
                         this.startAmbienceLoop();
 
-                        enemy.hit();
-                        this.endbossStatusBar.setPercentage(enemy.energy);
+                        const dmg = 40;
+                        try {
+                            if (enemy.hit.length >= 1) enemy.hit(dmg);
+                            else {
+                                enemy.hit(); // klassische 20%
+                                if (typeof enemy.energy === 'number') {
+                                    enemy.energy = Math.max(0, enemy.energy - 20); // auf 40% auffüllen
+                                }
+                            }
+                        } catch (e) {
+                            if (typeof enemy.energy === 'number') {
+                                enemy.energy = Math.max(0, enemy.energy - dmg);
+                            }
+                        }
 
+                        this.endbossStatusBar.setPercentage(enemy.energy);
                         if (enemy.energy === 0 && typeof this.onEndbossDeath === 'function') {
                             this.onEndbossDeath(enemy);
                         }
+                        proj.done = true; // Fireball verbrauchen
+                    }
+                    return;
+                }
+
+                // === BOTTLE (ThrowableObject): Standard-Regeln
+                if (proj.hasHit === true) return;
+                proj.hasHit = true;
+                this.onBottleHitsEnemy(proj, enemy);
+
+                if (enemy instanceof Chicken || enemy instanceof MiniChicken) {
+                    if (typeof enemy.die === 'function') enemy.die();
+                    setTimeout(() => {
+                        try { this.playEnemyDeathSound(); } catch (e) {}
+                        this.level.enemies = this.level.enemies.filter(e => e !== enemy);
+                    }, 320);
+
+                } else if (enemy instanceof Endboss) {
+                    if (typeof enemy.enterAggro === 'function') enemy.enterAggro();
+                    this.startAmbienceLoop();
+
+                    const dmg = 20;
+                    try {
+                        if (enemy.hit.length >= 1) enemy.hit(dmg);
+                        else enemy.hit();
+                    } catch (e) {
+                        if (typeof enemy.energy === 'number') {
+                            enemy.energy = Math.max(0, enemy.energy - dmg);
+                        }
                     }
 
-                    this.throwableObjects.splice(bottleIndex, 1);
+                    this.endbossStatusBar.setPercentage(enemy.energy);
+                    if (enemy.energy === 0 && typeof this.onEndbossDeath === 'function') {
+                        this.onEndbossDeath(enemy);
+                    }
                 }
+
+                // Bottle verschwindet bei Kollision:
+                this.throwableObjects.splice(idx, 1);
             });
         });
+
+        // Rest aufräumen
+        this.throwableObjects = this.throwableObjects.filter(p => !p.done);
     }
 
     checkCollisions() {
@@ -279,6 +448,53 @@ class World {
                 }
             }
         });
+    }
+
+    checkCoinCollection() {
+        if (!this.level || !Array.isArray(this.level.coins)) return;
+
+        const remaining = [];
+        let pickedAny = false;
+
+        for (const coin of this.level.coins) {
+            if (this.character.isColliding(coin)) {
+                pickedAny = true;
+                this.coinsCollected++;
+                // Coin NICHT in remaining pushen => verschwindet
+            } else {
+                remaining.push(coin);
+            }
+        }
+
+        // UI & Sound NACH dem Loop, ohne CoinHUD
+        if (pickedAny) {
+            try { this.coinAudio.currentTime = 0; this.coinAudio.play(); } catch(e) {}
+            const pct = this.totalCoins > 0 ? (this.coinsCollected / this.totalCoins) * 100 : 100;
+            this.coinStatusBar.setPercentage(pct);
+        }
+
+        // Coins-Liste IMMER aktualisieren (wichtig!)
+        this.level.coins = remaining;
+    }
+
+    checkWhiskeyCollection() {
+        if (!this.level || !Array.isArray(this.level.whiskeys)) return;
+        const remaining = [];
+        let gained = 0;
+
+        for (const w of this.level.whiskeys) {
+            if (this.character.isColliding(w)) {
+                gained++;
+            } else {
+                remaining.push(w);
+            }
+        }
+        if (gained > 0) {
+            this.whiskeyCount += gained;
+            this.whiskeyCounter.setCount(this.whiskeyCount);
+            try { this.whiskeyPickupAudio.currentTime = 0; this.whiskeyPickupAudio.play(); } catch(e) {}
+        }
+        this.level.whiskeys = remaining;
     }
 
     /** Schmerz-Sound einmalig (Anti-Spam). */
@@ -494,6 +710,9 @@ class World {
         const now = performance.now();
         this.updateGameOverSequence(now);
 
+        // Projektile-Kollisionen pro Frame prüfen (verhindert „Tunneling“)
+        this.checkProjectileCollisions();
+
         // Kamera an
         this.ctx.translate(this.camera_x, 0);
 
@@ -504,9 +723,13 @@ class World {
         this.ctx.translate(-this.camera_x, 0);
 
         // Fixe UI
-        this.addToMap(this.statusBar);
-        this.addToMap(this.bottleStatusBar);
-        if (this.endbossInSight) this.addToMap(this.endbossStatusBar);
+        // this.addToMap(this.statusBar);
+        // this.addToMap(this.bottleStatusBar);
+        // this.addToMap(this.coinStatusBar);
+        // this.addToMap(this.coinHUD);
+        // this.addToMap(this.whiskeyCounter);
+
+        // if (this.endbossInSight) this.addToMap(this.endbossStatusBar);
 
         // Kamera an
         this.ctx.translate(this.camera_x, 0);
@@ -517,6 +740,10 @@ class World {
         // Tor & Story
         if (this.hutGate) this.addToMap(this.hutGate);
         if (this.hutStory && this.hutStory.visible) this.addToMap(this.hutStory);
+
+        // Coins & Whiskey im Level anzeigen
+        if (Array.isArray(this.level.coins))    this.addObjectsToMap(this.level.coins);
+        if (Array.isArray(this.level.whiskeys)) this.addObjectsToMap(this.level.whiskeys);
 
         // Spieler ODER Grabstein
         if (this.gameOver) {
@@ -537,6 +764,13 @@ class World {
 
         // Kamera aus
         this.ctx.translate(-this.camera_x, 0);
+
+        // === FIXE UI (immer ganz oben) ===
+        this.addToMap(this.statusBar);
+        this.addToMap(this.bottleStatusBar);
+        this.addToMap(this.coinStatusBar);
+        this.addToMap(this.whiskeyCounter);
+        if (this.endbossInSight) this.addToMap(this.endbossStatusBar);
 
         // Winner-Overlay
         if (this.winnerScreen && this.winnerScreen.visible) {
