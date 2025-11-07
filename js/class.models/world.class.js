@@ -6,10 +6,16 @@ class World {
     keyboard;
     camera_x = 0;
 
+    // ADD: Debug toggle
+    DEBUG_FRAMES = true; // zum Testen true setzen, später false
+
     statusBar = new StatusBar();
     bottleStatusBar = new BottleStatusBar();
     endbossStatusBar = new EndbossStatusBar();
     endbossInSight = false;
+
+    // ADD: Background music (low volume ambience)
+    bgMusic = new Audio('/audio/spanish-guitar-long-street.mp3'); // lege diese Datei ins /audio
 
     // === Coins & Superpower ===
     coinStatusBar = new CoinStatusBar();
@@ -51,7 +57,7 @@ class World {
     goSplashShown   = false;     // NEU: Splash bereits gestartet?
 
     // One-Shots
-    painAudio = new Audio('/audio/kung-fu-punch.mp3');
+    painAudio = new Audio('/audio/pepe-yahudi.mp3');
     _painLock = false; // Anti-Spam
     // Sterbe-Sound (einmaliger One-Shot beim Spieler-Tod)
     playerDeathAudio = new Audio('/audio/man-screaming.mp3');
@@ -116,11 +122,35 @@ class World {
         } catch (e) {}
     }
 
+    // ADD: BG music helpers
+    startBgMusic() {
+        try {
+            if (!this.bgMusic) return;
+            this.bgMusic.loop = true;
+            this.bgMusic.volume = 0.28; // ~28%
+            if (this.bgMusic.paused) {
+            this.bgMusic.currentTime = 0;
+            this.bgMusic.play();
+            }
+        } catch(e) {}
+        }
+        pauseBgMusic() {
+        try { if (this.bgMusic && !this.bgMusic.paused) this.bgMusic.pause(); } catch(e) {}
+        }
+        resumeBgMusic() {
+        try {
+            if (!this.bgMusic) return;
+            if (this.bgMusic.paused && !this.gameOver && !this.gameWon && !this.endbossInSight) {
+            this.bgMusic.play();
+            }
+        } catch(e) {}
+    }
+
     constructor(canvas, keyboard) {
         this.ctx = canvas.getContext('2d');
         this.canvas = canvas;
         this.keyboard = keyboard;
-        this.enemyDeathAudio = new Audio('/audio/chicken-noise.mp3');
+        this.enemyDeathAudio = new Audio('/audio/chicken-single-alarm-call.mp3');
 
         // Level-Objekte referenzieren
         this.hutGate = this.level.hutGate || null;
@@ -141,6 +171,9 @@ class World {
         this.preloadGoSplash();
 
         this.winnerScreen = new WinnerScreen();
+
+        // ADD: starte die leise BG-Musik
+        this.startBgMusic();
 
         this.draw();
         this.setWorld();
@@ -221,7 +254,7 @@ class World {
                 return;
             }
 
-            this.checkCollisions();
+            // this.checkCollisions();
             this.checkThrowObjects();
             this.checkBottleCollection();
             // this.checkBottleCollisions();
@@ -235,6 +268,10 @@ class World {
                 endboss.updateAI(this.character?.x || 0);
                 this.endbossInSight = (endboss.aiState === 'CHASE');
             }
+
+            // ADD: BG music follow state
+            if (this.endbossInSight) this.pauseBgMusic();
+            else this.resumeBgMusic();
 
             if (this.hutGate)  this.hutGate.update();
             if (this.hutStory) this.hutStory.update();
@@ -415,36 +452,46 @@ class World {
 
     checkCollisions() {
         this.level.enemies.forEach((enemy) => {
-            if (enemy && enemy.dead === true) return;
+            if (!enemy || enemy.dead === true) return;
 
-            if (this.character.isColliding(enemy)) {
-                const jumpedOn = this.character.isAboveGround() && this.character.speedY < 0;
+            const bodyHit  = this.character.isColliding(enemy);
+            const stompHit = this.didStompEnemy(enemy); // präziser Fuß-Sensor
 
-                if (jumpedOn) {
-                    if (enemy instanceof Chicken || enemy instanceof MiniChicken) {
-                        enemy.die();
-                        this.playEnemyDeathSound();
-                        setTimeout(() => {
-                            const victim = enemy;
-                            this.level.enemies = this.level.enemies.filter(e => e !== victim);
-                        }, 500);
-                        this.character.speedY = 15;
-                        this.character.makeInvulnerable();
+            if (stompHit) {
+                // === Stomp von oben ===
+                if (enemy instanceof Chicken || enemy instanceof MiniChicken) {
+                    enemy.die();
+                    this.playEnemyDeathSound();
+                    setTimeout(() => {
+                        const victim = enemy;
+                        this.level.enemies = this.level.enemies.filter(e => e !== victim);
+                    }, 500);
 
-                    } else if (enemy instanceof Endboss) {
-                        this.character.speedY = 18;
-                        this.character.makeInvulnerable();
-                    }
+                    // Bounce nach oben + kurze Unverwundbarkeit
+                    this.character.speedY = 15; // vorher 15
+                    this.character.makeInvulnerable();
 
-                } else if (!this.character.invulnerable) {
-                    this.character.hit();
-                    this.statusBar.setPercentage(this.character.energy);
+                } else if (enemy instanceof Endboss) {
+                    // Boss nur "abstoßen"
+                    this.character.speedY = 18; // vorher 18
+                    this.character.makeInvulnerable();
+                }
 
-                    this.playPainOnce();
+            } else if (bodyHit && !this.character.invulnerable) {
 
-                    if (this.character.energy <= 0) {
-                        this.onPlayerDeath();
-                    }
+                // Einmal Schaden auslösen === Körperkollision (seitlich / nicht von oben) ===
+                this.character.hit();
+                this.statusBar.setPercentage(this.character.energy);
+                this.playPainOnce();
+
+                // ... und SOFORT kurz unverwundbar machen (globaler Cooldown)
+                this.character.makeInvulnerable();
+
+                // optional mini-bounce, damit man nicht „klebt“ (sehr mild, zerstört nichts)
+                this.character.speedY = Math.max(this.character.speedY, 8);
+
+                if (this.character.energy <= 0) {
+                    this.onPlayerDeath();
                 }
             }
         });
@@ -552,9 +599,13 @@ class World {
 
         // Grabstein an Pepes Füße
         try {
-            const SW = 120, SH = 320;
-            const gx = this.character.x + (this.character.width * 0.5) - (SW / 2);
-            const gy = this.character.y + this.character.height - SH;
+            const SW = 120, SH = 340; // vorher 120 x 320
+            const gx = this.character.x + (this.character.width * 0.5) - (SW / 2); // vorher 0.5 + 2
+
+            // wie viel tiefer als Pepes Bild-Unterkante (8–12px fühlt sich gut an)
+            const SINK_PX = 64;
+
+            const gy = this.character.y + this.character.height - SH + SINK_PX;
             this.gravestone = new Gravestone(gx, gy, SW, SH);
         } catch (e) {}
 
@@ -612,6 +663,9 @@ class World {
                 this.goSplashImg.decode().catch(() => {});
             }
         } catch (e) {}
+
+        try { this.pauseBgMusic(); } catch(e) {}
+
     }
 
     /** Sequencer pro Frame – keine Timer-Races. */
@@ -713,6 +767,9 @@ class World {
         // Projektile-Kollisionen pro Frame prüfen (verhindert „Tunneling“)
         this.checkProjectileCollisions();
 
+        // SPIELER↔GEGNER: jetzt auch pro Frame → Stomps sind präzise
+        this.checkCollisions();
+
         // Kamera an
         this.ctx.translate(this.camera_x, 0);
 
@@ -721,15 +778,6 @@ class World {
 
         // Kamera aus
         this.ctx.translate(-this.camera_x, 0);
-
-        // Fixe UI
-        // this.addToMap(this.statusBar);
-        // this.addToMap(this.bottleStatusBar);
-        // this.addToMap(this.coinStatusBar);
-        // this.addToMap(this.coinHUD);
-        // this.addToMap(this.whiskeyCounter);
-
-        // if (this.endbossInSight) this.addToMap(this.endbossStatusBar);
 
         // Kamera an
         this.ctx.translate(this.camera_x, 0);
@@ -790,6 +838,47 @@ class World {
         requestAnimationFrame(function() { self.draw(); });
     }
 
+    /**
+ * True, wenn Pepe den Gegner VON OBEN trifft (Stomp).
+ * Großzügiger: größere Fuß-Zone, leichtes Fallen reicht, zusätzliche Vertikal-Checks.
+ */
+    didStompEnemy(enemy) {
+        if (!enemy) return false;
+
+        // 1) Muss fallen oder fast fallen (−0.2 reicht)
+        const vy = this.character.speedY || 0;
+        if (vy > -0.2) return false;
+
+        // 2) Bounds
+        const ca = this.character.getBounds();
+        const eb = (typeof enemy.getBounds === 'function')
+            ? enemy.getBounds()
+            : { left:enemy.x, top:enemy.y, right:enemy.x + enemy.width, bottom:enemy.y + enemy.height };
+
+        // 3) Fuß-Zone (etwas breiter & deutlich höher)
+        const charH   = Math.max(1, ca.bottom - ca.top);
+        const footH   = Math.max(28, Math.floor(charH * 0.42)); // vorher ~0.33
+        const footL   = ca.left + 10;
+        const footR   = ca.right - 10;
+        const footTop = ca.bottom - footH;
+        const footBot = ca.bottom;
+
+        const overlapX = footL < eb.right && footR > eb.left;
+        const overlapY = footTop < eb.bottom && footBot > eb.top;
+        if (!(overlapX && overlapY)) return false;
+
+        // 4) Vertikale Gating: kam von oben ODER nur flach eingedrungen
+        const prevY       = (typeof this.character.prevY === 'number') ? this.character.prevY : this.character.y;
+        const prevBottom  = prevY + this.character.height - (this.character.offset?.bottom || 0);
+        const nowBottom   = ca.bottom;
+
+        const cameFromAbove    = prevBottom <= eb.top + 18;   // vorher strenger
+        const shallowPenetrate = (nowBottom - eb.top) <= 26;  // kleine Eindringtiefe zählt als Stomp
+
+        return cameFromAbove || shallowPenetrate;
+    }
+
+
     addObjectsToMap(objects) {
         if (!Array.isArray(objects) || objects.length === 0) return;
         for (let i = 0; i < objects.length; i++) {
@@ -802,8 +891,34 @@ class World {
     addToMap(mo) {
         if (mo.otherDirection) this.flipImage(mo);
         mo.draw(this.ctx);
-        mo.drawFrame(this.ctx);
-        if (mo.otherDirection) this.flipImageBack(mo);
+        if (mo.otherDirection) this.flipImageBack(mo); // ← erst zurückflippen
+
+        if (this.DEBUG_FRAMES && typeof mo.drawFrame === 'function') {
+            // Nur Gameplay-Objekte debuggen (keine Backgrounds/Clouds)
+            const show =
+            (mo === this.character) || (mo instanceof Chicken) || (mo instanceof MiniChicken) ||
+            (mo instanceof Endboss) || (mo instanceof ThrowableObject) || (mo instanceof Gravestone);
+            if (show) mo.drawFrame(this.ctx);
+        }
+
+        if (this.DEBUG_FRAMES && mo === this.character) {
+            const ca = this.character.getBounds();
+            const charH = Math.max(1, ca.bottom - ca.top);
+            const footH = Math.max(28, Math.floor(charH * 0.42));
+            const footRect = {
+                x: ca.left + 10,
+                y: ca.bottom - footH,
+                w: (ca.right - ca.left) - 20,
+                h: footH
+            };
+            this.ctx.save();
+            this.ctx.setLineDash([6,4]);
+            this.ctx.lineWidth = 2;
+            this.ctx.strokeStyle = 'lime';
+            this.ctx.strokeRect(footRect.x, footRect.y, footRect.w, footRect.h);
+            this.ctx.setLineDash([]);
+            this.ctx.restore();
+        }
     }
 
     flipImage(mo) {
@@ -892,6 +1007,9 @@ class World {
         this.gameWon = true;
         try { this.stopAmbienceLoop(); } catch(e) {}
         if (this.winnerScreen) this.winnerScreen.show();
+
+        try { this.pauseBgMusic(); } catch(e) {}
+
     }
 
     onEndbossDeath(endboss) {
@@ -909,5 +1027,9 @@ class World {
         try { this.hutGate?.open(); } catch (e) {}
         try { this.hutStory?.deactivate(); } catch (e) {}
         this.storyLatched = false;
+
+        // Boss tot → dramatisch aus, ruhige BG wieder sanft an (bis zum Portal/Win)
+        try { this.resumeBgMusic(); } catch(e) {}
+
     }
 }

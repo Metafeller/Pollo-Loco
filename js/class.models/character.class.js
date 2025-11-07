@@ -5,7 +5,7 @@ class Character extends MovableObject {
     speed = 5;
 
     invulnerable = false;  // Unverwundbarkeits-Status
-    invulnerabilityDuration = 1500;  // Dauer der Unverwundbarkeit in Millisekunden
+    invulnerabilityDuration = 900;  // Dauer der Unverwundbarkeit in Millisekunden / Vorher 1500
 
     IMAGES_WALKING = [
         '/img/2_character_pepe/2_walk/W-21.png',
@@ -44,11 +44,9 @@ class Character extends MovableObject {
         '/img/2_character_pepe/5_dead/D-57.png'
     ];
 
-
     world;
     walking_sound = new Audio('/audio/stamping.mp3');
     walking_sound_back = new Audio('/audio/stamping.mp3');
-
 
     constructor() {
         super().loadImage('/img/2_character_pepe/2_walk/W-21.png');
@@ -56,6 +54,17 @@ class Character extends MovableObject {
         this.loadImages(this.IMAGES_JUMPING);
         this.loadImages(this.IMAGES_DEAD);
         this.loadImages(this.IMAGES_HURT);
+
+        // Bodenlinie: Pepe steht exakt bei y=80
+        this.groundPosition = 150;
+
+        this.offset = {
+            left:  18,
+            right: 18,
+            top:   64, // vorher 50
+            bottom: 12 // vorher 10
+        };
+
         this.applyGravity();
         this.animate();
     }
@@ -71,7 +80,7 @@ class Character extends MovableObject {
                 return; // NICHTS mehr bewegen oder drehen
             }
 
-            // EPL-20 Spiel gewonnen? → Eingaben ignorieren (Char bleibt stehen)
+            // Spiel gewonnen → Eingaben ignorieren
             if (this.world?.gameWon) {
                 this.walking_sound.pause();
                 this.walking_sound_back.pause();
@@ -79,14 +88,15 @@ class Character extends MovableObject {
             }
 
             this.walking_sound.pause();
+
             // Bewegung nach rechts, aber nur bis zum Level-Ende
             if (this.world.keyboard.RIGHT && this.x < this.world.level.level_end_x) {
                 this.moveRight();
                 this.otherDirection = false;
                 this.walking_sound.play();
 
-            }   else if (this.x >= this.world.level.level_end_x) {
-                // Charakter soll am Ende stoppen und nicht weiter bewegen! Siehe unter level.class.js bei level_end_x = 3500;
+            } else if (this.x >= this.world.level.level_end_x) {
+                // Charakter stoppt am Level-Ende
                 this.x = this.world.level.level_end_x;
             }
 
@@ -97,7 +107,7 @@ class Character extends MovableObject {
                 this.walking_sound_back.play();
             }
 
-            if(this.world.keyboard.SPACE && !this.isAboveGround()) {
+            if (this.world.keyboard.SPACE && !this.isAboveGround()) {
                 this.jump();
             }
 
@@ -111,9 +121,7 @@ class Character extends MovableObject {
                 return; // keine Animationsframes mehr wechseln
             }
 
-            // Auch die Animations-/Bewegungs-Schleife hart drosseln
             if (this.world?.gameWon) {
-                // optional: idle halten (kein weiteres x+=speed)
                 return;
             }
 
@@ -130,7 +138,7 @@ class Character extends MovableObject {
                     this.x += this.speed;
                     this.playAnimation(this.IMAGES_WALKING);
                 }
-            }   
+            }
         }, 50);
 
     }
@@ -139,20 +147,18 @@ class Character extends MovableObject {
         this.speedY = 25;
     }
 
-    // Methode, um den Charakter für eine bestimmte Zeit unverwundbar zu machen
+    // Unverwundbarkeit kurz aktivieren
     makeInvulnerable() {
         this.invulnerable = true;
         setTimeout(() => {
-            this.invulnerable = false;  // Nach Ablauf der Zeit wird der Charakter wieder verwundbar
+            this.invulnerable = false;
         }, this.invulnerabilityDuration);
     }
 
-    isAboveGround() {
-        return this.y < 150;  // Überprüft, ob der Charakter sich über dem Boden befindet (Grenze kann angepasst werden)
-    }
-
+    // WICHTIG: KEINE lokale isAboveGround() hier!
+    // checkIfJumpedOnEnemy benutzt die aus MovableObject
     checkIfJumpedOnEnemy(enemy) {
-        return this.isAboveGround() && this.speedY < 0 && this.isColliding(enemy);  
+        return this.isAboveGround() && this.speedY < 0 && this.isColliding(enemy);
     }
 
 }

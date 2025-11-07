@@ -14,25 +14,27 @@ class Chicken extends MovableObject {
         '/img/3_enemies_chicken/chicken_normal/2_dead/dead.png'
     ];
 
-    constructor() {
+    constructor(x = null) {
         super().loadImage(this.IMAGES_WALKING[0]);
         this.loadImages(this.IMAGES_WALKING);
         this.loadImages(this.IMAGES_DEAD);
 
-        this.x = 4200 + Math.random() * 700;  // Zufällige Position
+        // injected x, sonst Fallback random
+        this.x = (typeof x === 'number') ? x : (4200 + Math.random() * 700);
         this.speed = 0.15 + Math.random() * 0.5;
+
         this.animate();
     }
 
     hit() {
-        this.energy = 0;  // Setze die Lebensenergie auf 0
-        this.die();  // Lasse das Chicken sterben
+        this.energy = 0;
+        this.die();
     }
 
     die() {
         this.dead = true; // block animations & collisions
-        this.speed = 0;  // Stoppe die Bewegung nach dem Tod
-        this.loadImage(this.IMAGES_DEAD[0]);  // Zeige das Bild des toten Huhns
+        this.speed = 0;   // Stoppe die Bewegung nach dem Tod
+        this.loadImage(this.IMAGES_DEAD[0]);
     }
 
     animate() {

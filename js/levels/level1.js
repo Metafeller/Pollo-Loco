@@ -11,18 +11,43 @@ const hutStory = new StoryBillboard(6000, 180, 100, 500, gate);
 hutStory.offsetX = 256;
 hutStory.offsetY = -12;
 
+// ADD: helper for distributed spawns with minimal spacing
+function spawnDistributed(factory/*(x)=>obj*/, count, xStart, xEnd, minSpacing=400) {
+  const picks = [];
+  const range = xEnd - xStart;
+  // naive stratified sampling: split into buckets and jitter
+  const step = Math.max(minSpacing, Math.floor(range / Math.max(1, count)));
+  let x = xStart + 200; // small margin
+  for (let i=0; i<count; i++) {
+    const jitter = Math.floor(Math.random() * Math.min(step-50, 220));
+    const px = Math.min(xEnd-50, x + jitter);
+    picks.push(factory(px));
+    x += step;
+  }
+  return picks;
+}
+
+// Decide how many you want:
+const CHICKEN_COUNT = 9;
+const MINI_COUNT    = 8;
+
+const chickensDistributed = spawnDistributed((x)=>new Chicken(x), CHICKEN_COUNT, 600, 5900, 420);
+const minisDistributed    = spawnDistributed((x)=>new MiniChicken(x), MINI_COUNT,  900, 5800, 360);
+
 const level1 = new Level([
-    new Chicken(),
-    new MiniChicken(),
-    new Chicken(),
-    new MiniChicken(),
-    new Chicken(),
-    new Chicken(),
-    new MiniChicken(),
-    new Chicken(),
-    new Chicken(),
-    new MiniChicken(),
-    new MiniChicken(),
+    // new Chicken(),
+    // new MiniChicken(),
+    // new Chicken(),
+    // new MiniChicken(),
+    // new Chicken(),
+    // new Chicken(),
+    // new MiniChicken(),
+    // new Chicken(),
+    // new Chicken(),
+    // new MiniChicken(),
+    // new MiniChicken(),
+    ...chickensDistributed,
+    ...minisDistributed,
     new Endboss(6300) // Start direkt bei der Hütte (und Rücklaufziel = 500)
 ],
 
@@ -133,7 +158,7 @@ level1.coins = [
 ];
 
 level1.whiskeys = [
-    new WhiskeyPickup(940, 290),
-    new WhiskeyPickup(5250, 420),
-    new WhiskeyPickup(5950, 320)
+    // new WhiskeyPickup(940, 290),
+    new WhiskeyPickup(3200, 340),
+    new WhiskeyPickup(5250, 400)
 ];

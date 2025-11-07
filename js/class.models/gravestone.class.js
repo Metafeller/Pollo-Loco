@@ -5,7 +5,7 @@ class Gravestone extends DrawableObject {
      * @param {number} w Width  (initial; wird nach Bild-Ladeevent durch Ratio ersetzt)
      * @param {number} h Height (finale Zielhöhe)
      */
-    constructor(x, y, w = 120, h = 160) {
+    constructor(x, y, w = 120, h = 160) { // vorher 120 x 160
         super();
         this.x = x;
         this.y = y;

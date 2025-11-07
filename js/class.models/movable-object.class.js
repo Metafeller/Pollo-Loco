@@ -5,162 +5,108 @@ class MovableObject extends DrawableObject {
     acceleration = 2.5;
     energy = 100;
     lastHit = 0;
-
-    // Marks entity as visually dead (freezes animations & collisions)
     dead = false;
 
+    constructor() {
+        super();
+        // Standard-Hitbox-Offsets (pro Unterklasse anpassbar)
+        this.offset = { left: 0, right: 0, top: 0, bottom: 0 };
+    }
+
+    // === Ground & Gravity (robust) ===
+    isAboveGround() {
+        // Wurfobjekte fallen immer (Parabel)
+        if (this instanceof ThrowableObject) return true;
+
+        // Wenn ein Objekt eine eigene Bodenlinie hat → daran messen
+        if (typeof this.groundPosition === 'number') {
+            return this.y < this.groundPosition;
+        }
+
+        // Fallback nur für alte Objekte ohne Definition
+        return this.y < 150;
+    }
 
     applyGravity() {
         setInterval(() => {
+
+            // ADD: vorherige Y-Position speichern (wichtig für didStompEnemy)
+            this.prevY = this.y;   // <-- NEU
+
             if (this.isAboveGround() || this.speedY > 0) {
                 this.y -= this.speedY;
                 this.speedY -= this.acceleration;
             }
-            // Sicherstellen, dass das Objekt nicht unter den Boden fällt
-            if (this.y >= this.groundPosition) {
+
+            // WICHTIG: Nur clampen, WENN das Objekt wirklich eine Bodenlinie hat!
+            if (typeof this.groundPosition === 'number' && this.y >= this.groundPosition) {
                 this.y = this.groundPosition;
                 this.speedY = 0;
             }
         }, 1000 / 25);
     }
 
-    isAboveGround() {
-        return this.y < this.groundPosition;
-    }
-
-
-    isAboveGround() {
-        if (this instanceof ThrowableObject) { // Throwable object should always fall
-            return true;
-        } else {
-            return this.y < 150;
-        }
-        
-    }
-
-
-      /**
-   * Returns the axis-aligned bounds of this object.
-   */
+    // Kollisions-Bounds MIT Offsets
     getBounds() {
-        // Guards: ensure numeric coordinates to avoid NaN issues
         const x = typeof this.x === 'number' ? this.x : 0;
         const y = typeof this.y === 'number' ? this.y : 0;
         const w = typeof this.width === 'number' ? this.width : 0;
         const h = typeof this.height === 'number' ? this.height : 0;
+        const off = this.offset || { left:0, right:0, top:0, bottom:0 };
 
         return {
-        left: x,
-        top: y,
-        right: x + w,
-        bottom: y + h
+            left:   x + (off.left   || 0),
+            top:    y + (off.top    || 0),
+            right:  x + w - (off.right  || 0),
+            bottom: y + h - (off.bottom || 0)
         };
     }
 
-
-      /**
-   * Axis-aligned bounding box collision check (robust AABB).
-   * @param {Object} other - any object with x, y, width, height
-   * @returns {boolean}
-   */
+    /**
+     * Axis-aligned bounding box collision check (robust AABB).
+     */
     isColliding(other) {
-        // Guards
-
-        // Ignore collisions if this or the other is already dead
-        if ((this && this.dead === true) || (other && other.dead === true)) {
-            return false;
-        }
-
+        if ((this && this.dead === true) || (other && other.dead === true)) return false;
         if (!other || other === this) return false;
-        if (typeof other.x !== 'number' || typeof other.y !== 'number' ||
-            typeof other.width !== 'number' || typeof other.height !== 'number') {
-        return false;
-        }
 
         const a = this.getBounds();
-        const b = {
-        left: other.x,
-        top: other.y,
-        right: other.x + other.width,
-        bottom: other.y + other.height
-        };
+        const b = (typeof other.getBounds === 'function')
+            ? other.getBounds()
+            : {
+                left: other.x,
+                top: other.y,
+                right: (other.x || 0) + (other.width  || 0),
+                bottom:(other.y || 0) + (other.height || 0)
+            };
 
-        // AABB overlap
         const overlapX = a.left < b.right && a.right > b.left;
-        const overlapY = a.top < b.bottom && a.bottom > b.top;
-
+        const overlapY = a.top  < b.bottom && a.bottom > b.top;
         return overlapX && overlapY;
     }
 
-
-
-    // Bessere Formel zur Kollisionsberechnung mit den Chicken (Genauer)
-    // isColliding (obj) {
-    //     return  (this.x + this.width) >= obj.x && this.x <= (obj.y + obj.width) && 
-    //             (this.y + this.offsetY + this.height) >= obj.y &&
-    //             (this.y + this.offsetY) <= (obj.y + obj.height) && 
-    //             obj.onCollisionCourse; // Optional: hiermit könnten wir schauen, ob ein Objekt sich in die richtige Richtung bewegt. Nur dann kollidieren wir. Nützlich bei Gegenständen, auf denen man stehen kann.
-    // }
-
-
     hit() {
         this.energy -= 5;
-        if (this.energy < 0) {
-            this.energy = 0;
-        } else {
-            this.lastHit = new Date().getTime();
-        }
+        if (this.energy < 0) this.energy = 0;
+        else this.lastHit = new Date().getTime();
     }
-
 
     isHurt() {
-        let timepassed = new Date().getTime() - this.lastHit; // Difference in ms
-        timepassed = timepassed / 1000; // Difference in s
-        // console.log(timepassed);
+        let timepassed = (new Date().getTime() - this.lastHit) / 1000;
         return timepassed < 1.2;
-     }
-
-
-    isDead() {
-        return this.energy == 0;
     }
 
+    isDead() { return this.energy == 0; }
 
-    moveRight() {
-        if (this.dead === true) {
-            return;
-        }
-        // console.log('Moving right');
-        this.x += this.speed;
-    }
-
-
-
-    moveLeft() {
-        // Stop horizontal movement for dead entities
-        if (this.dead === true) {
-            return;
-        }
-        this.x -= this.speed;
-        this.x -= 0.15; // keep your original extra drift for living entities
-    }
-
+    moveRight() { if (!this.dead) this.x += this.speed; }
+    moveLeft()  { if (!this.dead) { this.x -= this.speed; this.x -= 0.15; } }
 
     playAnimation(images) {
-        // Freeze any animation when the entity is dead (keeps dead.png visible)
-        if (this.dead === true) {
-            return;
-        }
-        let i = this.currentImage % images.length; // let i = 7 % "7 geteilt durch 6 ist Eins" 6; => (1, Rest 1)
-        // i = 0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5, 0...
+        if (this.dead) return;
+        let i = this.currentImage % images.length;
         let path = images[i];
         this.img = this.imageCache[path];
         this.currentImage++;
     }
 
-
-    jump() {
-        // this.speedY = 25;
-    }    
-
+    jump() { /* this.speedY = 25; */ }
 }
