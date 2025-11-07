@@ -4,8 +4,45 @@ class Character extends MovableObject {
     y = 80;
     speed = 5;
 
+    // === Idle/Snore State ===
+    idlePhase = 'idle';                              // 'active' | 'idle' | 'snore'
+    lastActiveAt = (typeof performance !== 'undefined' ? performance.now() : Date.now()) - 3000; 
+    // ^ Start direkt in Idle (3s "vordatieren"), damit Punkt 1 erfüllt ist
+
+    // Audios
+    snoreAudio = new Audio('/audio/snoring-man.mp3');        // loop
+    wakeAudio  = new Audio('/audio/ave-maria-speech.mp3');    // one-shot
+
     invulnerable = false;  // Unverwundbarkeits-Status
     invulnerabilityDuration = 900;  // Dauer der Unverwundbarkeit in Millisekunden / Vorher 1500
+
+    // === NEU: Idle Frames ===
+    IMAGES_IDLE = [
+        '/img/2_character_pepe/1_idle/idle/I-1.png',
+        '/img/2_character_pepe/1_idle/idle/I-2.png',
+        '/img/2_character_pepe/1_idle/idle/I-3.png',
+        '/img/2_character_pepe/1_idle/idle/I-4.png',
+        '/img/2_character_pepe/1_idle/idle/I-5.png',
+        '/img/2_character_pepe/1_idle/idle/I-6.png',
+        '/img/2_character_pepe/1_idle/idle/I-7.png',
+        '/img/2_character_pepe/1_idle/idle/I-8.png',
+        '/img/2_character_pepe/1_idle/idle/I-9.png',
+        '/img/2_character_pepe/1_idle/idle/I-10.png'
+    ];
+
+    // === NEU: Long-Idle (Schnarch) Frames ===
+    IMAGES_LONG_IDLE = [
+        '/img/2_character_pepe/1_idle/long_idle/I-11.png',
+        '/img/2_character_pepe/1_idle/long_idle/I-12.png',
+        '/img/2_character_pepe/1_idle/long_idle/I-13.png',
+        '/img/2_character_pepe/1_idle/long_idle/I-14.png',
+        '/img/2_character_pepe/1_idle/long_idle/I-15.png',
+        '/img/2_character_pepe/1_idle/long_idle/I-16.png',
+        '/img/2_character_pepe/1_idle/long_idle/I-17.png',
+        '/img/2_character_pepe/1_idle/long_idle/I-18.png',
+        '/img/2_character_pepe/1_idle/long_idle/I-19.png',
+        '/img/2_character_pepe/1_idle/long_idle/I-20.png'
+    ];
 
     IMAGES_WALKING = [
         '/img/2_character_pepe/2_walk/W-21.png',
@@ -50,11 +87,18 @@ class Character extends MovableObject {
 
     constructor() {
         super().loadImage('/img/2_character_pepe/2_walk/W-21.png');
+        // NEU: Idle-Bilder cachen
+        this.loadImages(this.IMAGES_IDLE);
+        this.loadImages(this.IMAGES_LONG_IDLE);
         this.loadImages(this.IMAGES_WALKING);
         this.loadImages(this.IMAGES_JUMPING);
-        this.loadImages(this.IMAGES_DEAD);
         this.loadImages(this.IMAGES_HURT);
+        this.loadImages(this.IMAGES_DEAD);
 
+        // Audios vorbereiten
+        try { this.snoreAudio.loop = true; this.snoreAudio.volume = 0.55; } catch(e) {}
+        try { this.wakeAudio.volume = 0.85; } catch(e) {}
+        
         // Bodenlinie: Pepe steht exakt bei y=80
         this.groundPosition = 150;
 
@@ -72,7 +116,12 @@ class Character extends MovableObject {
     animate() {
 
         setInterval(() => {
+            const now = (typeof performance !== 'undefined' ? performance.now() : Date.now());
+
             if (this.world?.gameOver) {
+                // NEU: Schnarchen sicher stoppen
+                this.stopSnore();
+
                 this.walking_sound.pause();
                 this.walking_sound.currentTime = 0;
                 this.walking_sound_back.pause();
@@ -81,11 +130,17 @@ class Character extends MovableObject {
             }
 
             // Spiel gewonnen → Eingaben ignorieren
-            if (this.world?.gameWon) {
+            if (this.world?.gameWon) {  
+                // NEU: Schnarchen sicher stoppen
+                this.stopSnore();
+
                 this.walking_sound.pause();
                 this.walking_sound_back.pause();
                 return;
             }
+
+            // === NEU: vor Bewegung erst den Idle/Snore-State pflegen ===
+            this.updateIdleState(now);
 
             this.walking_sound.pause();
 
@@ -117,31 +172,129 @@ class Character extends MovableObject {
 
 
         setInterval(() => {
-            if (this.world?.gameOver) {
-                return; // keine Animationsframes mehr wechseln
-            }
+            // Spielzustände zuerst
+            if (this.world?.gameOver) return;
+            if (this.world?.gameWon)  return;
 
-            if (this.world?.gameWon) {
+            // Prioritäten: Dead > Hurt > Jump > Snore > Idle > Walk > Fallback
+            if (this.isDead()) {
+                this.playAnimation(this.IMAGES_DEAD);
                 return;
             }
 
-            if (this.isDead()) {
-                this.playAnimation(this.IMAGES_DEAD);
-
-            } else if (this.isHurt()) {
+            if (this.isHurt()) {
                 this.playAnimation(this.IMAGES_HURT);
-
-            } else if (this.isAboveGround()) {
-                this.playAnimation(this.IMAGES_JUMPING);
-            } else {
-                if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
-                    this.x += this.speed;
-                    this.playAnimation(this.IMAGES_WALKING);
-                }
+                return;
             }
+
+            if (this.isAboveGround()) {
+                this.playAnimation(this.IMAGES_JUMPING);
+                return;
+            }
+
+            // --- Idle-State (am Boden) ---
+            if (this.idlePhase === 'snore') {
+                this.playAnimation(this.IMAGES_LONG_IDLE);
+                return;
+            }
+
+            if (this.idlePhase === 'idle') {
+                this.playAnimation(this.IMAGES_IDLE);
+                return;
+            }
+
+            // --- Aktiv, aber keine Sprünge/Hits → ggf. Walking ---
+            if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
+                this.x += this.speed; // wie gehabt
+                this.playAnimation(this.IMAGES_WALKING);
+                return;
+            }
+
+            // --- Fallback ---
+            this.playAnimation(this.IMAGES_IDLE);
         }, 50);
 
+
     }
+
+    // === Eingaben prüfen (welche Tasten zählen als "aktiv") ===
+    isControlActive() {
+        const kb = this.world?.keyboard || {};
+        return !!(kb.RIGHT || kb.LEFT || kb.SPACE || kb.D || kb.F);
+    }
+
+    // === State-Wechsel ===
+    enterIdle() {
+        if (this.idlePhase === 'idle') return;
+        // Schnarch-Sound sicher stoppen, falls wir aus snore kommen
+        this.stopSnore();
+        this.idlePhase = 'idle';
+        this.currentImage = 0; // <- optional
+    }
+
+    enterSnore() {
+        if (this.idlePhase === 'snore') return;
+        this.idlePhase = 'snore';
+        this.currentImage = 0; // <- optional
+        // Schnarchen starten
+        try {
+            this.snoreAudio.currentTime = 0;
+            this.snoreAudio.play();
+        } catch(e) {}
+    }
+
+    stopSnore() {
+        try {
+            if (!this.snoreAudio.paused) {
+                this.snoreAudio.pause();
+                this.snoreAudio.currentTime = 0;
+            }
+        } catch(e) {}
+    }
+
+    onWakeFromSnore() {
+        // Schnarchen stoppen & Wake-Line einmalig spielen
+        this.stopSnore();
+        try {
+            this.wakeAudio.pause();
+            this.wakeAudio.currentTime = 0;
+            this.wakeAudio.play();
+        } catch(e) {}
+    }
+
+    // === zentrale Logik: Idle/Snore nach Inaktivität ===
+    updateIdleState(nowMs) {
+        // Wenn Spiel out-of-play ist → alles stoppen
+        if (this.world?.gameOver || this.world?.gameWon) {
+            this.stopSnore();
+            this.idlePhase = 'idle'; // neutrale Ruhe
+            return;
+        }
+
+        const control = this.isControlActive();
+
+        if (control || this.isAboveGround() || this.isHurt()) {
+            // Aktiv → Timer zurücksetzen
+            if (this.idlePhase === 'snore') this.onWakeFromSnore();
+            this.idlePhase = 'active';
+            this.lastActiveAt = nowMs;
+            return;
+        }
+
+        // Keine Eingabe → Dauer berechnen
+        const idleFor = nowMs - (this.lastActiveAt || nowMs);
+
+        if (idleFor >= 5000) {
+            this.enterSnore();      // 3s + 2s = 5s → Schnarch
+        } else if (idleFor >= 3000) {
+            this.enterIdle();       // ab 3s → Standard-Idle
+        } else {
+            // < 3s: noch aktiv
+            if (this.idlePhase === 'snore') this.stopSnore();
+            this.idlePhase = 'active';
+        }
+    }
+
 
     jump() {
         this.speedY = 25;
