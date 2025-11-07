@@ -162,3 +162,14 @@ level1.whiskeys = [
     new WhiskeyPickup(3200, 340),
     new WhiskeyPickup(5250, 400)
 ];
+
+level1.hearts = [
+    // Ein Herz pro Level (40% Heal)
+    new HeartPickup(5000, 140)
+];
+
+// Als Alternative kann ich (2x 20%)
+// level1.hearts = [
+//     new HeartPickup(3600, 240),
+//     new HeartPickup(6100, 240)
+// ];

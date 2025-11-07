@@ -84,8 +84,15 @@ class MovableObject extends DrawableObject {
         return overlapX && overlapY;
     }
 
-    hit() {
-        this.energy -= 5;
+    // hit() {
+    //     this.energy -= 5;
+    //     if (this.energy < 0) this.energy = 0;
+    //     else this.lastHit = new Date().getTime();
+    // }
+
+    hit(amount = 5) {
+        const dmg = (typeof amount === 'number' && amount > 0) ? amount : 5;
+        this.energy -= dmg;
         if (this.energy < 0) this.energy = 0;
         else this.lastHit = new Date().getTime();
     }

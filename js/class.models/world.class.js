@@ -15,7 +15,7 @@ class World {
     endbossInSight = false;
 
     // ADD: Background music (low volume ambience)
-    bgMusic = new Audio('/audio/spanish-guitar-long-street.mp3'); // lege diese Datei ins /audio
+    bgMusic = new Audio('/audio/flamenco-backgroundmusic.mp3'); // lege diese Datei ins /audio
 
     // === Coins & Superpower ===
     coinStatusBar = new CoinStatusBar();
@@ -23,6 +23,7 @@ class World {
     coinsCollected = 0;
     totalCoins = 0;
     coinAudio = new Audio('/audio/game-bonus-coins.mp3');
+    heartPickupAudio = new Audio('/audio/level-up-03.mp3');
 
     whiskeyCounter = new WhiskeyCounter();
     whiskeyCount = 0; // Anzahl gesammelter Whiskey-Flaschen
@@ -57,7 +58,7 @@ class World {
     goSplashShown   = false;     // NEU: Splash bereits gestartet?
 
     // One-Shots
-    painAudio = new Audio('/audio/pepe-yahudi.mp3');
+    painAudio = new Audio('/audio/kahba.mp3');
     _painLock = false; // Anti-Spam
     // Sterbe-Sound (einmaliger One-Shot beim Spieler-Tod)
     playerDeathAudio = new Audio('/audio/man-screaming.mp3');
@@ -150,7 +151,7 @@ class World {
         this.ctx = canvas.getContext('2d');
         this.canvas = canvas;
         this.keyboard = keyboard;
-        this.enemyDeathAudio = new Audio('/audio/chicken-single-alarm-call.mp3');
+        this.enemyDeathAudio = new Audio('/audio/chicken-wing.mp3');
 
         // Level-Objekte referenzieren
         this.hutGate = this.level.hutGate || null;
@@ -261,7 +262,7 @@ class World {
             // this.checkProjectileCollisions();
             this.checkCoinCollection();
             this.checkWhiskeyCollection();
-
+            this.checkHeartCollection(); // ← NEU
 
             const endboss = (this.level?.enemies || []).find(e => e instanceof Endboss);
             if (endboss) {
@@ -480,7 +481,7 @@ class World {
             } else if (bodyHit && !this.character.invulnerable) {
 
                 // Einmal Schaden auslösen === Körperkollision (seitlich / nicht von oben) ===
-                this.character.hit();
+                this.character.hit(20); // 20% Balken-Abzug pro Körperkontakt
                 this.statusBar.setPercentage(this.character.energy);
                 this.playPainOnce();
 
@@ -542,6 +543,28 @@ class World {
             try { this.whiskeyPickupAudio.currentTime = 0; this.whiskeyPickupAudio.play(); } catch(e) {}
         }
         this.level.whiskeys = remaining;
+    }
+
+    checkHeartCollection() {
+        if (!this.level || !Array.isArray(this.level.hearts)) return;
+
+        const remaining = [];
+        let picked = 0;
+        const HEAL_PER_HEART = 40; // % pro Herz (für 2x20% → 20 setzen)
+
+        for (const h of this.level.hearts) {
+            if (this.character.isColliding(h)) picked++;
+            else remaining.push(h);
+        }
+
+        if (picked > 0) {
+            const heal = HEAL_PER_HEART * picked;
+            this.character.energy = Math.min(100, (this.character.energy || 0) + heal);
+            this.statusBar.setPercentage(this.character.energy);
+            try { this.heartPickupAudio.currentTime = 0; this.heartPickupAudio.play(); } catch (e) {}
+        }
+
+        this.level.hearts = remaining;
     }
 
     /** Schmerz-Sound einmalig (Anti-Spam). */
@@ -792,6 +815,11 @@ class World {
         // Coins & Whiskey im Level anzeigen
         if (Array.isArray(this.level.coins))    this.addObjectsToMap(this.level.coins);
         if (Array.isArray(this.level.whiskeys)) this.addObjectsToMap(this.level.whiskeys);
+
+        // Herz-Rendern / im Level anzeigen
+        if (Array.isArray(this.level.coins))    this.addObjectsToMap(this.level.coins);
+        if (Array.isArray(this.level.whiskeys)) this.addObjectsToMap(this.level.whiskeys);
+        if (Array.isArray(this.level.hearts))   this.addObjectsToMap(this.level.hearts); // ← NEU
 
         // Spieler ODER Grabstein
         if (this.gameOver) {
