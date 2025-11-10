@@ -16,7 +16,7 @@ function bootApp() {
   window.startGame = startGame;
   window.pauseGame = pauseGame;
   window.resumeGame = resumeGame;
-  //   window.restartGame = () => window.location.reload();
+  
   window.restartGame = backToStart; // ← "Zurück zum Startbildschirm"
   window.restartNow  = restartNow;  // ← direkter Neustart
   window.backToStart = backToStart;
@@ -24,16 +24,16 @@ function bootApp() {
   wireUiControls();
 
   // Space auf UI-Buttons beim laufenden Spiel neutralisieren
-    document.addEventListener('keydown', (e) => {
-        if (e.code === 'Space' && window.world && !window.world.paused) {
-            const a = document.activeElement;
-            if (a && (a.tagName === 'BUTTON' || a.getAttribute('role') === 'button')) {
-            e.preventDefault();
-            e.stopPropagation();
-            a.blur(); // Fokus wegnehmen -> kein "Space=Click"
-            }
-        }
-    }, true);
+  document.addEventListener('keydown', (e) => {
+    if (e.code === 'Space' && window.world && !window.world.paused) {
+      const a = document.activeElement;
+      if (a && (a.tagName === 'BUTTON' || a.getAttribute('role') === 'button')) {
+        e.preventDefault();
+        e.stopPropagation();
+        a.blur(); // Fokus wegnehmen -> kein "Space=Click"
+      }
+    }
+  }, true);
 
   // Autostart früh prüfen (vor Musik-Setup!)
   const pendingAutostart = (() => {
@@ -47,14 +47,14 @@ function bootApp() {
 
   // Menü-Musik initialisieren
   menuAudio = new Audio('/audio/background-audio.mp3');
-  try { 
-    menuAudio.loop = true; 
-    menuAudio.volume = 0.5; 
-    menuAudio.muted = isMuted; 
+  try {
+    menuAudio.loop = true;
+    menuAudio.volume = 0.5;
+    menuAudio.muted = isMuted;
     // Nur abspielen, wenn KEIN Autostart ansteht
     if (!pendingAutostart) {
-        menuAudio.play().catch(()=>{});
-        }
+      menuAudio.play().catch(()=>{});
+    }
   } catch(e){}
 
   // Autostart jetzt ausführen (ohne Menümusik)
@@ -64,12 +64,12 @@ function bootApp() {
   }
 
   // NEU: Autostart nach Reload?
-  try {
-        if (localStorage.getItem('autostart') === '1') {
-            localStorage.removeItem('autostart');
-            startGame(); // direkt ins Spiel
-        }
-   } catch(e){}
+//   try {
+//         if (localStorage.getItem('autostart') === '1') {
+//             localStorage.removeItem('autostart');
+//             startGame(); // direkt ins Spiel
+//         }
+//    } catch(e){}
 
   pauseOverlay = createPauseOverlay();
 
@@ -93,6 +93,10 @@ function startGame() {
   try { stopMenuAudio(); } catch(e) {}
 
   const canvas = document.getElementById('canvas');
+
+  // Fokusierbar machen (einmal reicht, schadet aber nicht)
+//   canvas.setAttribute('tabindex', '0');
+
   world = new World(canvas, keyboard);
 
   setMuted(isMuted);
@@ -102,6 +106,9 @@ function startGame() {
   if (btnStart) btnStart.textContent = (window.I18N ? window.I18N.t('ui.resume') : 'Resume');
 
   startScreen?.hide();
+  
+  // <<< WICHTIG: Canvas fokussieren, damit Space nicht Buttons triggert
+  canvas.focus();
 }
 
 function stopMenuAudio() {
@@ -154,7 +161,10 @@ function resumeGame() {
   showPauseOverlay(false);
   world.setPaused(false);
 
-  
+  // Canvas wieder fokussieren
+  const cv = document.getElementById('canvas');
+  cv?.setAttribute('tabindex','0');
+  cv?.focus();
 
   const btnStart = document.getElementById('btn-start');
   if (btnStart) btnStart.textContent = (window.I18N ? window.I18N.t('ui.resume') : 'Resume');
