@@ -167,7 +167,7 @@ class WinnerScreen extends DrawableObject {
     btnBackStart.style.boxShadow = '4px 4px 8px rgba(0, 0, 0, 0.5)';
     btnBackStart.style.padding = '14px 18px';
     btnBackStart.style.fontSize = '28px';
-    btnBackStart.style.backdropFilter = 'blur(2px)';
+    btnBackStart.style.backdropFilter = 'blur(6px)';
     btnBackStart.style.marginTop = '8px';
     btnBackStart.cursor = 'pointer';
     btnBackStart.letterSpacing = '1px';
