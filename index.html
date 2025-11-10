@@ -52,6 +52,10 @@
     <!-- World NACH allen Klassen -->
     <script src="js/class.models/world.class.js"></script>
 
+    <!-- ... im <head> NACH world.class.js und VOR game.js einfügen: -->
+    <script src="js/class.models/start-screen.class.js"></script>
+    <script src="js/controls.js"></script>
+
     <!-- Game zuletzt -->
     <script src="js/game.js"></script>
 
@@ -59,7 +63,7 @@
     
 </head>
 
-<body onload="init()">
+<body onload="bootApp()">
 
     <div class="game-container">
         <!-- <h1>El Pollo Loco</h1> -->
@@ -69,10 +73,11 @@
              <div class="btn-row">
                     <button id="btn-start" class="ui-btn">Start</button>
                     <button id="btn-pause" class="ui-btn">Pause</button>
-                    <button id="btn-restart" class="ui-btn">Restart</button>
+                    <button id="btn-restart" class="ui-btn">Back to Start Screen</button>
+                    <button id="btn-restart-now" class="ui-btn">Restart Now</button>
                 </div>
             <div class="ui-right">
-                
+                <button id="btn-mute" class="ui-btn" aria-pressed="false" title="Sound an/aus">🔈</button>
                 <div class="lang-switch">
                     <span id="lbl-language" class="lang-label">Sprache</span>
                     <button id="btn-lang-de" class="lang-btn active">DE</button>

@@ -118,6 +118,14 @@ class Character extends MovableObject {
         setInterval(() => {
             const now = (typeof performance !== 'undefined' ? performance.now() : Date.now());
 
+            if (this.world?.paused) {
+            this.walking_sound.pause();
+            this.walking_sound_back.pause();
+            // Kamera folgt trotzdem der aktuellen X-Position
+            if (this.world) this.world.camera_x = -this.x + 100;
+            return;
+            }
+
             if (this.world?.gameOver) {
                 // NEU: Schnarchen sicher stoppen
                 this.stopSnore();
@@ -175,6 +183,7 @@ class Character extends MovableObject {
             // Spielzustände zuerst
             if (this.world?.gameOver) return;
             if (this.world?.gameWon)  return;
+            if (this.world?.paused) return;
 
             // Prioritäten: Dead > Hurt > Jump > Snore > Idle > Walk > Fallback
             if (this.isDead()) {

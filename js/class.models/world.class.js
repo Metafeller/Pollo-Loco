@@ -6,6 +6,8 @@ class World {
     keyboard;
     camera_x = 0;
 
+    paused = false;   // Spiel Audio pausiert?
+
     // ADD: Debug toggle
     DEBUG_FRAMES = true; // zum Testen true setzen, später false
 
@@ -255,6 +257,8 @@ class World {
                 return;
             }
 
+            if (this.paused) return; // << NEU: bei Pause keine Spiel-Logik
+
             // this.checkCollisions();
             this.checkThrowObjects();
             this.checkBottleCollection();
@@ -308,7 +312,6 @@ class World {
         // Aufräumen: fertig geflogene Projektile entfernen
         this.throwableObjects = this.throwableObjects.filter(p => !p.done);
     }
-
 
     // checkBottleCollisions() {
     //     if (!Array.isArray(this.throwableObjects) || !this.level || !Array.isArray(this.level.enemies)) return;
@@ -666,7 +669,7 @@ class World {
             this.gameOverScreen.attachDom('.game-container');
             this.gameOverScreen.onTryAgain(() => {
                 try { this.stopAllGameOverAudio(); } catch (e) {}
-                window.location.reload();
+                if (window.restartNow) window.restartNow(); else window.location.reload();
             });
         } catch (e) {}
 
@@ -787,11 +790,17 @@ class World {
         const now = performance.now();
         this.updateGameOverSequence(now);
 
+        // Nur wenn nicht pausiert: Physik/Kollisionen
+        if (!this.paused) {
+            this.checkProjectileCollisions();
+            this.checkCollisions();
+        }
+
         // Projektile-Kollisionen pro Frame prüfen (verhindert „Tunneling“)
-        this.checkProjectileCollisions();
+        // this.checkProjectileCollisions();
 
         // SPIELER↔GEGNER: jetzt auch pro Frame → Stomps sind präzise
-        this.checkCollisions();
+        // this.checkCollisions();
 
         // Kamera an
         this.ctx.translate(this.camera_x, 0);
@@ -905,7 +914,6 @@ class World {
 
         return cameFromAbove || shallowPenetrate;
     }
-
 
     addObjectsToMap(objects) {
         if (!Array.isArray(objects) || objects.length === 0) return;
@@ -1031,14 +1039,26 @@ class World {
         }
     }
 
-    showWinnerScreen() {
-        this.gameWon = true;
-        try { this.stopAmbienceLoop(); } catch(e) {}
-        if (this.winnerScreen) this.winnerScreen.show();
-
-        try { this.pauseBgMusic(); } catch(e) {}
-
+   showWinnerScreen() {
+    this.gameWon = true;
+    try { this.stopAmbienceLoop(); } catch(e) {}
+    if (this.winnerScreen) {
+        this.winnerScreen.show(); // spielt One-Shot + Audio, zeigt Buttons erst danach
+        // Buttons (nach One-Shot):
+        if (typeof this.winnerScreen.onRestartNow === 'function') {
+        this.winnerScreen.onRestartNow(() => {
+            if (window.restartNow) window.restartNow(); else window.location.reload();
+        });
+        }
+        if (typeof this.winnerScreen.onBackToStart === 'function') {
+        this.winnerScreen.onBackToStart(() => {
+            if (window.backToStart) window.backToStart(); else window.location.reload();
+        });
+        }
     }
+    try { this.pauseBgMusic(); } catch(e) {}
+    }
+
 
     onEndbossDeath(endboss) {
         this.endbossInSight = false;
@@ -1060,4 +1080,170 @@ class World {
         try { this.resumeBgMusic(); } catch(e) {}
 
     }
+
+    getAllAudios() {
+    // alle bekannten Audio-Objekte sammeln (nur wenn vorhanden)
+    const a = [
+        this.bgMusic, 
+        this.coinAudio, 
+        this.heartPickupAudio, 
+        this.whiskeyPickupAudio,
+        this.supernovaAudio, 
+        this.bottlePickupAudio,
+        this.painAudio,
+        this.wakeAudio,
+        this.snoreAudio,
+        this.playerDeathAudio, 
+        this.deathSong, 
+        this.goCryLoop, 
+        this.goRainLoop,
+        this.dramaticAudio, 
+        this.bossDeathAudio, 
+        this.hitAudio,
+        this.character?.walking_sound, 
+        this.character?.walking_sound_back,
+        this.enemyDeathAudio
+    ];
+    return a.filter(Boolean);
+    }
+
+    /** Hilfsfunktion: beliebiges Objekt auf Audio-Instanzen prüfen (flach) */
+    _collectAudiosShallow(obj, bag) {
+    if (!obj) return;
+    try {
+        Object.values(obj).forEach(v => { if (v instanceof Audio) bag.add(v); });
+    } catch(e){}
+    }
+
+    /** Alle Audios tief einsammeln: World, Character, Character-Audio, Enemies (flach), Loops */
+    // getAllAudiosDeep() {
+    //     const bag = new Set();
+    //     // World-eigene Audios
+    //     this.getAllAudios().forEach(a => bag.add(a));
+
+    //     // Character
+    //     try {
+    //         if (this.character) {
+    //         this._collectAudiosShallow(this.character, bag);
+    //         // bekannte Character-Audios explizit
+    //         [this.character.snoreAudio, this.character.wakeAudio,
+    //         this.character.walking_sound, this.character.walking_sound_back].forEach(a => { if (a) bag.add(a); });
+    //         }
+    //     } catch(e){}
+
+    //     // Enemies (shallow)
+    //     try {
+    //         (this.level?.enemies || []).forEach(e => this._collectAudiosShallow(e, bag));
+    //     } catch(e){}
+
+    //     return Array.from(bag);
+    //     }
+    
+
+    getAllAudiosDeep() {
+        const bag = new Set();
+        // World-eigene Audios
+        this.getAllAudios().forEach(a => bag.add(a));
+
+        // Character (bestehend)
+        try {
+            if (this.character) {
+            this._collectAudiosShallow(this.character, bag);
+            [this.character.snoreAudio, this.character.wakeAudio,
+            this.character.walking_sound, this.character.walking_sound_back]
+            .forEach(a => { if (a) bag.add(a); });
+            }
+        } catch(e){}
+
+        // Enemies (bestehend)
+        try { (this.level?.enemies || []).forEach(e => this._collectAudiosShallow(e, bag)); } catch(e){}
+
+        // ✅ StoryBillboard: Atmo + alle One-Shots
+        try {
+            if (this.hutStory) {
+            if (this.hutStory.atmo) bag.add(this.hutStory.atmo);
+            Object.values(this.hutStory.audioMap || {}).forEach(a => { if (a) bag.add(a); });
+            }
+        } catch(e){}
+
+        // ✅ WinnerScreen: Win-One-Shot
+        try {
+            if (this.winnerScreen?.winAudio) bag.add(this.winnerScreen.winAudio);
+        } catch(e){}
+
+        return Array.from(bag);
+    }
+
+
+        /** Pause / Resume: frieren & auftauen */
+        setPaused(flag) {
+        if (flag === this.paused) return;
+        this.paused = !!flag;
+
+        if (this.paused) {
+            this.freezeWorld();
+            // alle aktuell spielenden Audios pausieren (kein Stop -> kein currentTime Reset)
+            try { this.getAllAudiosDeep().forEach(a => { try { a.pause(); } catch(e){} }); } catch(e){}
+        } else {
+            this.unfreezeWorld();
+            // nur die BG-Musik ggf. wieder anlaufen lassen
+            try { if (!this.endbossInSight && !this.gameOver && !this.gameWon && !this.bgMusic.muted) this.bgMusic.play(); } catch(e){}
+        }
+        }
+
+        /** Methoden sichern & auf no-op patchen */
+        freezeWorld() {
+        // Gegner/Clouds/Background/Projectiles/Effekte: Methoden einfrieren
+        const patchOne = (o) => {
+            if (!o || o.__frozen) return;
+            o.__frozen = true;
+
+            // Speed merken und auf 0
+            if (typeof o.speed === 'number') { o.__prevSpeed = o.speed; o.speed = 0; }
+            if (typeof o.baseSpeed === 'number') { o.__prevBaseSpeed = o.baseSpeed; o.baseSpeed = 0; }
+
+            // Bewegungsmethoden patchen
+            ['moveLeft','moveRight','updateAI','animate'].forEach(fn => {
+            if (typeof o[fn] === 'function' && !o[`__orig_${fn}`]) {
+                o[`__orig_${fn}`] = o[fn];
+                o[fn] = function() { /* frozen */ };
+            }
+            });
+        };
+
+        // alles patchen, was sich bewegt
+        (this.level?.enemies || []).forEach(patchOne);
+        (this.level?.clouds  || []).forEach(patchOne);
+        (this.level?.backgroundObjects || []).forEach(patchOne);
+        (this.throwableObjects || []).forEach(patchOne);
+        (this.effects || []).forEach(patchOne);
+
+        // Pepe selbst wird bereits in character.animate() über this.world.paused gestoppt,
+        // aber sicherheitshalber auch hier patchen:
+        patchOne(this.character);
+        }
+
+        /** Originalmethoden & Speeds wiederherstellen */
+        unfreezeWorld() {
+        const unpatchOne = (o) => {
+            if (!o || !o.__frozen) return;
+            o.__frozen = false;
+
+            if ('__prevSpeed' in o) { o.speed = o.__prevSpeed; delete o.__prevSpeed; }
+            if ('__prevBaseSpeed' in o) { o.baseSpeed = o.__prevBaseSpeed; delete o.__prevBaseSpeed; }
+
+            ['moveLeft','moveRight','updateAI','animate'].forEach(fn => {
+            const key = `__orig_${fn}`;
+            if (typeof o[key] === 'function') { o[fn] = o[key]; delete o[key]; }
+            });
+        };
+
+        (this.level?.enemies || []).forEach(unpatchOne);
+        (this.level?.clouds  || []).forEach(unpatchOne);
+        (this.level?.backgroundObjects || []).forEach(unpatchOne);
+        (this.throwableObjects || []).forEach(unpatchOne);
+        (this.effects || []).forEach(unpatchOne);
+        unpatchOne(this.character);
+    }
+
 }

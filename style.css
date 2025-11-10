@@ -68,7 +68,7 @@ canvas {
   border: 1px solid rgba(242,212,162,0.35);     /* deine H1-Farbe halbtransparent */
   border-radius: 12px;
   position: relative;
-  z-index: 2; /* über dem dunklen Body-Overlay */
+  z-index: 3; /* über dem dunklen Body-Overlay */
 }
 
 .ui-bar h1{
@@ -168,6 +168,73 @@ canvas {
   transform: translateY(0);
   pointer-events: auto;
 }
+
+/* Startscreen Overlay (720x480 wie Canvas, sitzt darüber) */
+.start-screen {
+  position:absolute;
+  top: calc(80px + 86px + 48px); /* H1 + Margin + UI-Bar grob ausgleichen */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 720px;
+  height: 480px;
+  border-radius: 16px;
+  box-shadow: 4px 4px 8px rgba(0,0,0,0.5);
+  background-size: cover;
+  background-position: center;
+  display: none;              /* per JS sichtbar */
+  align-items: center;
+  justify-content: center;
+  z-index: 2;                 /* über Canvas & UI-Bar */
+}
+
+/* Fallback-Button falls keine "go-btn" Klasse aus GameOver vorhanden ist */
+.game-primary-btn{
+  background: #f2d5a280;
+  color: #1a1a1a;
+  border: 1px solid #F2D4A2;
+  padding: 10px 18px;
+  border-radius: 12px;
+  font-family: 'zabars', Arial, Helvetica, sans-serif;
+  letter-spacing: 1px;
+  font-size: 28px;
+  cursor: pointer;
+  box-shadow: 4px 4px 8px rgba(0,0,0,0.5);
+  transition: transform 120ms ease, opacity 120ms ease, background 120ms ease;
+  min-width: 220px;
+  min-height: 56px;        /* Höhe wie Try-Again-Button */
+}
+.game-primary-btn:hover{ transform: translateY(-1px); opacity: 0.95; }
+
+.pause-overlay {
+  position: absolute;
+  top: calc(80px + 86px + 48px); /* grob wie Startscreen, an deinen Header/UI-Bar angepasst */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 720px;
+  height: 480px;
+  border-radius: 16px;
+  z-index: 4; /* über Canvas & UI-Bar & Startscreen */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pause-overlay.hidden { display: none; }
+
+.pause-mask {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.5); /* 50% dunkel */
+  border-radius: 16px;
+}
+
+.pause-overlay > button {
+  position: relative;
+  min-width: 220px;
+  min-height: 56px;
+}
+
+/***************************** Mobile / Responsive Design *********************************/
 
 @media only screen and (max-width: 720px) {
   .to-top{

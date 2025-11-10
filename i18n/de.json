@@ -3,6 +3,11 @@
   "ui": {
     "language": "Sprache",
     "start": "Starten",
+    "resume": "Weiter",
+    "backToStart":"Zurück zum Startbildschirm",
+    "startGame": "Spiel starten",
+    "continue": "Weiter spielen",
+    "tryAgain": "Nochmal versuchen",
     "pause": "Pause",
     "restart": "Neu starten",
     "lang_de": "DE",
@@ -21,3 +26,4 @@
     "coins": "Münzen"
   }
 }
+

@@ -16,6 +16,18 @@ class GameOverScreen {
         this._btn = null;
         this._credit = null;
         this._syncToCanvas = null;
+
+        // i18n
+        this._gameOverLabel = (window.I18N ? window.I18N.t('game.gameOver') : 'GAME OVER');
+        this._onLangChange = () => this._applyI18n();
+    }
+
+    _applyI18n() {
+        if (!window.I18N) return;
+        this._gameOverLabel = window.I18N.t('game.gameOver');
+        if (this._btn) this._btn.textContent = window.I18N.t('ui.tryAgain');
+        // Größe/Position evtl. neu berechnen (Fonts können variieren)
+        this._syncToCanvas && this._syncToCanvas();
     }
 
     attachDom(containerSelector = '.game-container') {
@@ -41,10 +53,10 @@ class GameOverScreen {
         wrap.style.zIndex = '9999';
         wrap.style.paddingBottom = '48px';
 
-        // Button
+        // Button (i18n)
         const btn = document.createElement('button');
         btn.id = 'btn-try-again';
-        btn.textContent = 'Try again';
+        btn.textContent = (window.I18N ? window.I18N.t('ui.tryAgain') : 'Try Again');
         btn.style.marginBottom = '24px';
         btn.style.pointerEvents = 'auto';
         btn.style.padding = '14px 28px';
@@ -104,6 +116,11 @@ class GameOverScreen {
         window.addEventListener('resize', syncToCanvas);
         window.addEventListener('scroll', syncToCanvas, true);
 
+        // Sprachwechsel live mitnehmen
+        window.addEventListener('i18n:changed', this._onLangChange);
+        // Falls i18n schon geladen, einmal initial anwenden
+        this._applyI18n();
+
         this._container = wrap;
         this._btn = btn;
         this._credit = credit;
@@ -159,13 +176,14 @@ class GameOverScreen {
         ctx.fillStyle = 'rgba(0,0,0,0.55)';
         ctx.fillRect(0, 0, width, height);
 
-        // GAME OVER Title (weiter unten, damit Hotspot frei bleibt)
+        // GAME OVER (i18n)
+        const title = this._gameOverLabel || 'GAME OVER';
         ctx.fillStyle = 'rgba(255, 255, 255, 1)';
         ctx.font = "bold 64px 'zabars', Arial, Helvetica, sans-serif";
         ctx.textAlign = 'center';
         ctx.shadowColor = 'rgba(0,0,0,0.7)';
         ctx.shadowBlur = 12;
-        ctx.fillText('GAME OVER', width / 2, Math.floor(height * 0.50));
+        ctx.fillText(title.toUpperCase(), width / 2, Math.floor(height * 0.50));
         ctx.shadowBlur = 0;
 
         // Button ist DOM – Canvas zeichnet nur den Rest

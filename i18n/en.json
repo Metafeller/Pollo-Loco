@@ -3,6 +3,11 @@
   "ui": {
     "language": "Language",
     "start": "Start",
+    "resume": "Resume",
+    "backToStart":"Back to Start Screen",
+    "startGame": "Start Game",
+    "continue": "Continue",
+    "tryAgain": "Try Again",
     "pause": "Pause",
     "restart": "Restart",
     "lang_de": "DE",
@@ -10,7 +15,7 @@
     "toTop": "Back to top"
   },
   "game": {
-    "winner": "Du hast gewonnen!",
+    "winner": "You won!",
     "gameOver": "Game Over"
   },
   "status": {
