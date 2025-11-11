@@ -3,7 +3,6 @@
   const DEFAULT_LANG = localStorage.getItem('lang') || 'de';
   const SUPPORTED = { de: 'i18n/de.json', en: 'i18n/en.json' };
 
-  // Statische DOM-IDs -> Keys
   const I18N_MAP = {
     'lbl-title': 'app.title',
     'lbl-language': 'ui.language',
@@ -29,7 +28,7 @@
   const cache = {};
   let dict = {};
 
-  function getEl(id){ return document.getElementById(id); }
+  const getEl = (id) => document.getElementById(id);
 
   async function loadLang(lang){
     if (cache[lang]) return cache[lang];
@@ -45,8 +44,20 @@
     return key.split('.').reduce((acc, k) => (acc && acc[k] != null ? acc[k] : null), d) ?? key;
   }
 
+  // Minimaler Rich-Renderer: html ODER body-Array
+  function renderRich(container, spec){
+    if (!container || !spec) return;
+    if (typeof spec.html === 'string'){
+      container.innerHTML = spec.html;
+      return;
+    }
+    if (Array.isArray(spec.body)){
+      container.innerHTML = spec.body.map(p => `<p>${p}</p>`).join('');
+    }
+  }
+
   function applyTranslations(){
-    // Statische IDs aus I18N_MAP
+    // Statische IDs
     Object.keys(I18N_MAP).forEach((id) => {
       const el = getEl(id);
       if (!el) return;
@@ -59,43 +70,43 @@
       }
     });
 
-    // Dynamische Buttons, falls vorhanden (Startscreen, Pause, Winner, GameOver)
+    // Dynamische Buttons
     const startGameBtn = getEl('btn-startgame');
     if (startGameBtn) startGameBtn.textContent = t(dict, 'ui.startGame');
 
     const contBtn = getEl('btn-continue');
     if (contBtn) contBtn.textContent = t(dict, 'ui.continue');
 
-    // WINNER: neue 2-Button-Variante
-    const winRestartNow = getEl('btn-win-restart-now');   // "Neu starten" / "Restart"
+    const winRestartNow = getEl('btn-win-restart-now');
     if (winRestartNow) winRestartNow.textContent = t(dict, 'ui.restart');
 
-    const winBackStart  = getEl('btn-win-backstart');     // "Zurück zum Startbildschirm" / "Back to Start Screen"
+    const winBackStart  = getEl('btn-win-backstart');
     if (winBackStart)  winBackStart.textContent  = t(dict, 'ui.backToStart');
 
-    // WINNER: Legacy-Fallback (dein aktueller einzelner Button)
     const winRestartLegacy = getEl('btn-win-restart');
     if (winRestartLegacy && !winRestartNow && !winBackStart) {
       winRestartLegacy.textContent = t(dict, 'ui.restart');
     }
 
-    // GAME OVER
     const tryAgain = getEl('btn-try-again');
     if (tryAgain) tryAgain.textContent = t(dict, 'ui.tryAgain');
 
-    // UI-Start zeigt "Start" oder "Resume" je nach Spielzustand
     const uiStart = getEl('btn-start');
     if (uiStart) {
       const isRunning = !!window.world;
       uiStart.textContent = isRunning ? t(dict, 'ui.resume') : t(dict, 'ui.start');
     }
 
-    // TOP-LEISTE: Buttons anpassen
-    const uiRestartBack = getEl('btn-restart');       // wird zu "Zurück zum Startbildschirm"
+    const uiRestartBack = getEl('btn-restart');
     if (uiRestartBack) uiRestartBack.textContent = t(dict, 'ui.backToStart');
 
-    const uiRestartNow = getEl('btn-restart-now');    // neuer, direkter Neustart
+    const uiRestartNow = getEl('btn-restart-now');
     if (uiRestartNow) uiRestartNow.textContent = t(dict, 'ui.restart');
+
+    // Overlays (Bodies)
+    renderRich(getEl('rules-body'),   dict.rules);
+    renderRich(getEl('imprint-body'), dict.legal?.imprint);
+    renderRich(getEl('privacy-body'), dict.legal?.privacy);
   }
 
   function updateActiveButtons(){
@@ -114,26 +125,23 @@
     dict = await loadLang(lang);
     applyTranslations();
     updateActiveButtons();
-    // Event für dynamische Komponenten
     window.dispatchEvent(new CustomEvent('i18n:changed', { detail: { lang: current, dict } }));
   }
 
   function wireEvents(){
-    const deBtn = getEl('btn-lang-de');
-    const enBtn = getEl('btn-lang-en');
-    if (deBtn) deBtn.addEventListener('click', () => setLanguage('de'));
-    if (enBtn) enBtn.addEventListener('click', () => setLanguage('en'));
-
-    // Optional: Game-Controls wenn vorhanden
     const startBtn = getEl('btn-start');
     const pauseBtn = getEl('btn-pause');
     const restartBtn = getEl('btn-restart');
     if (startBtn && typeof window.startGame === 'function') startBtn.addEventListener('click', () => window.startGame());
     if (pauseBtn && typeof window.pauseGame === 'function') pauseBtn.addEventListener('click', () => window.pauseGame());
     if (restartBtn && typeof window.restartGame === 'function') restartBtn.addEventListener('click', () => window.restartGame());
+
+    const deBtn = getEl('btn-lang-de');
+    const enBtn = getEl('btn-lang-en');
+    if (deBtn) deBtn.addEventListener('click', () => setLanguage('de'));
+    if (enBtn) enBtn.addEventListener('click', () => setLanguage('en'));
   }
 
-  // Globales API für dynamische Klassen
   window.I18N = {
     t: (key) => t(dict, key),
     setLanguage,

@@ -4,7 +4,7 @@
     "language": "Language",
     "start": "Start",
     "resume": "Resume",
-    "backToStart":"Back to Start Screen",
+    "backToStart": "Back to Start Screen",
     "startGame": "Start Game",
     "continue": "Continue",
     "tryAgain": "Try Again",
@@ -14,10 +14,12 @@
     "lang_en": "EN",
     "toTop": "Back to top"
   },
+
   "game": {
     "winner": "You won!",
     "gameOver": "Game Over"
   },
+
   "status": {
     "endboss": "Endboss",
     "bottles": "Bottles",
@@ -29,36 +31,28 @@
   "footer": {
     "copyright": "© 2025 AYA Inc. All rights reserved"
   },
-  "rules": {
-    "title": "Game Rules",
-    "body": [
-      "Move Pepe with arrow keys; D = bottle, F = supernova.",
-      "Avoid hits, collect coins & hearts, defeat the endboss.",
-      "Pause anytime via the top UI bar."
-    ]
-  },
-  "legal": {
-    "imprint": {
-      "title": "Imprint",
-      "body": [
-        "AYA Inc., Musterstraße 1, 50667 Cologne, Germany",
-        "Represented by: Taironman",
-        "E-mail: kontakt@metafeller.com – Content provided without guarantees."
-      ]
-    },
-    "privacy": {
-      "title": "Privacy Policy",
-      "body": [
-        "We do not process personal data beyond the scope of this game.",
-        "Any telemetry is solely for technical stability.",
-        "External links lead to sites with their own policies."
-      ]
-    }
-  },
+
   "ui-nav": {
     "rules": "Rules",
     "contact": "Contact",
     "imprint": "Imprint",
     "privacy": "Privacy"
+  },
+
+  "rules": {
+    "title": "Game Rules",
+    "html": "<h3>Story</h3><p>Pepe must rescue his fiancée from a jealous farmer. The farm is guarded by angry chickens, mini-chickens and a furious endboss. Collect resources, dodge attacks and fight your way to the hut gate!</p><h3>Controls</h3><ul><li><kbd>←</kbd>/<kbd>→</kbd> Move</li><li><kbd>↑</kbd> Jump</li><li><kbd>D</kbd> Throw bottle</li><li><kbd>F</kbd> Supernova (if available)</li><li>Pause via the top UI bar</li></ul><h3>Items</h3><ul><li><strong>Bottles</strong>: Ranged damage vs. enemies & boss</li><li><strong>Hearts</strong>: Restore health</li><li><strong>Coins</strong>: Score & unlock effects</li><li><strong>Whiskey</strong>: Energy / power-up</li></ul><h3>Tips</h3><ul><li>Jump on small enemies to defeat them.</li><li>Use bottles from a safe distance.</li><li>Watch your health bar and heal in time.</li><li>The endboss reacts on sight – keep moving.</li></ul><h3>Goal</h3><p>Reach the farm gate, defeat the endboss and free Pepe’s fiancée. ¡Buena suerte!</p>"
+  },
+
+  "legal": {
+    "imprint": {
+      "title": "Legal Notice",
+      "html": "<p><strong>Responsible</strong><br> Tayfun Savas Boas AYA<br> Freelancer in premium web-development, branding & marketing<br> Baarerstrasse 43, 6300 Zug, Switzerland</p><p><strong>Contact</strong><br> Phone: +49 2196 – 888888<br> E-mail: mail@metafeller.com</p><p><strong>VAT ID</strong><br> 123456789</p><p><strong>Disclaimer</strong><br> Content provided with care but without guarantee. We are not responsible for external links.</p><p><strong>Dispute resolution</strong><br> We are neither willing nor obliged to participate in consumer arbitration procedures.</p>"
+    },
+    
+    "privacy": {
+      "title": "Privacy Policy",
+      "html": "<p>This website/game processes only the data required for technical operation. No sensitive user profiles are created.</p><h4>Server logs</h4><p>Technical logs (e.g. IP, timestamp) may be collected for security and debugging and are deleted automatically.</p><h4>External links</h4><p>When following external links (e.g. GitHub/LinkedIn/Instagram), the respective providers' policies apply.</p><h4>Contact</h4><p>If you contact us by e-mail, your details are processed to handle the request.</p><h4>Your rights</h4><p>You have the right to access, rectification, deletion, restriction of processing and to lodge a complaint with a supervisory authority.</p>"
+    }
   }
 }

@@ -9,7 +9,7 @@ class World {
     paused = false;   // Spiel Audio pausiert?
 
     // ADD: Debug toggle
-    DEBUG_FRAMES = true; // zum Testen true setzen, später false
+    DEBUG_FRAMES = false; // zum Testen true setzen, später false
 
     statusBar = new StatusBar();
     bottleStatusBar = new BottleStatusBar();
