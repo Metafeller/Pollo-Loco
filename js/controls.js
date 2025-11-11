@@ -12,6 +12,8 @@ function bootApp() {
   keyboard = window.KEYBOARD || new Keyboard();
   window.KEYBOARD = keyboard;
 
+  window.__UI_AUDIOS = window.__UI_AUDIOS || [];
+
   // Game-Controls global machen, damit i18n.js sie verknüpfen kann
   window.startGame = startGame;
   window.pauseGame = pauseGame;
@@ -130,6 +132,11 @@ function setMuted(flag) {
       auds.forEach(a => { try { a.muted = isMuted; } catch(e){} });
     } catch(e){}
   }
+
+  if (window.__UI_AUDIOS && Array.isArray(window.__UI_AUDIOS)) {
+  try { window.__UI_AUDIOS.forEach(a => { try { a.muted = isMuted; } catch(e){} }); } catch(e){}
+  }
+  window.IS_MUTED = isMuted; // damit ui-frame.js den Zustand kennt
 }
 
 function toggleMute(){ setMuted(!isMuted); }

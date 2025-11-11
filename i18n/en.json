@@ -24,5 +24,41 @@
     "health": "Health",
     "energy": "Energy",
     "coins": "Coins"
+  },
+
+  "footer": {
+    "copyright": "© 2025 AYA Inc. All rights reserved"
+  },
+  "rules": {
+    "title": "Game Rules",
+    "body": [
+      "Move Pepe with arrow keys; D = bottle, F = supernova.",
+      "Avoid hits, collect coins & hearts, defeat the endboss.",
+      "Pause anytime via the top UI bar."
+    ]
+  },
+  "legal": {
+    "imprint": {
+      "title": "Imprint",
+      "body": [
+        "AYA Inc., Musterstraße 1, 50667 Cologne, Germany",
+        "Represented by: Taironman",
+        "E-mail: kontakt@metafeller.com – Content provided without guarantees."
+      ]
+    },
+    "privacy": {
+      "title": "Privacy Policy",
+      "body": [
+        "We do not process personal data beyond the scope of this game.",
+        "Any telemetry is solely for technical stability.",
+        "External links lead to sites with their own policies."
+      ]
+    }
+  },
+  "ui-nav": {
+    "rules": "Rules",
+    "contact": "Contact",
+    "imprint": "Imprint",
+    "privacy": "Privacy"
   }
 }

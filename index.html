@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="img/icons/favicon/cactus-favicon.ico">
     <link rel="stylesheet" href="style.css">
     <title>El Pollo Loco</title>
 
@@ -55,6 +56,7 @@
     <!-- ... im <head> NACH world.class.js und VOR game.js einfügen: -->
     <script src="js/class.models/start-screen.class.js"></script>
     <script src="js/controls.js"></script>
+    <script src="js/ui-frame.js"></script>
 
     <!-- Game zuletzt -->
     <script src="js/game.js"></script>
@@ -64,6 +66,31 @@
 </head>
 
 <body onload="bootApp()">
+
+  <header class="header-bar" role="banner">
+    
+    <div class="header-left">
+        <img src="img/icons/logos/pollo-loco-logo.png" alt="Logo" class="brand-logo">
+    </div>
+
+    <div class="header-right">
+        <button id="btn-rules" class="hdr-btn glass" aria-label="Rules"><span id="lbl-rules">Rules</span></button>
+
+        <a id="btn-contact" class="hdr-btn cta" href="https://metafeller.com" target="_blank" rel="noopener">
+        <span id="lbl-contact">Kontakt</span>
+        </a>
+        <a class="icon-link" id="lnk-github" href="https://github.com/Metafeller" target="_blank" rel="noopener" aria-label="GitHub">
+        <img src="img/icons/social/github_1.svg" data-hv="img/icons/social/github_3.svg" alt="GitHub">
+        </a>
+        <a class="icon-link" id="lnk-linkedin" href="https://www.linkedin.com/" target="_blank" rel="noopener" aria-label="LinkedIn">
+        <img src="img/icons/social/linkedin_1.svg" data-hv="img/icons/social/linkedin_3.svg" alt="LinkedIn">
+        </a>
+        <a class="icon-link" id="lnk-instagram" href="https://www.instagram.com/savasboas/#" target="_blank" rel="noopener" aria-label="Instagram">
+        <img src="img/icons/social/instagram_1.svg" data-hv="img/icons/social/instagram_3.svg" alt="Instagram">
+        </a>
+    </div>
+  </header>
+    
 
     <div class="game-container">
         <!-- <h1>El Pollo Loco</h1> -->
@@ -89,9 +116,54 @@
         <canvas id="canvas" width="720" height="480"></canvas>
     </div>
 
+  <footer class="footer-bar" role="contentinfo">
+    <div class="foot-left"><span id="lbl-copyright">© 2025 AYA Inc. All rights reserved</span></div>
+    <div class="foot-mid">Made with 💚 <span class="green-heart">by Taironman</span></div>
+    <div class="foot-right">
+        <button id="btn-imprint" class="ftr-link" aria-haspopup="dialog"><span id="lbl-imprint">Impressum</span></button>
+        <span class="sep">•</span>
+        <button id="btn-privacy" class="ftr-link" aria-haspopup="dialog"><span id="lbl-privacy">Datenschutz</span></button>
+    </div>
+  </footer>
+
+
 </body>
+
+<!-- Rules Overlay -->
+<div id="rules-overlay" class="overlay" role="dialog" aria-modal="true" aria-labelledby="rules-title" hidden>
+  <div class="overlay-mask"></div>
+  <div class="overlay-card" tabindex="-1">
+    <button class="overlay-close" data-close aria-label="Schließen">×</button>
+    <h2 id="rules-title"><span id="lbl-rules-title">Spielregeln</span></h2>
+    <div class="overlay-body" id="rules-body"></div>
+    <button class="to-top-in" id="rules-top">↑</button>
+  </div>
+</div>
+
+<!-- Imprint -->
+<div id="imprint-overlay" class="overlay" role="dialog" aria-modal="true" aria-labelledby="imprint-title" hidden>
+  <div class="overlay-mask"></div>
+  <div class="overlay-card" tabindex="-1">
+    <button class="overlay-close" data-close aria-label="Schließen">×</button>
+    <h2 id="imprint-title"><span id="lbl-imprint-title">Impressum</span></h2>
+    <div class="overlay-body" id="imprint-body"></div>
+    <button class="to-top-in" id="imprint-top">↑</button>
+  </div>
+</div>
+
+<!-- Privacy -->
+<div id="privacy-overlay" class="overlay" role="dialog" aria-modal="true" aria-labelledby="privacy-title" hidden>
+  <div class="overlay-mask"></div>
+  <div class="overlay-card" tabindex="-1">
+    <button class="overlay-close" data-close aria-label="Schließen">×</button>
+    <h2 id="privacy-title"><span id="lbl-privacy-title">Datenschutz</span></h2>
+    <div class="overlay-body" id="privacy-body"></div>
+    <button class="to-top-in" id="privacy-top">↑</button>
+  </div>
+</div>
+
 <!-- Scroll-to-Top Button -->
-    <button id="btn-to-top" class="to-top" aria-label="Back to top" title="Back to top">↑</button>
+<button id="btn-to-top" class="to-top" aria-label="Back to top" title="Back to top">↑</button>
 
 <script src="js/i18n.js" defer></script>
 <script src="js/scroll-to-top.js" defer></script>

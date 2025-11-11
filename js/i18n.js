@@ -13,7 +13,16 @@
     'btn-restart-now': 'ui.restart',
     'btn-lang-de': 'ui.lang_de',
     'btn-lang-en': 'ui.lang_en',
-    'btn-to-top': 'ui.toTop'
+    'btn-to-top': 'ui.toTop',
+
+    'lbl-rules': 'ui-nav.rules',
+    'lbl-contact': 'ui-nav.contact',
+    'lbl-imprint': 'ui-nav.imprint',
+    'lbl-privacy': 'ui-nav.privacy',
+    'lbl-copyright': 'footer.copyright',
+    'lbl-rules-title': 'rules.title',
+    'lbl-imprint-title': 'legal.imprint.title',
+    'lbl-privacy-title': 'legal.privacy.title',
   };
 
   let current = 'de';

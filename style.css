@@ -246,6 +246,118 @@ canvas {
   }
 }
 
+/****************************** Header und Footer Sektion *********************************/
+
+:root{ --header-h:44px; --footer-h:36px; --ui-gap:12px; }
+
+html, body { overflow:hidden; } /* Single Page: keine Seiten-Scrollbars */
+
+/* Header (schmal, fixed) */
+.header-bar{
+  position:fixed; 
+  inset:auto 0 auto 0; 
+  top:0; 
+  height:var(--header-h);
+  display:flex; 
+  align-items:center; 
+  justify-content:space-between;
+  padding:20px 16px; 
+  background:rgba(0,0,0,0.35);
+  border-bottom:1px solid rgba(242,212,162,0.35); 
+  backdrop-filter: blur(4px);
+  z-index:5;
+}
+.brand-logo{ height:88px; width:auto; display:block; cursor: pointer; }
+.header-right{ display:flex; gap:16px; align-items:center }
+
+.hdr-btn{
+  border:1px solid #F2D4A2; 
+  color:#F2D4A2; 
+  background:transparent;
+  border-radius:10px; 
+  padding:12px 20px; 
+  cursor:pointer;
+  transition:transform .22s ease, opacity .22s ease, background .22s ease;
+  font-family:'zabars', Arial, Helvetica, sans-serif;
+  font-size: 18px; 
+  letter-spacing:1px;
+  text-decoration: none;
+  /* margin-right: 24px; */
+}
+.hdr-btn:hover{ transform:translateY(-1px); opacity:.95 }
+.hdr-btn.glass{ background:rgba(242,213,162,.08); backdrop-filter: blur(3px); }
+.hdr-btn.cta{ padding:12px 48px; background:#068F42; color:#fff; border-color:#068F42; animation:pulse 2.8s ease-in-out infinite }
+.hdr-btn.cta:hover{ background-color: #A6D82F; border-color: #A6D82F; color: #571413; }
+@keyframes pulse { 0%,100%{ box-shadow:0 0 0 0 rgba(6,143,66,.35) } 50%{ box-shadow:0 0 18px 3px rgba(6,143,66,.45) } }
+
+.icon-link img{ height:32px; width:32px; display:block }
+.icon-link{ display:inline-flex; align-items:center; justify-content:center; padding:8px; border-radius:8px; transition:transform .22s, filter .22s, opacity .22s }
+.icon-link:hover{ transform:translateY(-1px) scale(1.03); filter: drop-shadow(0 0 8px rgba(242,212,162,.4)) }
+
+/* Footer (schmal, fixed) */
+.footer-bar{
+  position:fixed; 
+  inset:auto 0 0 0; 
+  height:var(--footer-h);
+  display:flex; 
+  align-items:center; 
+  justify-content:space-between;
+  padding:20px 24px; 
+  background:rgba(0,0,0,0.35);
+  border-top:1px solid rgba(242,212,162,0.35); 
+  backdrop-filter: blur(4px);
+  z-index:5; 
+  /* font-size:13px;  */
+  color:#F2D4A2;
+}
+
+.foot-left,.foot-mid,.foot-right{ 
+  display:flex; 
+  align-items:center; 
+  gap:8px; 
+  font-size:22px; 
+  letter-spacing: 1px; 
+}
+
+/* Made By Tairon Man */
+.foot-mid{ flex:1; justify-content:center; margin-right: 96px; font-family: 'Courier New', Courier, monospace; font-size: 18px;}
+
+.ftr-link{ 
+  background:transparent; 
+  border:none; 
+  color:#F2D4A2; 
+  cursor:pointer; 
+  padding:0 2px; 
+  font-family:'zabars', Arial, Helvetica, sans-serif; 
+  font-size: 22px; 
+  letter-spacing: 1px; 
+  transition:opacity .22s }
+
+.ftr-link:hover{ opacity:.85 }
+.sep{ opacity:.6 }
+.green-heart{ filter: drop-shadow(0 0 6px rgba(6, 143, 66, .6)) }
+
+/* Offset für Content wegen Header/Footer */
+.game-container{ margin-top:calc(var(--header-h) + var(--ui-gap)); margin-bottom:calc(var(--footer-h) + var(--ui-gap)); }
+
+/* Overlays (an Canvas ausgerichtet) */
+.overlay{ position:fixed; inset:0; display:none; z-index:10 }
+.overlay[hidden]{ display:none }
+.overlay.show{ display:block }
+.overlay-mask{ position:absolute; inset:0; background:rgba(0,0,0,.65) }
+.overlay-card{
+  position:absolute; /* Position & Größe via JS = Canvas-Rect */
+  width:720px; height:480px; border-radius:16px; background:#111;
+  border:1px solid rgba(242,212,162,.35); color:#eaeaea; box-shadow:0 10px 30px rgba(0,0,0,.6);
+  display:flex; flex-direction:column; overflow:hidden;
+}
+.overlay-close{ position:absolute; top:8px; right:10px; background:transparent; border:none; color:#fff; font-size:28px; line-height:1; cursor:pointer }
+.overlay-body{ flex:1; overflow:auto; padding:16px }
+.overlay h2{ margin:14px 16px; font-size:20px }
+.to-top-in{ position:absolute; right:12px; bottom:12px; width:40px; height:40px; border-radius:50%; border:1px solid rgba(242,212,162,.6); background:rgba(0,0,0,.35); color:#F2D4A2; cursor:pointer; display:none }
+.to-top-in.show{ display:block }
+
+/*********************************************************************************************************/
 
 /* Mobile: Titel ausblenden, Controls kompakter – Canvas bleibt Fokus */
 @media only screen and (max-width: 720px) {

@@ -24,6 +24,43 @@
     "health": "Gesundheit",
     "energy": "Energie",
     "coins": "Münzen"
+  },
+
+  "footer": {
+    "copyright": "© 2025 AYA Inc. Alle Rechte vorbehalten."
+  },
+  "rules": {
+    "title": "Spielregeln",
+    "body": [
+      "Bewege Pepe mit den Pfeiltasten; D = Flasche, F = Supernova.",
+      "Vermeide Treffer, sammle Münzen & Herzen, besiege den Endgegner.",
+      "Pause jederzeit über die obere UI-Leiste."
+    ]
+  },
+  "legal": {
+    "imprint": {
+      "title": "Impressum",
+      "body": [
+        "AYA Inc., Musterstraße 1, 50667 Köln",
+        "Vertreten durch: Taironman",
+        "E-Mail: kontakt@metafeller.com – Inhalte nach bestem Wissen, ohne Gewähr."
+      ]
+    },
+    "privacy": {
+      "title": "Datenschutzerklärung",
+      "body": [
+        "Wir verarbeiten keine personenbezogenen Daten über dieses Spiel hinaus.",
+        "Eventuelle Telemetrie dient ausschließlich der technischen Stabilität.",
+        "Kontakt per Link führt auf externe Seiten mit eigenen Richtlinien."
+      ]
+    }
+  },
+
+  "ui-nav": {
+    "rules": "Spielregeln",
+    "contact": "Kontakt",
+    "imprint": "Impressum",
+    "privacy": "Datenschutz"
   }
 }
 
