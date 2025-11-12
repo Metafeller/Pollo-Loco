@@ -341,26 +341,71 @@ html, body { overflow:hidden; } /* Single Page: keine Seiten-Scrollbars */
 .game-container{ margin-top:calc(var(--header-h) + var(--ui-gap)); margin-bottom:calc(var(--footer-h) + var(--ui-gap)); }
 
 /* Overlays (an Canvas ausgerichtet) */
-.overlay{ position:fixed; inset:0; display:none; z-index:10 }
+.overlay{ 
+  position:fixed; 
+  inset:0; 
+  display:none; 
+  z-index:10 }
+
 .overlay[hidden]{ display:none }
 .overlay.show{ display:block }
 .overlay-mask{ position:absolute; inset:0; background:rgba(0,0,0,.65) }
+
 .overlay-card{
   position:absolute; /* Position & Größe via JS = Canvas-Rect */
-  width:720px; height:480px; border-radius:16px; background:#111;
-  border:1px solid rgba(242,212,162,.35); color:#eaeaea; box-shadow:0 10px 30px rgba(0,0,0,.6);
-  display:flex; flex-direction:column; overflow:hidden;
+  width:720px; 
+  height:480px; 
+  border-radius:16px; 
+  background:#111;
+  border:1px solid rgba(242,212,162,.35); 
+  color:#eaeaea; 
+  box-shadow:0 10px 30px rgba(0,0,0,.6);
+  display:flex; 
+  flex-direction:column; 
+  overflow:hidden;
 }
-.overlay-close{ position:absolute; top:8px; right:10px; background:transparent; border:none; color:#fff; font-size:28px; line-height:1; cursor:pointer }
-.overlay-body{ flex:1; overflow:auto; padding:16px }
+
+.overlay-close{ 
+  position:absolute; 
+  top:8px; 
+  right:10px; 
+  background:transparent; 
+  border:none; 
+  color:#fff; 
+  font-size:28px; 
+  line-height:1; 
+  cursor:pointer }
+
+.overlay-body{ 
+  font-family: 'Courier New', Courier, monospace;
+  flex:1; 
+  overflow:auto; 
+  padding:16px;
+}
+
 .overlay h2{ margin:14px 16px; font-size:20px }
-.to-top-in{ position:absolute; right:12px; bottom:12px; width:40px; height:40px; border-radius:50%; border:1px solid rgba(242,212,162,.6); background:rgba(0,0,0,.35); color:#F2D4A2; cursor:pointer; display:none }
+
+.to-top-in{ 
+  position:absolute; 
+  right:12px; 
+  bottom:12px; 
+  width:40px; 
+  height:40px; 
+  border-radius:50%; 
+  border:1px solid rgba(242,212,162,.6); 
+  background:rgba(0,0,0,.35); 
+  color:#F2D4A2; 
+  cursor:pointer; 
+  display:none }
+
 .to-top-in.show{ display:block }
 
 /* Schöner Scrollbar-Style für Overlay-Texte */
 .overlay-body{
   scrollbar-width: thin;
-  scrollbar-color: #19d16b #1b1b1b;
+  /* scrollbar-color: #19d16b #1b1b1b; */
+  scrollbar-color: #F2D4A2 #1b1b1b;
+  
 }
 .overlay-body::-webkit-scrollbar { width: 10px; }
 .overlay-body::-webkit-scrollbar-track { background: #1b1b1b; }
