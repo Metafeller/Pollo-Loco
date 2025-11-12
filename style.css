@@ -383,7 +383,7 @@ html, body { overflow:hidden; } /* Single Page: keine Seiten-Scrollbars */
   padding:16px;
 }
 
-.overlay h2{ margin:14px 16px; font-size:20px }
+.overlay h2{ margin:14px 16px; font-size:40px; }
 
 .to-top-in{ 
   position:absolute; 
@@ -411,6 +411,19 @@ html, body { overflow:hidden; } /* Single Page: keine Seiten-Scrollbars */
 .overlay-body::-webkit-scrollbar-track { background: #1b1b1b; }
 .overlay-body::-webkit-scrollbar-thumb { background: #19d16b; border-radius: 8px; }
 .overlay-body::-webkit-scrollbar-thumb:hover { background: #18b85f; }
+
+/* Keycaps im Rules-Overlay */
+.overlay-body kbd{
+  display:inline-block;
+  padding:2px 6px;
+  border:1px solid rgba(242,212,162,.35);
+  border-radius:6px;
+  background:rgba(0,0,0,.35);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: .9em;
+  line-height: 1.2;
+  color:#F2D4A2;
+}
 
 /*********************************************************************************************************/
 
