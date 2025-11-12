@@ -129,14 +129,14 @@
       }));
 
     // Scroll-To-Top innerhalb der Overlays
-    [{btn:'rules-top', body:'rules-body'},
-     {btn:'imprint-top', body:'imprint-body'},
-     {btn:'privacy-top', body:'privacy-body'}].forEach(({btn,body})=>{
-      const b = $(body), t = $(btn);
-      if (!b || !t) return;
-      b.addEventListener('scroll', ()=>{ t.classList.toggle('show', b.scrollTop > 320); });
-      t.addEventListener('click', ()=>{ b.scrollTo({top:0, behavior:'smooth'}); });
-    });
+    // [{btn:'rules-top', body:'rules-body'},
+    //  {btn:'imprint-top', body:'imprint-body'},
+    //  {btn:'privacy-top', body:'privacy-body'}].forEach(({btn,body})=>{
+    //   const b = $(body), t = $(btn);
+    //   if (!b || !t) return;
+    //   b.addEventListener('scroll', ()=>{ t.classList.toggle('show', b.scrollTop > 320); });
+    //   t.addEventListener('click', ()=>{ b.scrollTo({top:0, behavior:'smooth'}); });
+    // });
   }
 
   // Icon-Hover Swap
@@ -156,9 +156,22 @@
     window.addEventListener('scroll', syncAll, true);
   }
 
+  // NEW: global ESC fallback – schließt das oberste offene Overlay (inkl. Rules)
+  function wireGlobalEsc(){
+    document.addEventListener('keydown', (e)=>{
+      if (e.key !== 'Escape') return;
+      const openOverlays = Array.from(document.querySelectorAll('.overlay.show'));
+      if (!openOverlays.length) return;
+      const top = openOverlays[openOverlays.length - 1];
+      e.preventDefault();
+      close(top.id);
+    });
+  }
+
   document.addEventListener('DOMContentLoaded', ()=>{
     wireHeaderFooter();
     hoverSwapIcons();
     keepSynced();
+    wireGlobalEsc(); // aktiviert ESC-Fallback
   });
 })();
