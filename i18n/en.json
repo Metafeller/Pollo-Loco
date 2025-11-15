@@ -15,6 +15,19 @@
     "toTop": "Back to top"
   },
 
+  "mobile": {
+    "rotateTitle": "Landscape required",
+    "rotateBody": "Rotate your device to play.",
+    "menu": "Menu",
+    "fullscreen": "Fullscreen",
+    "controls": "Controls",
+    "left": "Left",
+    "right": "Right",
+    "jump": "Jump",
+    "throw": "Bottle",
+    "super": "Supernova"
+  },
+
   "game": {
     "winner": "You won!",
     "gameOver": "Game Over"
@@ -45,6 +58,7 @@
   },
 
   "legal": {
+
     "imprint": {
       "title": "Legal Notice",
       "html": "<p><strong>Responsible</strong><br> Tayfun Savas Boas AYA<br> Freelancer in premium web-development, branding & marketing<br> Baarerstrasse 43, 6300 Zug, Switzerland</p><p><strong>Contact</strong><br> Phone: +49 2196 – 888888<br> E-mail: mail@metafeller.com</p><p><strong>VAT ID</strong><br> 123456789</p><p><strong>Disclaimer</strong><br> Content provided with care but without guarantee. We are not responsible for external links.</p><p><strong>Dispute resolution</strong><br> We are neither willing nor obliged to participate in consumer arbitration procedures.</p>"
@@ -54,5 +68,6 @@
       "title": "Privacy Policy",
       "html": "<p>This website/game processes only the data required for technical operation. No sensitive user profiles are created.</p><h4>Server logs</h4><p>Technical logs (e.g. IP, timestamp) may be collected for security and debugging and are deleted automatically.</p><h4>External links</h4><p>When following external links (e.g. GitHub/LinkedIn/Instagram), the respective providers' policies apply.</p><h4>Contact</h4><p>If you contact us by e-mail, your details are processed to handle the request.</p><h4>Your rights</h4><p>You have the right to access, rectification, deletion, restriction of processing and to lodge a complaint with a supervisory authority.</p>"
     }
+
   }
 }

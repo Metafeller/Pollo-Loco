@@ -169,22 +169,21 @@ canvas {
   pointer-events: auto;
 }
 
-/* Startscreen Overlay (720x480 wie Canvas, sitzt darüber) */
+/* Startscreen Overlay – exakte Position per JS (siehe ui-frame.js) */
 .start-screen {
-  position:absolute;
-  top: calc(80px + 86px + 48px); /* H1 + Margin + UI-Bar grob ausgleichen */
-  left: 50%;
-  transform: translateX(-50%);
-  width: 720px;
-  height: 480px;
+  position: fixed;          /* vom JS exakt über dem Canvas platziert */
+  left: 0;
+  top: 0;
+  width: 1px;               /* wird vom JS gesetzt */
+  height: 1px;              /* wird vom JS gesetzt */
   border-radius: 16px;
   box-shadow: 4px 4px 8px rgba(0,0,0,0.5);
   background-size: cover;
   background-position: center;
-  display: none;              /* per JS sichtbar */
+  display: none;            /* JS zeigt/hide */
   align-items: center;
   justify-content: center;
-  z-index: 2;                 /* über Canvas & UI-Bar */
+  z-index: 1000;            /* über Mobile-Controls */
 }
 
 /* Fallback-Button falls keine "go-btn" Klasse aus GameOver vorhanden ist */
@@ -206,10 +205,11 @@ canvas {
 .game-primary-btn:hover{ transform: translateY(-1px); opacity: 0.95; }
 
 .pause-overlay {
-  position: absolute;
-  top: calc(80px + 86px + 48px); /* grob wie Startscreen, an deinen Header/UI-Bar angepasst */
-  left: 50%;
-  transform: translateX(-50%);
+  position: fixed;
+  /* top: calc(80px + 86px + 48px);  */
+  left: 0;
+  top: 0;
+  /* transform: translateX(-50%); */
   width: 720px;
   height: 480px;
   border-radius: 16px;
@@ -221,12 +221,12 @@ canvas {
 
 .pause-overlay.hidden { display: none; }
 
-.pause-mask {
+/* .pause-mask {
   position: absolute;
   inset: 0;
-  background: rgba(0,0,0,0.5); /* 50% dunkel */
+  background: rgba(0,0,0,0.5);
   border-radius: 16px;
-}
+} */
 
 .pause-overlay > button {
   position: relative;
@@ -431,6 +431,7 @@ html, body { overflow:hidden; } /* Single Page: keine Seiten-Scrollbars */
 @media only screen and (max-width: 720px) {
   .ui-bar h1{ display:none; }
   .ui-btn{ padding: 6px 8px; }
+  .lang-switch{ padding-right: 0px;}
 }
 
 
@@ -441,7 +442,14 @@ html, body { overflow:hidden; } /* Single Page: keine Seiten-Scrollbars */
     }
 
     h1 {
-        display: none;
+        /* display: none; */
+        font-size: 32px;
+        /* padding-bottom: 32px; */
+    }
+
+    .foot-left,.foot-mid,.foot-right{ 
+      font-size: 12px; 
+      letter-spacing: 1px;
     }
 }
 
@@ -453,6 +461,36 @@ html, body { overflow:hidden; } /* Single Page: keine Seiten-Scrollbars */
     }
 
     h1 {
-        display: none;
+        /* display: none; */
+        font-size: 32px;
     }
+}
+
+
+/* Mobile Landscape: Header+Footer ausblenden, Canvas voll nutzen */
+body.is-mobile-ui.is-landscape .header-bar,
+body.is-mobile-ui.is-landscape .footer-bar,
+body.is-mobile-ui.is-landscape #lbl-title {
+  display: none !important;
+}
+
+/* In Landscape keine zusätzlichen Außenabstände durch Header/Footer */
+body.is-mobile-ui.is-landscape .game-container{
+  margin-top: var(--ui-gap);
+  margin-bottom: var(--ui-gap);
+}
+
+/* Canvas-Größe: skaliert mit korrektem Seitenverhältnis (3:2),
+   ragt nicht unter den Bildschirmrand – berücksichtigt Safe Areas */
+body.is-mobile-ui.is-landscape canvas{
+  width: min(100vw - (env(safe-area-inset-left) + env(safe-area-inset-right)), 720px);
+  height: auto;
+  aspect-ratio: 4 / 2.1;
+}
+
+/* Portrait: Canvas füllt Breite, Höhe folgt dem 3:2-Verhältnis */
+body.is-mobile-ui.is-portrait canvas{
+  width: min(100vw - (env(safe-area-inset-left) + env(safe-area-inset-right)), 720px);
+  height: auto;
+  aspect-ratio: 3 / 2;
 }

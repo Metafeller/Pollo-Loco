@@ -32,14 +32,27 @@
   }
 
   // Canvas-Koordinaten (Viewport-bezogen)
+  // Canvas-Koordinaten (Viewport-bezogen)
   function canvasRect(){
     const c = document.querySelector('#canvas');
     if (!c) return null;
-    const r = c.getBoundingClientRect();       // relativ zum Viewport
+    const r = c.getBoundingClientRect();
     return { left: r.left, top: r.top, w: r.width, h: r.height };
   }
 
-  // Overlay-Card auf Canvas legen
+  // *** Robust: Startscreen immer exakt deckungsgleich zum Canvas ***
+  function placeStartScreen(){
+    const ss = document.querySelector('.start-screen');
+    if (!ss) return;
+    const r = canvasRect(); 
+    if (!r || !r.w || !r.h) return;
+    ss.style.left   = r.left + 'px';
+    ss.style.top    = r.top  + 'px';
+    ss.style.width  = r.w    + 'px';
+    ss.style.height = r.h    + 'px';
+  }
+
+  // Overlay-Card auf Canvas legen (Pause/Imprint/Privacy/Rules etc.)
   function placeOverlayCard(card){
     const r = canvasRect();
     if (!r || !card) return;
@@ -154,6 +167,10 @@
     const syncAll = () => { document.querySelectorAll('.overlay-card').forEach(placeOverlayCard); };
     window.addEventListener('resize', syncAll);
     window.addEventListener('scroll', syncAll, true);
+
+    const syncStart = () => placeStartScreen();
+    window.addEventListener('resize', syncStart);
+    window.addEventListener('scroll', syncStart, true);
   }
 
   // NEW: global ESC fallback – schließt das oberste offene Overlay (inkl. Rules)
@@ -168,10 +185,58 @@
     });
   }
 
+  // document.addEventListener('DOMContentLoaded', ()=>{
+  //   wireHeaderFooter();
+  //   hoverSwapIcons();
+  //   keepSynced();
+  //   wireGlobalEsc(); // aktiviert ESC-Fallback
+  //   placeStartScreen();
+  //   requestAnimationFrame(placeStartScreen);
+  //   setTimeout(placeStartScreen, 120);
+  // });
+
+  function observeCanvasBox(){
+  const c = document.querySelector('#canvas');
+  if (!c || typeof ResizeObserver === 'undefined') return;
+  const ro = new ResizeObserver(()=>{
+    placeStartScreen();
+    // responsive.js hört auf "resize" -> löst auch Canvas-UI Neupositionierung aus
+    window.requestAnimationFrame(()=> window.dispatchEvent(new Event('resize')));
+  });
+  ro.observe(c);
+  }
+
   document.addEventListener('DOMContentLoaded', ()=>{
     wireHeaderFooter();
     hoverSwapIcons();
     keepSynced();
-    wireGlobalEsc(); // aktiviert ESC-Fallback
+    wireGlobalEsc();
+
+    // *** NEU: robuste Erst-/Nach-Synchronisation ***
+    placeStartScreen();
+    requestAnimationFrame(placeStartScreen);
+    setTimeout(placeStartScreen, 60);
+    setTimeout(placeStartScreen, 160);
+
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(()=>{
+        placeStartScreen();
+        setTimeout(placeStartScreen, 50);
+      });
+    }
+
+    observeCanvasBox();   // <— beobachtet Laufzeit-Änderungen am Canvas
   });
+
+  window.addEventListener('load', ()=>{
+    placeStartScreen();
+    setTimeout(placeStartScreen, 50);
+  });
+
+  window.addEventListener('orientationchange', ()=>{
+    setTimeout(placeStartScreen, 80);
+    setTimeout(placeStartScreen, 220);
+  });
+
+
 })();

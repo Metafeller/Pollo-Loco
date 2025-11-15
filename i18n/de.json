@@ -15,6 +15,19 @@
     "toTop": "Nach oben"
   },
 
+  "mobile": {
+    "rotateTitle": "Querformat erforderlich",
+    "rotateBody": "Drehen Sie Ihr Gerät, um zu spielen.",
+    "menu": "Menü",
+    "fullscreen": "Vollbild",
+    "controls": "Steuerung",
+    "left": "Links",
+    "right": "Rechts",
+    "jump": "Springen",
+    "throw": "Flasche",
+    "super": "Supernova"
+  },
+
   "game": {
     "winner": "Du hast gewonnen!",
     "gameOver": "Game Over"
@@ -45,6 +58,7 @@
   },
 
   "legal": {
+
     "imprint": {
       "title": "Impressum",
       "html": "<p><strong>Verantwortlich</strong><br> Tayfun Savas Boas AYA<br> Freelancer für Premium-Webentwicklung, Branding & Marketing<br> Baarerstrasse 43, 6300 Zug</p><p><strong>Kontakt</strong><br> Telefon: 02196 – 888888<br> E-Mail: mail@metafeller.com</p><p><strong>USt-ID</strong><br> 123456789</p><p><strong>Berufsbezeichnung</strong><br> Webentwickler & Marketingmanager (verliehen in Deutschland)</p><p><strong>Haftungshinweis</strong><br> Inhalte mit größter Sorgfalt, jedoch ohne Gewähr. Für Inhalte externer Links sind ausschließlich deren Betreiber verantwortlich.</p><p><strong>Streitbeilegung</strong><br> Keine Verpflichtung zur Teilnahme an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle.</p>"

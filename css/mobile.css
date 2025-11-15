@@ -1,0 +1,248 @@
+/* ============ Mobile UI (≤ 1023 px) – Canvas Overlays & Header-Burger ============ */
+
+/* ---------- Utility Root Vars ---------- */
+:root{
+  --mc-gap: 12px;
+  --mc-btn: 68px;
+  --mc-safe: 12px;
+    /* Canvas-UI Z unter Startscreen (Startscreen = z-index:1000) */
+  --mc-z: 900;
+}
+
+/* Adaptive Größen für Mobile-Landscape */
+body.is-mobile-ui.is-landscape{
+  /* Buttons schrumpfen bei geringer Höhe automatisch */
+  --mc-btn: clamp(44px, 10vh, 68px);
+  --mc-gap: clamp(6px, 1.2vh, 12px);
+  --mc-safe: max(8px, env(safe-area-inset-bottom));
+}
+
+/* Portrait: Buttons werden eh ausgeblendet – Defaults ok */
+
+/* ---------- Desktop sichtbar, Mobile per Klasse ------------- */
+body.is-desktop-ui #ui-bar { display:flex; }
+
+/* Verstecke die UI-Bar nur an ihrem ORIGINAL-Ort (im game-container) */
+body.is-mobile-ui .game-container > #ui-bar { display: none; }
+
+/* Zeige sie im Drop-Right-Panel wieder an */
+body.is-mobile-ui .mc-panel-body #ui-bar { display: flex !important; }
+
+/* ---------- Foot-Mid ausblenden < 1024 --------- */
+@media (max-width: 1023px){
+  .foot-mid{ display:none; }
+}
+
+/* ---------- Header/Footer Textgrößen --------- */
+@media (max-width: 590px){
+  .footer-bar, .header-bar { font-size: 18px; }
+}
+@media (max-width: 480px){
+  .footer-bar, .header-bar { font-size: 12px; }
+}
+
+/* ---------- Fullscreen: Fokus nur Canvas --------- */
+body.fs-active .header-bar,
+body.fs-active .footer-bar,
+body.fs-active h1#lbl-title { display: none !important; }
+
+/* ---------- Canvas Overlay Host ---------- */
+.canvas-ui {
+  position: fixed;   /* exakte Canvas-Position per JS */
+  left: 0; top: 0;
+  width: 720px; height: 480px;
+  pointer-events: none;           /* nur Kinder klickbar */
+  z-index: var(--mc-z);           /* < 1000, damit Startscreen drüber liegt */
+  contain: layout paint;
+}
+
+/* Host auf Mobile immer sichtbar (Portrait braucht Overlay!) */
+body.is-mobile-ui .canvas-ui { display:block; }
+body.is-desktop-ui .canvas-ui { display:none; }
+
+/* Controls in Portrait vollständig ausblenden (Rotate-Overlay darf drüber liegen) */
+body.is-mobile-ui.is-portrait .canvas-ui .mc-dpad,
+body.is-mobile-ui.is-portrait .canvas-ui .mc-actions,
+body.is-mobile-ui.is-portrait .canvas-ui .mc-burger,
+body.is-mobile-ui.is-portrait .canvas-ui .mc-fs,
+body.is-mobile-ui.is-portrait .canvas-ui .mc-panel {
+  display: none !important;
+}
+
+/* ---------- Buttons allgemein ---------- */
+.mc-btn {
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  touch-action: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--mc-btn);
+  height: var(--mc-btn);
+  border-radius: 14px;
+  border: 1px solid rgba(242,212,162,0.65);
+  background: rgba(0,0,0,0.35);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.45);
+  color: #F2D4A2;
+  transition: transform .18s ease, opacity .18s ease, background .18s ease;
+  backdrop-filter: blur(4px);
+}
+.mc-btn:active { transform: translateY(-1px) scale(0.98); }
+
+/* ---------- Burger (unten links) ---------- */
+.mc-burger { position: absolute; left: var(--mc-safe); bottom: calc(var(--mc-safe) + env(safe-area-inset-bottom)); }
+
+/* ---------- Fullscreen (unten rechts) ---------- */
+.mc-fs { position: absolute; right: var(--mc-safe); bottom: calc(var(--mc-safe) + env(safe-area-inset-bottom)); }
+
+/* ---------- D-Pad ---------- */
+.mc-dpad {
+  position: absolute;
+  left: calc(var(--mc-safe) + var(--mc-btn) + var(--mc-gap));
+  bottom: calc(var(--mc-safe) + env(safe-area-inset-bottom));
+  bottom: var(--mc-safe);
+  display: flex;
+  gap: var(--mc-gap);
+}
+.mc-dpad .mc-btn { width: var(--mc-btn); height: var(--mc-btn); }
+
+/* ---------- Actions ---------- */
+.mc-actions {
+  position: absolute;
+  right: calc(var(--mc-safe) + var(--mc-btn) + var(--mc-gap));
+  bottom: calc(var(--mc-safe) + env(safe-area-inset-bottom));
+  bottom: var(--mc-safe);
+  display: flex;
+  gap: var(--mc-gap);
+}
+@media (max-width: 480px){
+  .mc-actions { gap: 8px; }
+  :root{ --mc-btn: 62px; }
+}
+
+/* ---------- Panel (Drop-Right) ---------- */
+.mc-panel {
+  position: absolute;
+  left: calc(var(--mc-safe) + var(--mc-btn) + 10px);
+  bottom: calc(var(--mc-safe) + var(--mc-btn) + 10px);
+
+  /* BREITER + HOCH, damit Mute/Language reinpassen */
+  max-width: clamp(340px, 72vw, 560px);
+  max-height: min(70vh, 380px);
+
+  border: 1px solid rgba(242,212,162,0.35);
+  border-radius: 14px;
+  background: rgba(17,17,17,0.88);
+  color: #eaeaea;
+  box-shadow: 0 10px 26px rgba(0,0,0,.55);
+
+  /* Scrollen statt Abschneiden */
+  overflow: auto;
+
+  transform-origin: left bottom;
+  transform: scale(0.98) translateX(-8px);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform .22s ease, opacity .22s ease;
+  z-index: calc(var(--mc-z) + 1);
+}
+.mc-panel.open { transform: scale(1) translateX(0); opacity: 1; pointer-events: auto; }
+.mc-panel-head { padding: 10px 12px; border-bottom: 1px solid rgba(242,212,162,0.2); font-size: 18px; letter-spacing: 1px; }
+.mc-panel-body { padding: 10px; }
+
+/* UI-Bar im Panel – sauber stapeln */
+.mc-panel-body .ui-bar{
+  max-width: none;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+
+  display: flex;
+  flex-direction: column;      /* stapeln */
+  align-items: stretch;
+  gap: 10px;
+}
+
+/* Mute + Language oben, in einer Reihe */
+.mc-panel-body .ui-bar .ui-right{
+  order: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-right: 0;
+}
+
+/* Language-Gruppe kompakt, ohne Umbruch */
+.mc-panel-body .ui-bar .lang-switch{
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+/* Button-Reihe darunter, darf umbrechen */
+.mc-panel-body .ui-bar .btn-row{
+  order: 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding-left: 0;
+}
+
+/* Buttons im Panel etwas kompakter */
+.mc-panel-body .ui-bar .ui-btn,
+.mc-panel-body .ui-bar .lang-btn{
+  padding: 6px 10px;
+  font-size: 16px;
+}
+
+/* kleine Breiten */
+@media (max-width: 720px){
+  .mc-panel { 
+    max-width: min(92vw, 560px); 
+    padding-right: 0;
+  }
+}
+
+/* sehr kleine Breiten */
+@media (max-width: 480px){
+  .mc-panel { 
+    max-width: min(92vw, 560px); 
+    padding-right: 0;
+  }
+}
+
+/* ---------- Inline SVGs ---------- */
+.mc-btn svg { width: 28px; height: 28px; }
+
+/* ---------- Rotate Overlay (nur über Canvas) ---------- */
+.canvas-ui #rotate-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: calc(var(--mc-z) + 5);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.65);
+  color: #F2D4A2;
+  text-align: center;
+  padding: 24px;
+}
+.canvas-ui #rotate-overlay.show { display: flex; }
+.canvas-ui #rotate-overlay .card{
+  max-width: 520px;
+  border: 1px solid rgba(242,212,162,0.35);
+  border-radius: 16px;
+  background: rgba(17,17,17,0.9);
+  padding: 18px 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.6);
+}
+
+/* Kein Seiten-Scroll ≤ 1023 (Overlays haben eigene Scrolls) */
+@media (max-width: 1023px){
+  html, body { overflow: hidden; }
+}
