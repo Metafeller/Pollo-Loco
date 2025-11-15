@@ -45,12 +45,12 @@
   }
 
   async function toggleFullscreenForCanvas(){
-    const canvas = document.getElementById('canvas');
-    if (!canvas) return;
+    const stage = document.getElementById('stage') || document.getElementById('canvas');
+    if (!stage) return;
     try{
       if (!isFullscreen()){
-        const req = canvas.requestFullscreen || canvas.webkitRequestFullscreen || canvas.msRequestFullscreen;
-        if (req) await req.call(canvas);
+        const req = stage.requestFullscreen || stage.webkitRequestFullscreen || stage.msRequestFullscreen;
+        if (req) await req.call(stage);
         if (screen.orientation?.lock){ try{ await screen.orientation.lock('landscape'); }catch(_){} }
       } else {
         const exit = document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen;
@@ -68,11 +68,12 @@
   }
 
   function ensureOverlay(){
-    let host = $('.canvas-ui');
+    const root = document.getElementById('stage') || document.body;
+    let host = root.querySelector('.canvas-ui');
     if (!host){
       host = document.createElement('div');
       host.className = 'canvas-ui';
-      document.body.appendChild(host);
+      root.appendChild(host);            // <— nicht mehr document.body
     }
     if ($('#mc-burger')) return;
 
@@ -165,14 +166,12 @@
   }
 
   function syncBox(){
-    const canvas = $('#canvas');
     const host = $('.canvas-ui');
-    if (!canvas || !host) return;
-    const r = canvas.getBoundingClientRect();
-    host.style.left   = r.left + 'px';
-    host.style.top    = r.top  + 'px';
-    host.style.width  = r.width + 'px';
-    host.style.height = r.height + 'px';
+    if (!host) return;
+    host.style.left = '0';
+    host.style.top  = '0';
+    host.style.width  = '100%';
+    host.style.height = '100%';
   }
 
   document.addEventListener('DOMContentLoaded', ()=>{
@@ -181,11 +180,15 @@
     syncBox();
 
     const obs = new MutationObserver(()=>{ applyVisibility(); syncBox(); });
-    obs.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    obs.observe(document.body, { attributes:true, attributeFilter:['class'] });
+
+    ['fullscreenchange','webkitfullscreenchange','msfullscreenchange']
+      .forEach(ev => document.addEventListener(ev, ()=>{ applyVisibility(); syncBox(); }));
 
     window.addEventListener('resize',  ()=>{ applyVisibility(); syncBox(); }, {passive:true});
     window.addEventListener('scroll',  ()=>{ syncBox(); }, true);
     window.addEventListener('orientationchange', ()=>{ applyVisibility(); setTimeout(syncBox, 80); });
   });
+
 
 })();

@@ -43,13 +43,13 @@
   // *** Robust: Startscreen immer exakt deckungsgleich zum Canvas ***
   function placeStartScreen(){
     const ss = document.querySelector('.start-screen');
-    if (!ss) return;
-    const r = canvasRect(); 
-    if (!r || !r.w || !r.h) return;
-    ss.style.left   = r.left + 'px';
-    ss.style.top    = r.top  + 'px';
-    ss.style.width  = r.w    + 'px';
-    ss.style.height = r.h    + 'px';
+    const stage = document.getElementById('stage');
+    if (!ss || !stage) return;
+    // füllt die Stage – keine Viewport-Koordinaten nötig
+    ss.style.left = '0';
+    ss.style.top  = '0';
+    ss.style.width  = stage.clientWidth + 'px';
+    ss.style.height = stage.clientHeight + 'px';
   }
 
   // Overlay-Card auf Canvas legen (Pause/Imprint/Privacy/Rules etc.)

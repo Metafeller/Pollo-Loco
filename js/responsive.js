@@ -8,11 +8,12 @@
   let uiBarOrigNext = null;
 
   function ensureCanvasOverlay(){
-    let host = $('.canvas-ui');
+    const root = document.getElementById('stage') || document.body;
+    let host = root.querySelector('.canvas-ui');
     if (!host){
       host = document.createElement('div');
       host.className = 'canvas-ui';
-      document.body.appendChild(host);
+      root.appendChild(host);              // <— in #stage
     }
     return host;
   }
@@ -42,14 +43,12 @@
   }
 
   function syncCanvasOverlayBox(){
-    const canvas = $('#canvas');
     const host = ensureCanvasOverlay();
-    if (!canvas || !host) return;
-    const r = canvas.getBoundingClientRect();
-    host.style.left = r.left + 'px';
-    host.style.top  = r.top  + 'px';
-    host.style.width  = r.width + 'px';
-    host.style.height = r.height + 'px';
+    if (!host) return;
+    host.style.left = '0';
+    host.style.top  = '0';
+    host.style.width  = '100%';
+    host.style.height = '100%';
   }
 
   // WICHTIG: Im Fullscreen bleibt Mobile-UI aktiv (unabhängig von Touch)

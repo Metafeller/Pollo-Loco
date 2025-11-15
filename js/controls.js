@@ -43,7 +43,7 @@ function bootApp() {
   })();
 
   startScreen = new StartScreen('/img/9_intro_outro_screens/start/startscreen_3.png');
-  startScreen.attachDom('.game-container');
+  startScreen.attachDom('#stage'); // vorher '.game-container'
   startScreen.onStart(() => startGame());
   startScreen.show();
 
@@ -179,9 +179,8 @@ function resumeGame() {
 
 /* ===== Pause-Overlay DOM ===== */
 function createPauseOverlay() {
-  const host = document.querySelector('.game-container');
+  const host = document.querySelector('#stage') || document.querySelector('.game-container');
   if (!host) return null;
-
   const wrap = document.createElement('div');
   wrap.className = 'pause-overlay hidden';
   wrap.innerHTML = `
@@ -189,7 +188,6 @@ function createPauseOverlay() {
     <button id="btn-continue" class="${document.querySelector('.go-btn') ? 'go-btn' : 'game-primary-btn'}"></button>
   `;
   host.appendChild(wrap);
-
   const btn = wrap.querySelector('#btn-continue');
   btn.addEventListener('click', () => resumeGame());
   return wrap;
