@@ -160,10 +160,10 @@ hutStory
 
 // 2) DANACH Coins & Whiskeys anhängen:
 level1.coins = [
-    new Coin(1200, 240),  new Coin(1700, 200),  new Coin(1800, 160),
-    new Coin(1900,120),  new Coin(2000,160),  new Coin(2100, 200),
-    new Coin(3200,160),  new Coin(4200,160),  new Coin(5200, 160),
-    new Coin(5400,160)
+    new Coin(1200, 280),  new Coin(1700, 240),  new Coin(1800, 200),
+    new Coin(1900,160),  new Coin(2000,200),  new Coin(2100, 240),
+    new Coin(3200,200),  new Coin(4200,200),  new Coin(5200, 200),
+    new Coin(5400,200)
 ];
 
 level1.whiskeys = [

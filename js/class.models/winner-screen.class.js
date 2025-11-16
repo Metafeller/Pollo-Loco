@@ -101,7 +101,7 @@ class WinnerScreen extends DrawableObject {
   }
 
   // ===== DOM-Overlay (Buttons) =====
-  ensureDom(containerSelector = '.game-container') {
+  ensureDom(containerSelector = '.stage') {
     if (this._ui) return;
 
     const canvas = document.querySelector('#canvas');

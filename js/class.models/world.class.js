@@ -666,7 +666,7 @@ class World {
         // Overlay-Objekt + TryAgain Hook
         try {
             if (!this.gameOverScreen) this.gameOverScreen = new GameOverScreen();
-            this.gameOverScreen.attachDom('.game-container');
+            this.gameOverScreen.attachDom('.stage'); // an Stage anhängen
             this.gameOverScreen.onTryAgain(() => {
                 try { this.stopAllGameOverAudio(); } catch (e) {}
                 if (window.restartNow) window.restartNow(); else window.location.reload();

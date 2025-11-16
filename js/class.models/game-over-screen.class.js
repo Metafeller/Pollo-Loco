@@ -30,11 +30,16 @@ class GameOverScreen {
         this._syncToCanvas && this._syncToCanvas();
     }
 
-    attachDom(containerSelector = '.game-container') {
+    attachDom(containerSelector = '.stage') {
         if (this._container) return;
 
         const canvas = document.querySelector('#canvas');
-        const root = document.querySelector(containerSelector) || document.body;
+
+        const root = 
+            document.querySelector(containerSelector) || 
+            (canvas && (canvas.closest('.stage') || canvas.parentElement)) ||
+            document.body;
+
         const wrap = document.createElement('div');
         wrap.id = 'go-overlay-ui';
 
@@ -50,14 +55,15 @@ class GameOverScreen {
         wrap.style.justifyContent = 'flex-end';  // an unteren Rand
         wrap.style.flexDirection = 'column';
         wrap.style.gap = '12px';
-        wrap.style.zIndex = '9999';
+        // wrap.style.zIndex = '9999';
+        wrap.style.zIndex = '995'; 
         wrap.style.paddingBottom = '48px';
 
         // Button (i18n)
         const btn = document.createElement('button');
         btn.id = 'btn-try-again';
         btn.textContent = (window.I18N ? window.I18N.t('ui.tryAgain') : 'Try Again');
-        btn.style.marginBottom = '24px';
+        // btn.style.marginBottom = '24px';
         btn.style.pointerEvents = 'auto';
         btn.style.padding = '14px 28px';
         btn.style.fontSize = '28px';
@@ -91,18 +97,17 @@ class GameOverScreen {
         wrap.appendChild(credit);
 
         // Container relativ
-        const gc = root;
-        if (getComputedStyle(gc).position === 'static') {
-            gc.style.position = 'relative';
+        if (getComputedStyle(root).position === 'static') {
+            root.style.position = 'relative';
         }
-        gc.appendChild(wrap);
+        root.appendChild(wrap);
 
         // Position/Größe auf Canvas syncen
         const syncToCanvas = () => {
             const r = canvas.getBoundingClientRect();
-            const gr = gc.getBoundingClientRect();
-            const left = r.left - gr.left + gc.scrollLeft;
-            const top  = r.top  - gr.top  + gc.scrollTop;
+            const gr = root.getBoundingClientRect();
+            const left = r.left - gr.left + root.scrollLeft;
+            const top  = r.top  - gr.top  + root.scrollTop;
             wrap.style.left = `${left}px`;
             wrap.style.top  = `${top}px`;
             wrap.style.width  = `${r.width}px`;
@@ -115,6 +120,7 @@ class GameOverScreen {
         syncToCanvas();
         window.addEventListener('resize', syncToCanvas);
         window.addEventListener('scroll', syncToCanvas, true);
+        document.addEventListener('fullscreenchange', syncToCanvas);
 
         // Sprachwechsel live mitnehmen
         window.addEventListener('i18n:changed', this._onLangChange);
