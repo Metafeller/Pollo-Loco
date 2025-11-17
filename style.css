@@ -454,8 +454,8 @@ html, body { overflow:hidden; } /* Single Page: keine Seiten-Scrollbars */
 
     h1 {
         /* display: none; */
-        font-size: 32px;
-        /* padding-bottom: 32px; */
+        /* font-size: 32px; */
+        font-size: 64px;
     }
 
     .foot-left,.foot-mid,.foot-right{ 
