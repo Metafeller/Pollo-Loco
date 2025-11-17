@@ -28,8 +28,8 @@ body.is-mobile-ui .game-container > #ui-bar { display: none; }
 /* Zeige sie im Drop-Right-Panel wieder an */
 body.is-mobile-ui .mc-panel-body #ui-bar { display: flex !important; }
 
-/* ---------- Foot-Mid ausblenden < 1024 --------- */
-@media (max-width: 1023px){
+/* ---------- Foot-Mid ausblenden < 1369 --------- */
+@media (max-width: 1368px){
   .foot-mid{ display:none; }
 }
 
@@ -245,7 +245,7 @@ body.is-mobile-ui.is-portrait .canvas-ui .mc-panel {
   box-shadow: 0 10px 30px rgba(0,0,0,.6);
 }
 
-/* Kein Seiten-Scroll ≤ 1023 (Overlays haben eigene Scrolls) */
-@media (max-width: 1023px){
+/* Kein Seiten-Scroll ≤ 1368 (Overlays haben eigene Scrolls) */
+@media (max-width: 1368px){
   html, body { overflow: hidden; }
 }

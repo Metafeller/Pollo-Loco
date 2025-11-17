@@ -2,6 +2,8 @@
 (() => {
   const $ = (sel, root=document) => root.querySelector(sel);
 
+  const MOBILE_MAX_WIDTH = 1368;
+
   let isMobile = false;
   let uiBar = null;
   let uiBarOrigParent = null;
@@ -54,7 +56,7 @@
   // WICHTIG: Im Fullscreen bleibt Mobile-UI aktiv (unabhängig von Touch)
   function detectMobile(){
     const fs = document.body.classList.contains('fs-active');
-    return (window.innerWidth <= 1023) || fs;
+    return (window.innerWidth <= MOBILE_MAX_WIDTH) || fs;
   }
 
   function isPortrait(){
@@ -115,7 +117,7 @@
         /* Basis: versteckt per CSS, nicht per inline-style */
         #header-mobile-menu{ display:none; }
         #header-mobile-menu.open{ display:block; }
-        @media (min-width:1024px){
+        @media (min-width:1369px){
           #header-burger, #header-mobile-menu{ display:none !important; }
         }`;
       document.head.appendChild(style);
