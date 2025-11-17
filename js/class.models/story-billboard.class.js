@@ -23,11 +23,11 @@ class StoryBillboard extends DrawableObject {
         this._aspectFixed = false;
 
         this.FRAMES = [
-            '/img/objects/gate_closed_1.png',
+            '/img/objects/story/talk_closed_f1.png',
             '/img/objects/story/talk_closed_f1.png',
             '/img/objects/story/talk_pepe_help_f2.png',
             '/img/objects/story/talk_farmer_f3.png',
-            '/img/objects/story/talk_pepe_help_f2.png',
+            '/img/objects/story/talk_pepe_help_f4.png',
             '/img/objects/story/talk_farmer_f5.png',
             '/img/objects/story/talk_closed_f1.png'
         ];
@@ -44,7 +44,7 @@ class StoryBillboard extends DrawableObject {
             7: new Audio('/audio/muffled-cry.mp3')
         };
 
-        this.atmo = new Audio('/audio/woman-cry-loop.mp3');
+        this.atmo = new Audio('/audio/crying-4.mp3');
         this.atmo.loop = true;
         this.atmo.volume = 0.25;
 
