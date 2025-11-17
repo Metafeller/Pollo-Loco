@@ -106,25 +106,27 @@
     const right  = header ? header.querySelector('.header-right') : null;
     if (!header || !right) return;
 
-    let hb = $('#header-burger');
+    const ensureHdrStyle = () => {
+      const ID = 'hdr-dd-style';
+      if (document.getElementById(ID)) return;
+      const style = document.createElement('style');
+      style.id = ID;
+      style.textContent = `
+        /* Basis: versteckt per CSS, nicht per inline-style */
+        #header-mobile-menu{ display:none; }
+        #header-mobile-menu.open{ display:block; }
+        @media (min-width:1024px){
+          #header-burger, #header-mobile-menu{ display:none !important; }
+        }`;
+      document.head.appendChild(style);
+    };
+
+    let hb   = $('#header-burger');
     let menu = $('#header-mobile-menu');
 
     if (isMobile){
-      if (!hb){
-        hb = document.createElement('button');
-        hb.id = 'header-burger';
-        hb.className = 'hdr-btn glass';
-        hb.setAttribute('aria-haspopup','menu');
-        hb.setAttribute('aria-expanded','false');
-        hb.style.marginLeft = '8px';
-        hb.innerHTML = '☰';
-        header.insertBefore(hb, right);
-        hb.addEventListener('click', ()=>{
-          menu?.classList.toggle('open');
-          hb.setAttribute('aria-expanded', menu?.classList.contains('open') ? 'true' : 'false');
-          try{ if (!window.IS_MUTED){ const a=new Audio('/audio/bottle.mp3'); a.volume=.8; a.play(); }}catch(_){}
-        });
-      }
+      ensureHdrStyle();
+
       if (!menu){
         menu = document.createElement('div');
         menu.id = 'header-mobile-menu';
@@ -136,7 +138,7 @@
         menu.style.borderRadius = '12px';
         menu.style.padding = '10px';
         menu.style.boxShadow = '0 10px 26px rgba(0,0,0,.55)';
-        menu.style.display = 'none';
+        // ❌ KEIN menu.style.display = 'none';
         menu.style.zIndex = '8';
         menu.classList.add('mini-dd');
 
@@ -150,19 +152,55 @@
           </div>`;
         header.appendChild(menu);
 
-        const style = document.createElement('style');
-        style.textContent = `
-          #header-mobile-menu.open{ display:block; }
-          @media (min-width: 1024px){ #header-burger, #header-mobile-menu{ display:none !important; } }`;
-        document.head.appendChild(style);
-
-        $('#hdr-rules-dd')?.addEventListener('click', ()=>{
+        // Rules im Dropdown triggert deinen vorhandenen Button
+        $('#hdr-rules-dd')?.addEventListener('click', ()=> {
           document.getElementById('btn-rules')?.click();
         });
       }
+
+      if (!hb){
+        hb = document.createElement('button');
+        hb.id = 'header-burger';
+        hb.className = 'hdr-btn glass';
+        hb.setAttribute('aria-haspopup','menu');
+        hb.setAttribute('aria-expanded','false');
+        hb.style.marginLeft = '8px';
+        hb.innerHTML = '☰';
+        header.insertBefore(hb, right);
+      }
+
+      // Einmaliger Click-Handler (idempotent)
+      if (!hb.__wired){
+        hb.__wired = true;
+        hb.addEventListener('click', (ev)=>{
+          ev.preventDefault();
+          const mm = document.getElementById('header-mobile-menu');
+          if (!mm) return;
+          const willOpen = !mm.classList.contains('open');
+          mm.classList.toggle('open', willOpen);
+          // Zusätzlich inline toggeln, falls andere Styles eingreifen:
+          mm.style.display = willOpen ? 'block' : 'none';
+          hb.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+          try{ if (!window.IS_MUTED){ const a=new Audio('/audio/bottle.mp3'); a.volume=.8; a.play(); }}catch(_){}
+        });
+
+        // Outside-Click schließt Menü (nur auf Mobile aktiv)
+        document.addEventListener('click', (e)=>{
+          const mm = document.getElementById('header-mobile-menu');
+          const bt = document.getElementById('header-burger');
+          if (!mm || !bt) return;
+          if (!mm.classList.contains('open')) return;
+          if (bt.contains(e.target) || mm.contains(e.target)) return;
+          mm.classList.remove('open');
+          mm.style.display = 'none';
+          bt.setAttribute('aria-expanded','false');
+        }, true);
+      }
+
       right.style.display = 'none';
       hb.style.display = 'inline-flex';
     } else {
+      // Desktop: aufräumen
       if (menu){ menu.remove(); }
       if (hb){ hb.remove(); }
       right.style.display = '';
