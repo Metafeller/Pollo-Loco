@@ -2,8 +2,8 @@ class DrawableObject {
     x = 120;
     y = 280;
     img;
-    height = 150;
-    width = 100;
+    height = 160; // vorher 150 pepe
+    width = 100; // vorher 100 pepe
     imageCache = [];
     currentImage = 0;
 
@@ -14,9 +14,19 @@ class DrawableObject {
     }
 
 
-    draw(ctx) {
-        ctx.drawImage(this.img, this.x, this.y, this.width, this.height);
+        draw(ctx) {
+        const img = this.img;
+        // Guard: skip drawing until we have a real, decoded image
+        if (!img || !(img instanceof Image) || !img.complete || img.naturalWidth === 0) {
+            return;
+        }
+        try {
+            ctx.drawImage(img, this.x, this.y, this.width, this.height);
+        } catch (e) {
+            // Skip this frame if the browser cannot draw the image yet.
+        }
     }
+
 
     drawFrame(ctx) {
         if (this instanceof Character || this instanceof Chicken) {
@@ -27,6 +37,7 @@ class DrawableObject {
             ctx.stroke();
         }
     }
+
 
     /**
      * 

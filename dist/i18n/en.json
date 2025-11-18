@@ -1,0 +1,73 @@
+﻿{
+  "app": { "title": "El Pollo Loco" },
+  "ui": {
+    "language": "Language",
+    "start": "Start",
+    "resume": "Resume",
+    "backToStart": "Back to Start Screen",
+    "startGame": "Start Game",
+    "continue": "Continue",
+    "tryAgain": "Try Again",
+    "pause": "Pause",
+    "restart": "Restart",
+    "lang_de": "DE",
+    "lang_en": "EN",
+    "toTop": "Back to top"
+  },
+
+  "mobile": {
+    "rotateTitle": "Landscape required",
+    "rotateBody": "Rotate your device to play.",
+    "menu": "Menu",
+    "fullscreen": "Fullscreen",
+    "controls": "Controls",
+    "left": "Left",
+    "right": "Right",
+    "jump": "Jump",
+    "throw": "Bottle",
+    "super": "Supernova"
+  },
+
+  "game": {
+    "winner": "You won!",
+    "gameOver": "Game Over"
+  },
+
+  "status": {
+    "endboss": "Endboss",
+    "bottles": "Bottles",
+    "health": "Health",
+    "energy": "Energy",
+    "coins": "Coins"
+  },
+
+  "footer": {
+    "copyright": "© 2025 AYA Inc. All rights reserved"
+  },
+
+  "ui-nav": {
+    "rules": "Rules",
+    "contact": "Contact",
+    "imprint": "Imprint",
+    "privacy": "Privacy"
+  },
+
+  "rules": {
+    "title": "Game Rules",
+    "html": "<h3>Story</h3><p><strong>Level 1 – The Jealous Farmer’s Ranch:</strong> Pepe must rescue his fiancée from a locked hut. The farmer unleashes his animals on intruders – from cheeky chickens and mini-chickens to a furious endboss. Collect resources, dodge attacks and fight your way to the hut gate.</p><p><em>To be continued:</em> Future chapters will introduce the wicked sister, nosy neighbors and new enemies like cows and crows – a long journey with Super-Mario or Crash-Bandicoot vibes. ¡muy loco!</p><h3>Controls</h3><ul><li><kbd>←</kbd> / <kbd>→</kbd> Move left/right</li><li><kbd>Space</kbd> Jump</li><li><kbd>D</kbd> Throw bottle</li><li><kbd>F</kbd> Supernova (if available)</li><li>Pause via the top UI bar • Close overlays with <kbd>ESC</kbd></li></ul><h3>Collectibles</h3><ul><li><strong>Bottles</strong> – ranged damage vs. chickens & boss</li><li><strong>Hearts</strong> – restore health</li><li><strong>Coins</strong> – score & future unlocks</li><li><strong>Whiskey</strong> – energy/power-up (useful for special attacks)</li></ul><h3>Enemies</h3><ul><li><strong>Chicken</strong> – pesky but predictable</li><li><strong>Mini-chicken</strong> – fast; defeat by jumping on it</li><li><strong>Endboss</strong> – reacts on sight; vary pace & distance</li></ul><h3>Tips</h3><ul><li>Jump on small enemies to conserve ammo.</li><li>Throw bottles while moving and keep your distance.</li><li>Watch your health; pick up hearts in time.</li><li>Stay mobile vs. the boss and wait for openings.</li></ul><h3>Goal (Level 1)</h3><p>Reach the ranch gate, defeat the endboss and open the way to the hut to free Pepe’s fiancée. <strong>Buena suerte!</strong></p>"
+  },
+
+  "legal": {
+
+    "imprint": {
+      "title": "Legal Notice",
+      "html": "<p><strong>Responsible</strong><br> Tayfun Savas Boas AYA<br> Freelancer in premium web-development, branding & marketing<br> Baarerstrasse 43, 6300 Zug, Switzerland</p><p><strong>Contact</strong><br> Phone: +49 2196 – 888888<br> E-mail: mail@metafeller.com</p><p><strong>VAT ID</strong><br> 123456789</p><p><strong>Disclaimer</strong><br> Content provided with care but without guarantee. We are not responsible for external links.</p><p><strong>Dispute resolution</strong><br> We are neither willing nor obliged to participate in consumer arbitration procedures.</p>"
+    },
+    
+    "privacy": {
+      "title": "Privacy Policy",
+      "html": "<p>This website/game processes only the data required for technical operation. No sensitive user profiles are created.</p><h4>Server logs</h4><p>Technical logs (e.g. IP, timestamp) may be collected for security and debugging and are deleted automatically.</p><h4>External links</h4><p>When following external links (e.g. GitHub/LinkedIn/Instagram), the respective providers' policies apply.</p><h4>Contact</h4><p>If you contact us by e-mail, your details are processed to handle the request.</p><h4>Your rights</h4><p>You have the right to access, rectification, deletion, restriction of processing and to lodge a complaint with a supervisory authority.</p>"
+    }
+
+  }
+}

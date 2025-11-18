@@ -1,0 +1,74 @@
+﻿{
+  "app": { "title": "Das verrückte Huhn" },
+  "ui": {
+    "language": "Sprache",
+    "start": "Starten",
+    "resume": "Weiter",
+    "backToStart":"Zurück zum Startbildschirm",
+    "startGame": "Spiel starten",
+    "continue": "Weiter spielen",
+    "tryAgain": "Nochmal versuchen",
+    "pause": "Pause",
+    "restart": "Neu starten",
+    "lang_de": "DE",
+    "lang_en": "EN",
+    "toTop": "Nach oben"
+  },
+
+  "mobile": {
+    "rotateTitle": "Querformat erforderlich",
+    "rotateBody": "Drehen Sie Ihr Gerät, um zu spielen.",
+    "menu": "Menü",
+    "fullscreen": "Vollbild",
+    "controls": "Steuerung",
+    "left": "Links",
+    "right": "Rechts",
+    "jump": "Springen",
+    "throw": "Flasche",
+    "super": "Supernova"
+  },
+
+  "game": {
+    "winner": "Du hast gewonnen!",
+    "gameOver": "Game Over"
+  },
+
+  "status": {
+    "endboss": "Endgegner",
+    "bottles": "Flaschen",
+    "health": "Gesundheit",
+    "energy": "Energie",
+    "coins": "Münzen"
+  },
+
+  "footer": {
+    "copyright": "© 2025 AYA Inc. Alle Rechte vorbehalten."
+  },
+
+  "ui-nav": {
+    "rules": "Spielregeln",
+    "contact": "Kontakt",
+    "imprint": "Impressum",
+    "privacy": "Datenschutz"
+  },
+
+  "rules": {
+    "title": "Spielregeln",
+    "html": "<h3>Story</h3><p><strong>Level 1 – Die Farm des eifersüchtigen Bauern:</strong> Pepe will seine Verlobte aus einer abgelegenen Hütte befreien. Der Bauer hetzt seine Tiere auf jeden Eindringling – von frechen Hühnern und Mini-Hühnern bis zum wütenden Endboss. Sammle Ressourcen, weiche aus und kämpfe dich bis zum Hüttentor vor.</p><p><em>Fortsetzung folgt:</em> In späteren Kapiteln tauchen weitere boshafte Gegner, sowie neue Tiere wie Kühe und Krähen auf – eine Reise im Super-Mario oder Crash-Bandicoot-Vibe, nur eben ¡muy loco!</p><h3>Steuerung</h3><ul><li><kbd>←</kbd> / <kbd>→</kbd> Bewegen (links/rechts)</li><li><kbd>Space</kbd> Springen</li><li><kbd>D</kbd> Flasche werfen</li><li><kbd>F</kbd> Supernova (sofern verfügbar)</li><li>Pause über die obere UI-Leiste • Overlays mit <kbd>ESC</kbd> schließen</li></ul><h3>Sammelobjekte</h3><ul><li><strong>Flaschen</strong> – Fernkampf gegen Hühner & Endboss</li><li><strong>Herzen</strong> – füllen deine Gesundheit auf</li><li><strong>Münzen</strong> – Punkte & spätere Freischaltungen</li><li><strong>Whiskey</strong> – Energie/Power-up (nützlich für Spezialangriffe)</li></ul><h3>Gegner</h3><ul><li><strong>Huhn</strong> – nervig, aber berechenbar</li><li><strong>Mini-Huhn</strong> – schnell; per Sprung ausschaltbar</li><li><strong>Endboss</strong> – reagiert auf Sicht, wechsle Tempo & Distanz</li></ul><h3>Tipps</h3><ul><li>Auf kleine Gegner springen – sicher & ressourcenschonend.</li><li>Flaschen aus der Bewegung werfen und die Distanz halten.</li><li>Lebensanzeige im Blick behalten; rechtzeitig Herzen einsammeln.</li><li>Beim Endboss in Bewegung bleiben und auf Öffnungen warten.</li></ul><h3>Ziel (Level 1)</h3><p>Erreiche das Farmtor, besiege den Endboss und öffne den Weg zur Hütte, um Pepes Verlobte zu befreien. <strong>Viel Erfolg, Vaquero!</strong></p>"
+  },
+
+  "legal": {
+
+    "imprint": {
+      "title": "Impressum",
+      "html": "<p><strong>Verantwortlich</strong><br> Tayfun Savas Boas AYA<br> Freelancer für Premium-Webentwicklung, Branding & Marketing<br> Baarerstrasse 43, 6300 Zug</p><p><strong>Kontakt</strong><br> Telefon: 02196 – 888888<br> E-Mail: mail@metafeller.com</p><p><strong>USt-ID</strong><br> 123456789</p><p><strong>Berufsbezeichnung</strong><br> Webentwickler & Marketingmanager (verliehen in Deutschland)</p><p><strong>Haftungshinweis</strong><br> Inhalte mit größter Sorgfalt, jedoch ohne Gewähr. Für Inhalte externer Links sind ausschließlich deren Betreiber verantwortlich.</p><p><strong>Streitbeilegung</strong><br> Keine Verpflichtung zur Teilnahme an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle.</p>"
+    },
+
+    "privacy": {
+      "title": "Datenschutzerklärung",
+      "html": "<p>Diese Website/Spiel verarbeitet nur die für den Betrieb notwendigen Daten. Es werden keine sensiblen personenbezogenen Profile gebildet.</p><h4>Server-Logs</h4><p>Beim Aufruf können technische Protokolle (z. B. IP, Zeitstempel) anfallen. Diese dienen der Sicherheit und Fehleranalyse und werden automatisch gelöscht.</p><h4>Externe Links</h4><p>Bei Klick auf externe Links (z. B. GitHub/LinkedIn/Instagram) gelten die Richtlinien der jeweiligen Anbieter.</p><h4>Kontakt</h4><p>Bei Kontaktaufnahme per E-Mail werden Angaben zur Bearbeitung der Anfrage verarbeitet.</p><h4>Rechte</h4><p>Sie haben u. a. das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung sowie Beschwerde bei einer Aufsichtsbehörde.</p>"
+    }
+
+  }
+}
+
