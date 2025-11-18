@@ -455,7 +455,8 @@ html, body { overflow:hidden; } /* Single Page: keine Seiten-Scrollbars */
     h1 {
         /* display: none; */
         /* font-size: 32px; */
-        font-size: 64px;
+        padding-top: 32px;
+        font-size: 48px;
     }
 
     .foot-left,.foot-mid,.foot-right{ 
@@ -496,7 +497,7 @@ body.is-mobile-ui.is-landscape .game-container{
 body.is-mobile-ui.is-landscape canvas{
   width: min(100vw - (env(safe-area-inset-left) + env(safe-area-inset-right)), 720px);
   height: inherit;
-  aspect-ratio: 4 / 2.1;
+  aspect-ratio: 4 / 2.0;
   width: 100%;
 }
 
