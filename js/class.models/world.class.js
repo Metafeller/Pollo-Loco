@@ -790,6 +790,8 @@ class World {
         const now = performance.now();
         this.updateGameOverSequence(now);
 
+        const __camX__ = Math.round(this.camera_x); // pixel-snapping gegen Seams
+
         // Nur wenn nicht pausiert: Physik/Kollisionen
         if (!this.paused) {
             this.checkProjectileCollisions();
@@ -803,16 +805,19 @@ class World {
         // this.checkCollisions();
 
         // Kamera an
-        this.ctx.translate(this.camera_x, 0);
+        // this.ctx.translate(this.camera_x, 0);
+        this.ctx.translate(__camX__, 0);
 
         // Hintergrund
         this.addObjectsToMap(this.level.backgroundObjects);
 
         // Kamera aus
-        this.ctx.translate(-this.camera_x, 0);
+        // this.ctx.translate(-this.camera_x, 0);
+        this.ctx.translate(-__camX__, 0);
 
         // Kamera an
-        this.ctx.translate(this.camera_x, 0);
+        // this.ctx.translate(this.camera_x, 0);
+        this.ctx.translate(__camX__, 0);
 
         // Wolken
         this.addObjectsToMap(this.level.clouds);
@@ -848,7 +853,8 @@ class World {
         this.addObjectsToMap(this.effects);
 
         // Kamera aus
-        this.ctx.translate(-this.camera_x, 0);
+        // this.ctx.translate(-this.camera_x, 0);
+        this.ctx.translate(-__camX__, 0);
 
         // === FIXE UI (immer ganz oben) ===
         this.addToMap(this.statusBar);
