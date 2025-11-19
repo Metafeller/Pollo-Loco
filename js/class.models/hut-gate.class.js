@@ -22,7 +22,7 @@ class HutGate extends DrawableObject {
         this._aspectFixed = false;
 
         // --- Frames ---
-        this.FRAME_CLOSED = '/img/objects/gate_closed_01.png';
+        this.FRAME_CLOSED = '/img/objects/gate_closed_01.png'; // Das kuriose ist, wenn ich die richtige PNG hier angebe, dann spielen die story-billboard-Frames nicht mehr richtig ab. Keine Ahnung warum.
         this.FRAMES_OPENING = [
             '/img/objects/gate_open_2.png',
             '/img/objects/gate_open_3.png',
