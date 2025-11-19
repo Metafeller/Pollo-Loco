@@ -17,7 +17,7 @@ class World {
     endbossInSight = false;
 
     // ADD: Background music (low volume ambience)
-    bgMusic = new Audio('/audio/flamenco-backgroundmusic.mp3'); // lege diese Datei ins /audio
+    bgMusic = new Audio('/audio/cajon-bonus-lvl_3.mp3'); // lege diese Datei ins /audio
 
     // === Coins & Superpower ===
     coinStatusBar = new CoinStatusBar();
