@@ -30,13 +30,40 @@
 
   const getEl = (id) => document.getElementById(id);
 
+  // async function loadLang(lang){
+  //   if (cache[lang]) return cache[lang];
+  //   const res = await fetch(SUPPORTED[lang]);
+  //   if (!res.ok) throw new Error('Failed to load i18n: ' + lang);
+  //   const data = await res.json();
+  //   cache[lang] = data;
+  //   return data;
+  // }
+
   async function loadLang(lang){
     if (cache[lang]) return cache[lang];
-    const res = await fetch(SUPPORTED[lang]);
-    if (!res.ok) throw new Error('Failed to load i18n: ' + lang);
-    const data = await res.json();
-    cache[lang] = data;
-    return data;
+
+    const url = `${SUPPORTED[lang]}?v=${Date.now()}`; // Cache-Buster
+    const withTimeout = (p, ms=3500) => new Promise((res, rej)=>{
+      const t = setTimeout(()=>rej(new Error('i18n timeout')), ms);
+      p.then(v=>{clearTimeout(t);res(v);}, e=>{clearTimeout(t);rej(e);});
+    });
+
+    try {
+      const res = await withTimeout(fetch(url, {cache:'no-store'}), 3500);
+      if (!res.ok) throw new Error('HTTP '+res.status);
+      const data = await res.json();
+      cache[lang] = data;
+      return data;
+    } catch (e) {
+      console.warn('[i18n] Fallback aktiviert für', lang, e);
+      // Minimal-Fallbacks – nur Keys, die dein UI wirklich braucht
+      const FALLBACKS = {
+        de:{ app:{title:'Das verrückte Huhn'}, ui:{language:'Sprache',start:'Starten',pause:'Pause',restart:'Neu starten',backToStart:'Zurück zum Startbildschirm',lang_de:'DE',lang_en:'EN',toTop:'Nach oben'} },
+        en:{ app:{title:'El Pollo Loco'},     ui:{language:'Language',start:'Start', pause:'Pause',restart:'Restart',      backToStart:'Back to Start Screen',lang_de:'DE',lang_en:'EN',toTop:'Back to top'} }
+      };
+      cache[lang] = FALLBACKS[lang] || {};
+      return cache[lang];
+    }
   }
 
   function t(obj, key){
@@ -155,3 +182,7 @@
     await setLanguage(DEFAULT_LANG);
   });
 })();
+
+window.addEventListener('unhandledrejection', e=>{
+  console.error('[Unhandled promise]', e.reason);
+});

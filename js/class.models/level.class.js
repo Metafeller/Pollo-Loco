@@ -3,7 +3,7 @@ class Level {
     clouds;
     backgroundObjects;
     bottles;
-    level_end_x = 6400;
+    level_end_x = 6400; // x-Position, an der das Level endet
 
     // Neu:
     coins = [];

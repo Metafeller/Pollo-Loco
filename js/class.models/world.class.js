@@ -721,7 +721,6 @@ class World {
         }
     }
 
-
     /** Splash zeichnen – OHNE irgendeinen Filter. */
     drawGameOverSplash(ctx, canvas) {
         if (!this.goSplashActive || !this.goSplashImg) return;
@@ -749,7 +748,6 @@ class World {
         }
         // if the image isn't ready yet, draw nothing (no fallback tint/text)
     }
-
 
     startGameOverOverlay() {
         if (!this.gameOverScreen) return;
@@ -940,6 +938,7 @@ class World {
             const show =
             (mo === this.character) || (mo instanceof Chicken) || (mo instanceof MiniChicken) ||
             (mo instanceof Endboss) || (mo instanceof ThrowableObject) || (mo instanceof Gravestone);
+            (mo instanceof HutGate) || (mo instanceof StoryBillboard);
             if (show) mo.drawFrame(this.ctx);
         }
 
@@ -1065,7 +1064,6 @@ class World {
     try { this.pauseBgMusic(); } catch(e) {}
     }
 
-
     onEndbossDeath(endboss) {
         this.endbossInSight = false;
         if (endboss) endboss.isInSight = false;
@@ -1144,7 +1142,6 @@ class World {
 
     //     return Array.from(bag);
     //     }
-    
 
     getAllAudiosDeep() {
         const bag = new Set();
@@ -1179,7 +1176,6 @@ class World {
 
         return Array.from(bag);
     }
-
 
         /** Pause / Resume: frieren & auftauen */
         setPaused(flag) {

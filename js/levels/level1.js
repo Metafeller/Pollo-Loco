@@ -8,8 +8,11 @@ const gate = new HutGate(6000, 480, 500, 320);
 const hutStory = new StoryBillboard(6000, 180, 100, 500, gate);
 
 // Optional Feintuning (hier oder später im Code):
-hutStory.offsetX = 256;
-hutStory.offsetY = -12;
+// hutStory.offsetX = 256;
+// hutStory.offsetY = -12;
+
+hutStory.offsetX = 0;  // NEGATIV = nach links. Zahl nach Gefühl anpassen (z.B. -180, -260) // vorher -256
+hutStory.offsetY = 0;    // Abstand ÜBER der Bodenlinie (positiv nach oben) vorher -12
 
 // ADD: helper for distributed spawns with minimal spacing
 function spawnDistributed(factory/*(x)=>obj*/, count, xStart, xEnd, minSpacing=400) {
@@ -48,7 +51,7 @@ const level1 = new Level([
     // new MiniChicken(),
     ...chickensDistributed,
     ...minisDistributed,
-    new Endboss(6500) // Start direkt bei der Hütte (und Rücklaufziel = 500)
+    new Endboss(6666) // Start direkt bei der Hütte (und Rücklaufziel = 500)
 ],
 
 [
