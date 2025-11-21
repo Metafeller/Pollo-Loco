@@ -11,7 +11,14 @@ class HutGate extends DrawableObject {
         // --- Größe & Boden-Ausrichtung ---
         this.groundY = groundY;      // Unterkante (Bottom)
         this.height  = targetH;      // Zielhöhe (Breite folgt via Aspect)
-        this.width   = 220;          // Platzhalter bis Aspect gesetzt ist
+
+        // feste Gate-Ratio aller Sprites (1248×832 → 1.5)
+        this.ASPECT  = 1248 / 832;
+
+        // 220; Platzhalter bis Aspect gesetzt ist
+        // this.width   = 220; 
+
+        this.width   = Math.round(this.height * this.ASPECT); // Aspect ist hier bro
         this.y       = this.groundY - this.height; // top so, dass Bottom = groundY
 
         // --- Zustände ---
@@ -22,7 +29,7 @@ class HutGate extends DrawableObject {
         this._aspectFixed = false;
 
         // --- Frames ---
-        this.FRAME_CLOSED = '/img/objects/gate_closed_01.png';
+        this.FRAME_CLOSED = '/img/objects/gate_closed_1.png'; // Das kuriose ist, wenn ich die richtige PNG hier angebe, dann spielen die story-billboard-Frames nicht mehr richtig ab. Keine Ahnung warum.
         this.FRAMES_OPENING = [
             '/img/objects/gate_open_2.png',
             '/img/objects/gate_open_3.png',
@@ -54,22 +61,31 @@ class HutGate extends DrawableObject {
         this.footMarginPx   = 14;     // wie weit über der Unterkante wir "Füße" messen
     }
 
+    // _applyAspectOnce() {
+    //     if (this._aspectFixed) return;
+    //     const img = this.img;
+    //     if (img && img.naturalWidth && img.naturalHeight) {
+    //         const ratio = img.naturalWidth / img.naturalHeight;
+    //         // Breite aus Zielhöhe ableiten
+    //         this.width = Math.round(this.height * ratio);
+    //         // Top so setzen, dass Bottom sauber am Boden sitzt
+    //         this.y = this.groundY - this.height;
+
+    //         // Portal neu berechnen (mittig)
+    //         this.portalWidth = Math.max(60, this.width - this.portalInsetX * 2);
+
+    //         this._aspectFixed = true;
+    //         console.debug('[Gate] w/h', img.naturalWidth, img.naturalHeight, '→ width:', this.width);
+    //     }
+    // }
+
     _applyAspectOnce() {
         if (this._aspectFixed) return;
-        const img = this.img;
-        if (img && img.naturalWidth && img.naturalHeight) {
-            const ratio = img.naturalWidth / img.naturalHeight;
-            // Breite aus Zielhöhe ableiten
-            this.width = Math.round(this.height * ratio);
-            // Top so setzen, dass Bottom sauber am Boden sitzt
-            this.y = this.groundY - this.height;
-
-            // Portal neu berechnen (mittig)
-            this.portalWidth = Math.max(60, this.width - this.portalInsetX * 2);
-
-            this._aspectFixed = true;
-        }
+        // width/height NICHT mehr anfassen – nur Portalbreite neu ableiten
+        this.portalWidth = Math.max(60, this.width - this.portalInsetX * 2);
+        this._aspectFixed = true;
     }
+
 
     open() {
         if (this.isOpen || this.isOpening) return;
@@ -81,6 +97,9 @@ class HutGate extends DrawableObject {
                 this._openTimer = null;
                 this.isOpening = false;
                 this.isOpen = true;
+
+                window.dispatchEvent(new CustomEvent('gate:opened'));
+
                 this.img = this.imageCache[this.FRAMES_OPENING[this.FRAMES_OPENING.length - 1]];
                 this._aspectFixed = false;
                 this._applyAspectOnce();

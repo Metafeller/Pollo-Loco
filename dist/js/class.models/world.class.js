@@ -17,7 +17,7 @@ class World {
     endbossInSight = false;
 
     // ADD: Background music (low volume ambience)
-    bgMusic = new Audio('/audio/flamenco-backgroundmusic.mp3'); // lege diese Datei ins /audio
+    bgMusic = new Audio('/audio/cajon-bonus-lvl_3.mp3'); // lege diese Datei ins /audio
 
     // === Coins & Superpower ===
     coinStatusBar = new CoinStatusBar();
@@ -721,7 +721,6 @@ class World {
         }
     }
 
-
     /** Splash zeichnen – OHNE irgendeinen Filter. */
     drawGameOverSplash(ctx, canvas) {
         if (!this.goSplashActive || !this.goSplashImg) return;
@@ -749,7 +748,6 @@ class World {
         }
         // if the image isn't ready yet, draw nothing (no fallback tint/text)
     }
-
 
     startGameOverOverlay() {
         if (!this.gameOverScreen) return;
@@ -790,6 +788,8 @@ class World {
         const now = performance.now();
         this.updateGameOverSequence(now);
 
+        const __camX__ = Math.round(this.camera_x); // pixel-snapping gegen Seams
+
         // Nur wenn nicht pausiert: Physik/Kollisionen
         if (!this.paused) {
             this.checkProjectileCollisions();
@@ -803,16 +803,19 @@ class World {
         // this.checkCollisions();
 
         // Kamera an
-        this.ctx.translate(this.camera_x, 0);
+        // this.ctx.translate(this.camera_x, 0);
+        this.ctx.translate(__camX__, 0);
 
         // Hintergrund
         this.addObjectsToMap(this.level.backgroundObjects);
 
         // Kamera aus
-        this.ctx.translate(-this.camera_x, 0);
+        // this.ctx.translate(-this.camera_x, 0);
+        this.ctx.translate(-__camX__, 0);
 
         // Kamera an
-        this.ctx.translate(this.camera_x, 0);
+        // this.ctx.translate(this.camera_x, 0);
+        this.ctx.translate(__camX__, 0);
 
         // Wolken
         this.addObjectsToMap(this.level.clouds);
@@ -848,7 +851,8 @@ class World {
         this.addObjectsToMap(this.effects);
 
         // Kamera aus
-        this.ctx.translate(-this.camera_x, 0);
+        // this.ctx.translate(-this.camera_x, 0);
+        this.ctx.translate(-__camX__, 0);
 
         // === FIXE UI (immer ganz oben) ===
         this.addToMap(this.statusBar);
@@ -934,6 +938,7 @@ class World {
             const show =
             (mo === this.character) || (mo instanceof Chicken) || (mo instanceof MiniChicken) ||
             (mo instanceof Endboss) || (mo instanceof ThrowableObject) || (mo instanceof Gravestone);
+            (mo instanceof HutGate) || (mo instanceof StoryBillboard);
             if (show) mo.drawFrame(this.ctx);
         }
 
@@ -1059,7 +1064,6 @@ class World {
     try { this.pauseBgMusic(); } catch(e) {}
     }
 
-
     onEndbossDeath(endboss) {
         this.endbossInSight = false;
         if (endboss) endboss.isInSight = false;
@@ -1138,7 +1142,6 @@ class World {
 
     //     return Array.from(bag);
     //     }
-    
 
     getAllAudiosDeep() {
         const bag = new Set();
@@ -1173,7 +1176,6 @@ class World {
 
         return Array.from(bag);
     }
-
 
         /** Pause / Resume: frieren & auftauen */
         setPaused(flag) {

@@ -8,8 +8,8 @@ class WinnerScreen extends DrawableObject {
     this.FRAMES = [
       '/img/9_intro_outro_screens/win/win_1.png',
       '/img/9_intro_outro_screens/win/win_2.png',
-      '/img/9_intro_outro_screens/win/win_3.png',
-      '/img/9_intro_outro_screens/win/win_4.png'
+      '/img/9_intro_outro_screens/win/won_1.png',
+      '/img/9_intro_outro_screens/win/won_2.png'
     ];
     this.loadImages(this.FRAMES);
     this.img = this.imageCache[this.FRAMES[0]];

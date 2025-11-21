@@ -15,9 +15,13 @@ class StoryBillboard extends DrawableObject {
 
         this.anchorGate = anchorGate;
 
+        // Manuelle Offsets relativ zum Gate (Default-Nudge leicht nach links)
+        this.offsetX = -24; // + rechts, - links
+        this.offsetY = 72;  // Abstand über Bodenlinie (passt bei dir)
+
         // <<< NEU: manuelle Offsets relativ zum Gate >>>
-        this.offsetX = 0;   // + nach rechts, - nach links
-        this.offsetY = -72;  // + nach oben (Abstand vom Gate-Bottom)
+        // this.offsetX = 0;   // + nach rechts, - nach links
+        // this.offsetY = 72;  // + nach oben (Abstand vom Gate-Bottom) // vorher -72;
 
         this.visible = false;
         this._aspectFixed = false;
@@ -52,6 +56,9 @@ class StoryBillboard extends DrawableObject {
         this._timer = null;
         this._delayMs = 1500; // langsamer
         this._lastPlayedFrameIndex = -1;
+
+        window.addEventListener('gate:opened', () => this.deactivate());
+
     }
 
     _applyAspectOnce() {
@@ -64,14 +71,27 @@ class StoryBillboard extends DrawableObject {
         }
     }
 
+    // _followGate() {
+    //     if (!this.anchorGate) return;
+    //     const g = this.anchorGate;
+    //     // mittig am Gate ausrichten + Offsets
+    //     this.x = g.x + Math.floor((g.width - this.width) / 2) + this.offsetX;
+    //     // unteres Drittel des Gates (sichtbar über dem Boden) + offsetY nach oben
+    //     this.y = g.y + g.height - this.height - this.offsetY;
+    // }
+
     _followGate() {
         if (!this.anchorGate) return;
         const g = this.anchorGate;
-        // mittig am Gate ausrichten + Offsets
+
+        // horizontal mittig am Gate
         this.x = g.x + Math.floor((g.width - this.width) / 2) + this.offsetX;
-        // unteres Drittel des Gates (sichtbar über dem Boden) + offsetY nach oben
-        this.y = g.y + g.height - this.height - this.offsetY;
+
+        // vertikal stabil relativ zur Bodenlinie des Gates:
+        // (groundY ist fix → kein “Springen”, wenn Sprites laden)
+        this.y = g.groundY - this.height - this.offsetY;
     }
+
 
     activate() {
         if (this.visible) return;
@@ -105,4 +125,5 @@ class StoryBillboard extends DrawableObject {
         this._applyAspectOnce();
         this._followGate();
     }
+
 }
