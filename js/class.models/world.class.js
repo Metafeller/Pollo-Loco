@@ -126,17 +126,34 @@ class World {
     }
 
     // ADD: BG music helpers
+    // startBgMusic() {
+    //     try {
+    //         if (!this.bgMusic) return;
+    //         this.bgMusic.loop = true;
+    //         this.bgMusic.volume = 0.28; // ~28%
+    //         if (this.bgMusic.paused) {
+    //         this.bgMusic.currentTime = 0;
+    //         this.bgMusic.play();
+    //         }
+    //     } catch(e) {}
+    //     }
+
+        /**
+     * Startet die leise Hintergrundmusik und respektiert den globalen Mute-Status.
+     */
     startBgMusic() {
         try {
             if (!this.bgMusic) return;
             this.bgMusic.loop = true;
             this.bgMusic.volume = 0.28; // ~28%
+            this.bgMusic.muted = !!window.IS_MUTED;
             if (this.bgMusic.paused) {
-            this.bgMusic.currentTime = 0;
-            this.bgMusic.play();
+                this.bgMusic.currentTime = 0;
+                this.bgMusic.play();
             }
-        } catch(e) {}
-        }
+        } catch (e) {}
+    }
+
         pauseBgMusic() {
         try { if (this.bgMusic && !this.bgMusic.paused) this.bgMusic.pause(); } catch(e) {}
         }

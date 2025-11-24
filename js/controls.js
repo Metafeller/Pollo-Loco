@@ -7,12 +7,29 @@ let isMuted = false;
 let isStarting = false;
 let pauseOverlay = null;
 
+/**
+ * Liest den Mute-Status sicher aus dem localStorage.
+ * Gibt bei Fehlern oder fehlendem Wert standardmäßig false zurück.
+ * @returns {boolean}
+ */
+function loadMutedFromStorage() {
+  try {
+    const saved = localStorage.getItem('soundMuted');
+    if (saved === '1' || saved === 'true') return true;
+    if (saved === '0' || saved === 'false') return false;
+  } catch (e) {}
+  return false;
+}
+
 function bootApp() {
   // EIN gemeinsames Keyboard für alles
   keyboard = window.KEYBOARD || new Keyboard();
   window.KEYBOARD = keyboard;
 
   window.__UI_AUDIOS = window.__UI_AUDIOS || [];
+
+    // Mute-Status aus localStorage wiederherstellen
+  isMuted = loadMutedFromStorage();
 
   // Game-Controls global machen, damit i18n.js sie verknüpfen kann
   window.startGame = startGame;
@@ -58,6 +75,9 @@ function bootApp() {
       menuAudio.play().catch(()=>{});
     }
   } catch(e){}
+
+  // Mute-Status auf UI, Menü-Audio und globale Audios anwenden
+  setMuted(isMuted);
 
   // Autostart jetzt ausführen (ohne Menümusik)
   if (pendingAutostart) {
@@ -137,6 +157,11 @@ function setMuted(flag) {
   try { window.__UI_AUDIOS.forEach(a => { try { a.muted = isMuted; } catch(e){} }); } catch(e){}
   }
   window.IS_MUTED = isMuted; // damit ui-frame.js den Zustand kennt
+
+  // Mute-Status persistent speichern
+  try {
+    localStorage.setItem('soundMuted', isMuted ? '1' : '0');
+  } catch (e) {}
 }
 
 function toggleMute(){ setMuted(!isMuted); }
