@@ -185,6 +185,7 @@ body.is-mobile-ui.is-portrait .canvas-ui .mc-panel {
   align-items: center;
   gap: 6px;
   white-space: nowrap;
+  padding-right: 0;
 }
 
 /* Button-Reihe darunter, darf umbrechen */
@@ -199,7 +200,7 @@ body.is-mobile-ui.is-portrait .canvas-ui .mc-panel {
 /* Buttons im Panel etwas kompakter */
 .mc-panel-body .ui-bar .ui-btn,
 .mc-panel-body .ui-bar .lang-btn{
-  padding: 6px 10px;
+  padding: 6px 22px;
   font-size: 16px;
 }
 

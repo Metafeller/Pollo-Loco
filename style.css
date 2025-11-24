@@ -107,6 +107,7 @@ canvas {
   padding: 6px 10px;
   border-radius: 8px;
   font-family: 'zabars', Arial, Helvetica, sans-serif;
+  font-size: 22px;
   letter-spacing: 1px;
   cursor: pointer;
   transition: background 120ms ease;
@@ -116,12 +117,17 @@ canvas {
   background: rgba(242,212,162,0.12);
 }
 
+#btn-mute{
+padding: 1px;
+}
+
 .lang-switch{
   display:flex;
   align-items:center;
   gap: 8px;
   color: #F2D4A2;
   padding-right: 12px;
+  font-size: 22px;
 }
 
 .lang-label{ opacity: 0.9; }
@@ -133,9 +139,12 @@ canvas {
   padding: 4px 8px;
   border-radius: 8px;
   font-family: 'zabars', Arial, Helvetica, sans-serif;
+  font-size: 22px;
   cursor: pointer;
   transition: background 120ms ease, color 120ms ease;
 }
+
+
 
 .lang-btn.active{
   background: #F2D4A2;
@@ -291,7 +300,7 @@ html, body { overflow:hidden; } /* Single Page: keine Seiten-Scrollbars */
   cursor:pointer;
   transition:transform .22s ease, opacity .22s ease, background .22s ease;
   font-family:'zabars', Arial, Helvetica, sans-serif;
-  font-size: 18px; 
+  font-size: 22px; 
   letter-spacing:1px;
   text-decoration: none;
   /* margin-right: 24px; */
