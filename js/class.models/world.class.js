@@ -60,7 +60,7 @@ class World {
     goSplashShown   = false;     // NEU: Splash bereits gestartet?
 
     // One-Shots
-    painAudio = new Audio('/audio/kahba.mp3');
+    painAudio = new Audio('/audio/genervt.mp3');
     _painLock = false; // Anti-Spam
     // Sterbe-Sound (einmaliger One-Shot beim Spieler-Tod)
     playerDeathAudio = new Audio('/audio/man-screaming.mp3');
