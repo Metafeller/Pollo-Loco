@@ -78,6 +78,7 @@ body.is-mobile-ui.is-portrait .canvas-ui .mc-panel {
   -webkit-tap-highlight-color: transparent;
   user-select: none;
   touch-action: none;
+  -webkit-touch-callout: none; /* 🧱 Longpress-Kontextmenü auf iOS/Android minimieren */
   display: inline-flex;
   align-items: center;
   justify-content: center;

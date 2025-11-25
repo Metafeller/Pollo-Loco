@@ -256,6 +256,7 @@
     }
   }
 
+
   function installFullscreenWatch(){
     ['fullscreenchange','webkitfullscreenchange','msfullscreenchange'].forEach(ev=>{
       document.addEventListener(ev, ()=>{
@@ -266,6 +267,7 @@
       });
     });
   }
+
 
   function installPositionSync(){
     window.addEventListener('resize', onResizeOrient, {passive:true});
@@ -282,6 +284,31 @@
     window.addEventListener('mc:dock-ready', dockUiBar);
   }
 
+
+  /**
+   * Deaktiviert das Kontext-Menü im Spielfeld und auf Mobile-Control-Buttons.
+   * Verhindert Rechtsklick/Longpress-Menüs auf #stage, D-Pad und Action-Buttons.
+   */
+  function installTouchContextGuard() {
+    document.addEventListener(
+      'contextmenu',
+      function (event) {
+        const t = event.target;
+        if (!t) return;
+
+        const inStage  = t.closest && t.closest('#stage');
+        const inDpad   = t.closest && t.closest('.mc-dpad');
+        const inAction = t.closest && t.closest('.mc-actions');
+
+        if (inStage || inDpad || inAction) {
+          event.preventDefault();
+        }
+      },
+      true
+    );
+  }
+
+
   function onResizeOrient(){
     isMobile = detectMobile();
     setBodyFlags();
@@ -291,12 +318,15 @@
     syncCanvasOverlayBox();
   }
 
+
   window.addEventListener('load', onResizeOrient);
+
 
   document.addEventListener('DOMContentLoaded', ()=>{
   ensureCanvasOverlay();
   installFullscreenWatch();
   installPositionSync();
+  installTouchContextGuard();  // 🛡️ Kontext-Menü auf Mobile-Buttons deaktivieren
   onResizeOrient();
   setTimeout(syncCanvasOverlayBox, 50);
   setTimeout(syncCanvasOverlayBox, 250);
@@ -308,11 +338,13 @@
   }
 });
 
+
   document.addEventListener('visibilitychange', ()=>{
     if (document.visibilityState === 'visible') {
       setTimeout(syncCanvasOverlayBox, 50);
       setTimeout(syncCanvasOverlayBox, 250);
     }
   });
+
 
 })();
