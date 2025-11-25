@@ -72,11 +72,58 @@
     document.body.classList.toggle('is-landscape', isMobile && !isPortrait());
   }
 
+  // function applyRotateOverlay(){
+  //   const ov = ensureRotateOverlay();
+  //   const show = isMobile && isPortrait();
+  //   ov.classList.toggle('show', show);
+  // }
+
   function applyRotateOverlay(){
-    const ov = ensureRotateOverlay();
+    const ov   = ensureRotateOverlay();
     const show = isMobile && isPortrait();
+    const wasShown = ov.classList.contains('show');
+
+    // Klasse für Sichtbarkeit setzen
     ov.classList.toggle('show', show);
+
+    // Wenn sich nichts geändert hat → raus
+    if (show === wasShown) return;
+
+    const g = window;
+    g.__ROTATE_OVERLAY_VISIBLE__ = show;
+
+    // Gibt es überhaupt schon eine laufende World?
+    const hasWorld = (typeof world !== 'undefined') && !!world;
+
+    if (show) {
+      // Overlay ist gerade NEU sichtbar geworden → pausieren
+      // merken, ob das Spiel VORHER schon pausiert war
+      g.__ROTATE_PREV_WAS_PAUSED__ = hasWorld && !!world.paused;
+
+      if (hasWorld && !world.paused) {
+        // sauber über deine globale Pause-Funktion
+        if (typeof g.pauseGame === 'function') {
+          g.pauseGame();
+        } else if (typeof world.setPaused === 'function') {
+          world.setPaused(true);
+        }
+      }
+    } else {
+      // Overlay verschwindet
+      const wasPausedBefore = !!g.__ROTATE_PREV_WAS_PAUSED__;
+      g.__ROTATE_PREV_WAS_PAUSED__ = null;
+
+      // Nur automatisch fortsetzen, wenn das Spiel vorher NICHT pausiert war
+      if (hasWorld && world.paused && !wasPausedBefore) {
+        if (typeof g.resumeGame === 'function') {
+          g.resumeGame();
+        } else if (typeof world.setPaused === 'function') {
+          world.setPaused(false);
+        }
+      }
+    }
   }
+
 
   function dockUiBar(){
     uiBar = uiBar || $('#ui-bar');
