@@ -100,14 +100,124 @@ function bootApp() {
   window.addEventListener('i18n:changed', applyI18nLabels);
 }
 
-function restartNow(){
-  try { localStorage.setItem('autostart', '1'); } catch(e){}
-  window.location.reload();
+// === World-Reset ohne Page-Reload ==================================
+
+function shutdownWorld() {
+    if (!world) return;
+
+    try { world.setPaused(true); } catch (e) {}
+    try { world.stopAllGameOverAudio(); } catch (e) {}
+    try { world.pauseBgMusic(); } catch (e) {}
+
+    // 🔥 WICHTIG: GameOver-/Winner-Overlays sauber zurücksetzen
+    try {
+        if (world.gameOverScreen) {
+            world.gameOverScreen.visible = false;
+
+          // NEU: DOM-Button wirklich verstecken
+            if (typeof world.gameOverScreen.hideButton === 'function') {
+                world.gameOverScreen.hideButton();
+            }
+        }
+          
+        if (world.winnerScreen) {
+            // WinnerScreen hat eine eigene hide()-Methode
+            if (typeof world.winnerScreen.hide === 'function') {
+                world.winnerScreen.hide();
+            } else {
+                world.winnerScreen.visible = false;
+            }
+        }
+          
+        world.gameOver = false;
+        world.gameWon  = false;
+    } catch (e) {}
+
+    // Draw-Loop dieser Instanz hart stoppen
+    world.destroyed = true;
 }
-function backToStart(){
-  try { localStorage.removeItem('autostart'); } catch(e){}
-  window.location.reload();
+
+
+function restartNow() {
+    // optional: Flag behalten, falls du Autostart später nochmal nutzt
+    try { localStorage.setItem('autostart', '1'); } catch (e) {}
+
+    // alte World sauber abschalten
+    shutdownWorld();
+
+    // NEU: Level komplett neu bauen (Enemies, Coins, Clouds, etc.)
+    try {
+        if (typeof resetLevel1 === 'function') {
+            resetLevel1();
+        }
+    } catch (e) {}
+
+    // globale Referenz freigeben
+    world = null;
+    if (typeof window !== 'undefined') window.world = null;
+    isStarting = false;
+
+    // Startscreen bleibt versteckt → direkt neue World starten
+    if (startScreen && typeof startScreen.hide === 'function') {
+        startScreen.hide();
+    }
+
+    startGame();
 }
+
+
+function backToStart() {
+    // Autostart-Flag löschen, damit wir wirklich im Startscreen landen
+    try { localStorage.removeItem('autostart'); } catch (e) {}
+
+    // laufende World beenden
+    shutdownWorld();
+
+    // NEU: Level-Reset auch hier
+    try {
+        if (typeof resetLevel1 === 'function') {
+            resetLevel1();
+        }
+    } catch (e) {}
+
+    // globale Referenz freigeben
+    world = null;
+    if (typeof window !== 'undefined') window.world = null;
+    isStarting = false;
+
+    // Pause-Overlay sicher verstecken (falls offen)
+    try { showPauseOverlay(false); } catch (e) {}
+
+    // Startscreen anzeigen
+    if (startScreen && typeof startScreen.show === 'function') {
+        startScreen.show();
+    }
+
+    // Labels neu setzen (btn-start = "Start" statt "Resume")
+    try { applyI18nLabels(); } catch (e) {}
+
+    // Menü-Musik wieder starten (respektiert Mute-Status)
+    try {
+        if (menuAudio) {
+            menuAudio.muted = !!isMuted;
+            menuAudio.currentTime = 0;
+            menuAudio.play().catch(() => {});
+        }
+    } catch (e) {}
+}
+
+// === Alte Versionen (Page-Reload) ================================
+
+// function restartNow(){
+//   try { localStorage.setItem('autostart', '1'); } catch(e){}
+//   window.location.reload();
+// }
+
+// function backToStart(){
+//   try { localStorage.removeItem('autostart'); } catch(e){}
+//   window.location.reload();
+// }
+
 
 function startGame() {
   if (isStarting || world) { startScreen?.hide(); return; }

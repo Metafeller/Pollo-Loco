@@ -6,7 +6,7 @@
   // One-Shot SFX (Default / CTA / Rules / Logo)
   const sfxDefault = new Audio('/audio/bottle.mp3');
   const sfxCTA     = new Audio('/audio/lets-go.mp3');
-  const sfxRules   = new Audio('/audio/mitleid.mp3');
+  const sfxRules   = new Audio('/audio/rooster-cry.mp3');
   const sfxLogo    = new Audio('/audio/chicken-noise.mp3');
   [sfxDefault, sfxCTA, sfxRules, sfxLogo].forEach(a => { try{ a.volume = 0.8; }catch(e){} });
 

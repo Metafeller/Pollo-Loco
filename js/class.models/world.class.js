@@ -5,6 +5,7 @@ class World {
     ctx;
     keyboard;
     camera_x = 0;
+    destroyed = false; // wird bei Restart/BackToStart auf true gesetzt
 
     paused = false;   // Spiel Audio pausiert?
 
@@ -684,9 +685,12 @@ class World {
         try {
             if (!this.gameOverScreen) this.gameOverScreen = new GameOverScreen();
             this.gameOverScreen.attachDom('.stage'); // an Stage anhängen
+
             this.gameOverScreen.onTryAgain(() => {
                 try { this.stopAllGameOverAudio(); } catch (e) {}
-                if (window.restartNow) window.restartNow(); else window.location.reload();
+                if (window.restartNow) {
+                    window.restartNow();
+                }
             });
         } catch (e) {}
 
@@ -798,6 +802,9 @@ class World {
     }
 
     draw() {
+        // Hard-Stop für alte World-Instanzen (z.B. nach Restart ohne Reload)
+        if (this.destroyed) return;
+
         // Canvas löschen
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
@@ -1067,15 +1074,21 @@ class World {
     if (this.winnerScreen) {
         this.winnerScreen.show(); // spielt One-Shot + Audio, zeigt Buttons erst danach
         // Buttons (nach One-Shot):
+
         if (typeof this.winnerScreen.onRestartNow === 'function') {
         this.winnerScreen.onRestartNow(() => {
-            if (window.restartNow) window.restartNow(); else window.location.reload();
-        });
+                if (window.restartNow) {
+                    window.restartNow();
+                }
+            });
         }
+
         if (typeof this.winnerScreen.onBackToStart === 'function') {
         this.winnerScreen.onBackToStart(() => {
-            if (window.backToStart) window.backToStart(); else window.location.reload();
-        });
+                if (window.backToStart) {
+                    window.backToStart();
+                }
+            });
         }
     }
     try { this.pauseBgMusic(); } catch(e) {}
