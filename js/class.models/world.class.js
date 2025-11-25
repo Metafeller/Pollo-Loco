@@ -310,9 +310,20 @@ class World {
         // Normale Flasche (D)
         if (this.keyboard.D && this.bottlesCollected > 0) {
             const facingRight = true; // optional: this.character.otherDirection ? false : true;
-            let bottle = new ThrowableObject(this.character.x + 100, this.character.y + 80, facingRight);
+
+            // let bottle = new ThrowableObject(this.character.x + 100, this.character.y + 80, facingRight);
+
+            // NEU: World-Referenz mitgeben
+            let bottle = new ThrowableObject(
+                this.character.x + 100,
+                this.character.y + 80,
+                facingRight,
+                this          // <--- World-Instanz
+            );
+
             this.throwableObjects.push(bottle);
             this.bottlesCollected--;
+
             const pct = (this.bottlesCollected / this.maxBottles) * 100;
             this.bottleStatusBar.setPercentage(pct);
         }
@@ -1029,6 +1040,34 @@ class World {
             }
         } catch (e) {}
     }
+
+    /**
+     * Optional-Bonus:
+     * Wird von ThrowableObject.onGroundHit() aufgerufen,
+     * um verfehlte Flaschen wieder als "Pickup-Bottle" ins Level zu legen.
+     */
+    reuseBottleFromThrow(projectile) {
+        if (!projectile || !this.level) return;
+
+        const x = projectile.x;
+        const y = projectile.y;
+
+        try {
+            // Wurf-Projektil aus der Liste entfernen
+            this.throwableObjects = (this.throwableObjects || []).filter(p => p !== projectile);
+        } catch (e) {}
+
+        try {
+            // Sicherstellen, dass die Level-Bottle-Liste existiert
+            if (!Array.isArray(this.level.bottles)) {
+            this.level.bottles = [];
+            }
+
+            // Neue "normale" Bottle am Landepunkt platzieren
+            this.level.bottles.push(new Bottle(x, y));
+        } catch (e) {}
+    }
+
 
     /** Story: einmalig aktivieren, danach bis Boss-Tod sichtbar lassen */
     checkHutProximityAndStory() {
