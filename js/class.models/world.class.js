@@ -9,6 +9,10 @@ class World {
 
     paused = false;   // Spiel Audio pausiert?
 
+    // Kurzer Schutzzeitraum nach Spielstart, damit Pepe nicht direkt überrannt wird
+    START_GRACE_MS = 3000; // Dauer in Millisekunden (3 Sekunden)
+    gameStartedAt = 0;     // Zeitstempel des Spielstarts
+
     // ADD: Debug toggle
     DEBUG_FRAMES = false; // zum Testen true setzen, später false
 
@@ -158,6 +162,7 @@ class World {
         pauseBgMusic() {
         try { if (this.bgMusic && !this.bgMusic.paused) this.bgMusic.pause(); } catch(e) {}
         }
+
         resumeBgMusic() {
         try {
             if (!this.bgMusic) return;
@@ -167,11 +172,27 @@ class World {
         } catch(e) {}
     }
 
+        /**
+     * Prüft, ob wir uns noch im Start-Schutzfenster befinden.
+     * Während dieser Zeit werden Gegner-Kollisionen ignoriert,
+     * damit Pepe nicht direkt beim Spielstart überrannt wird.
+     */
+    isInStartGrace() {
+        if (this.gameOver || this.gameWon) return false;
+        if (!this.gameStartedAt || this.START_GRACE_MS <= 0) return false;
+
+        const now = performance.now();
+        return (now - this.gameStartedAt) < this.START_GRACE_MS;
+    }
+
     constructor(canvas, keyboard) {
         this.ctx = canvas.getContext('2d');
         this.canvas = canvas;
         this.keyboard = keyboard;
         this.enemyDeathAudio = new Audio('/audio/chicken-wing.mp3');
+
+        // Zeitpunkt des Spielstarts merken (für Start-Schutzfenster)
+        this.gameStartedAt = performance.now();
 
         // Level-Objekte referenzieren
         this.hutGate = this.level.hutGate || null;
@@ -402,6 +423,9 @@ class World {
     // }
 
     checkProjectileCollisions() {
+        // Zu Beginn: Projektile ignorieren, solange Start-Schutz aktiv ist
+        // if (this.isInStartGrace()) return;
+
         if (!Array.isArray(this.throwableObjects) || !this.level || !Array.isArray(this.level.enemies)) return;
 
         this.throwableObjects.forEach((proj, idx) => {
@@ -484,6 +508,9 @@ class World {
     }
 
     checkCollisions() {
+        // Während des Start-Schutzfensters keine Gegner-Kollisionen auswerten
+        if (this.isInStartGrace()) return;
+
         this.level.enemies.forEach((enemy) => {
             if (!enemy || enemy.dead === true) return;
 
