@@ -214,7 +214,7 @@ class Character extends MovableObject {
 
             // --- Aktiv, aber keine Sprünge/Hits → ggf. Walking ---
             if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
-                this.x += this.speed; // wie gehabt
+                // this.x += this.speed;
                 this.playAnimation(this.IMAGES_WALKING);
                 return;
             }
