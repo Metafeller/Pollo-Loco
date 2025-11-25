@@ -12,7 +12,7 @@ class Endboss extends MovableObject {
     returning = false;
     leashRadius = 500;    // Wie weit er maximal nach links jagt, bevor er RETURN macht / vorher 360
     sightRange = 520; // Wie früh er dich sieht (startet CHASE) / vorher 400
-    energy = 100;
+    energy = 150;
 
     // === INSERT: Rücklauf-Feintuning ===
     useRetreatOffset = true;   // true = nicht ganz bis startPosition zurück

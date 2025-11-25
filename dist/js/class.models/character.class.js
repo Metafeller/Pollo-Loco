@@ -214,7 +214,7 @@ class Character extends MovableObject {
 
             // --- Aktiv, aber keine Sprünge/Hits → ggf. Walking ---
             if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
-                this.x += this.speed; // wie gehabt
+                // this.x += this.speed;
                 this.playAnimation(this.IMAGES_WALKING);
                 return;
             }
@@ -229,7 +229,24 @@ class Character extends MovableObject {
     // === Eingaben prüfen (welche Tasten zählen als "aktiv") ===
     isControlActive() {
         const kb = this.world?.keyboard || {};
-        return !!(kb.RIGHT || kb.LEFT || kb.SPACE || kb.D || kb.F);
+
+        const hasBottles =
+        this.world &&
+        typeof this.world.bottlesCollected === 'number' &&
+        this.world.bottlesCollected > 0;
+
+        const hasWhiskey =
+        this.world &&
+        typeof this.world.whiskeyCount === 'number' &&
+        this.world.whiskeyCount > 0;
+
+        return !!(
+            kb.RIGHT || 
+            kb.LEFT || 
+            kb.SPACE || 
+            (kb.D && hasBottles) ||
+            (kb.F && hasWhiskey)
+        );
     }
 
     // === State-Wechsel ===

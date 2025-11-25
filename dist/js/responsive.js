@@ -72,11 +72,58 @@
     document.body.classList.toggle('is-landscape', isMobile && !isPortrait());
   }
 
+  // function applyRotateOverlay(){
+  //   const ov = ensureRotateOverlay();
+  //   const show = isMobile && isPortrait();
+  //   ov.classList.toggle('show', show);
+  // }
+
   function applyRotateOverlay(){
-    const ov = ensureRotateOverlay();
+    const ov   = ensureRotateOverlay();
     const show = isMobile && isPortrait();
+    const wasShown = ov.classList.contains('show');
+
+    // Klasse für Sichtbarkeit setzen
     ov.classList.toggle('show', show);
+
+    // Wenn sich nichts geändert hat → raus
+    if (show === wasShown) return;
+
+    const g = window;
+    g.__ROTATE_OVERLAY_VISIBLE__ = show;
+
+    // Gibt es überhaupt schon eine laufende World?
+    const hasWorld = (typeof world !== 'undefined') && !!world;
+
+    if (show) {
+      // Overlay ist gerade NEU sichtbar geworden → pausieren
+      // merken, ob das Spiel VORHER schon pausiert war
+      g.__ROTATE_PREV_WAS_PAUSED__ = hasWorld && !!world.paused;
+
+      if (hasWorld && !world.paused) {
+        // sauber über deine globale Pause-Funktion
+        if (typeof g.pauseGame === 'function') {
+          g.pauseGame();
+        } else if (typeof world.setPaused === 'function') {
+          world.setPaused(true);
+        }
+      }
+    } else {
+      // Overlay verschwindet
+      const wasPausedBefore = !!g.__ROTATE_PREV_WAS_PAUSED__;
+      g.__ROTATE_PREV_WAS_PAUSED__ = null;
+
+      // Nur automatisch fortsetzen, wenn das Spiel vorher NICHT pausiert war
+      if (hasWorld && world.paused && !wasPausedBefore) {
+        if (typeof g.resumeGame === 'function') {
+          g.resumeGame();
+        } else if (typeof world.setPaused === 'function') {
+          world.setPaused(false);
+        }
+      }
+    }
   }
+
 
   function dockUiBar(){
     uiBar = uiBar || $('#ui-bar');
@@ -209,6 +256,7 @@
     }
   }
 
+
   function installFullscreenWatch(){
     ['fullscreenchange','webkitfullscreenchange','msfullscreenchange'].forEach(ev=>{
       document.addEventListener(ev, ()=>{
@@ -219,6 +267,7 @@
       });
     });
   }
+
 
   function installPositionSync(){
     window.addEventListener('resize', onResizeOrient, {passive:true});
@@ -235,6 +284,31 @@
     window.addEventListener('mc:dock-ready', dockUiBar);
   }
 
+
+  /**
+   * Deaktiviert das Kontext-Menü im Spielfeld und auf Mobile-Control-Buttons.
+   * Verhindert Rechtsklick/Longpress-Menüs auf #stage, D-Pad und Action-Buttons.
+   */
+  function installTouchContextGuard() {
+    document.addEventListener(
+      'contextmenu',
+      function (event) {
+        const t = event.target;
+        if (!t) return;
+
+        const inStage  = t.closest && t.closest('#stage');
+        const inDpad   = t.closest && t.closest('.mc-dpad');
+        const inAction = t.closest && t.closest('.mc-actions');
+
+        if (inStage || inDpad || inAction) {
+          event.preventDefault();
+        }
+      },
+      true
+    );
+  }
+
+
   function onResizeOrient(){
     isMobile = detectMobile();
     setBodyFlags();
@@ -244,12 +318,15 @@
     syncCanvasOverlayBox();
   }
 
+
   window.addEventListener('load', onResizeOrient);
+
 
   document.addEventListener('DOMContentLoaded', ()=>{
   ensureCanvasOverlay();
   installFullscreenWatch();
   installPositionSync();
+  installTouchContextGuard();  // 🛡️ Kontext-Menü auf Mobile-Buttons deaktivieren
   onResizeOrient();
   setTimeout(syncCanvasOverlayBox, 50);
   setTimeout(syncCanvasOverlayBox, 250);
@@ -261,11 +338,13 @@
   }
 });
 
+
   document.addEventListener('visibilitychange', ()=>{
     if (document.visibilityState === 'visible') {
       setTimeout(syncCanvasOverlayBox, 50);
       setTimeout(syncCanvasOverlayBox, 250);
     }
   });
+
 
 })();

@@ -5,8 +5,13 @@ class World {
     ctx;
     keyboard;
     camera_x = 0;
+    destroyed = false; // wird bei Restart/BackToStart auf true gesetzt
 
     paused = false;   // Spiel Audio pausiert?
+
+    // Kurzer Schutzzeitraum nach Spielstart, damit Pepe nicht direkt überrannt wird
+    START_GRACE_MS = 3000; // Dauer in Millisekunden (3 Sekunden)
+    gameStartedAt = 0;     // Zeitstempel des Spielstarts
 
     // ADD: Debug toggle
     DEBUG_FRAMES = false; // zum Testen true setzen, später false
@@ -60,7 +65,7 @@ class World {
     goSplashShown   = false;     // NEU: Splash bereits gestartet?
 
     // One-Shots
-    painAudio = new Audio('/audio/kahba.mp3');
+    painAudio = new Audio('/audio/genervt.mp3');
     _painLock = false; // Anti-Spam
     // Sterbe-Sound (einmaliger One-Shot beim Spieler-Tod)
     playerDeathAudio = new Audio('/audio/man-screaming.mp3');
@@ -126,20 +131,38 @@ class World {
     }
 
     // ADD: BG music helpers
+    // startBgMusic() {
+    //     try {
+    //         if (!this.bgMusic) return;
+    //         this.bgMusic.loop = true;
+    //         this.bgMusic.volume = 0.28; // ~28%
+    //         if (this.bgMusic.paused) {
+    //         this.bgMusic.currentTime = 0;
+    //         this.bgMusic.play();
+    //         }
+    //     } catch(e) {}
+    //     }
+
+        /**
+     * Startet die leise Hintergrundmusik und respektiert den globalen Mute-Status.
+     */
     startBgMusic() {
         try {
             if (!this.bgMusic) return;
             this.bgMusic.loop = true;
             this.bgMusic.volume = 0.28; // ~28%
+            this.bgMusic.muted = !!window.IS_MUTED;
             if (this.bgMusic.paused) {
-            this.bgMusic.currentTime = 0;
-            this.bgMusic.play();
+                this.bgMusic.currentTime = 0;
+                this.bgMusic.play();
             }
-        } catch(e) {}
-        }
+        } catch (e) {}
+    }
+
         pauseBgMusic() {
         try { if (this.bgMusic && !this.bgMusic.paused) this.bgMusic.pause(); } catch(e) {}
         }
+
         resumeBgMusic() {
         try {
             if (!this.bgMusic) return;
@@ -149,11 +172,27 @@ class World {
         } catch(e) {}
     }
 
+        /**
+     * Prüft, ob wir uns noch im Start-Schutzfenster befinden.
+     * Während dieser Zeit werden Gegner-Kollisionen ignoriert,
+     * damit Pepe nicht direkt beim Spielstart überrannt wird.
+     */
+    isInStartGrace() {
+        if (this.gameOver || this.gameWon) return false;
+        if (!this.gameStartedAt || this.START_GRACE_MS <= 0) return false;
+
+        const now = performance.now();
+        return (now - this.gameStartedAt) < this.START_GRACE_MS;
+    }
+
     constructor(canvas, keyboard) {
         this.ctx = canvas.getContext('2d');
         this.canvas = canvas;
         this.keyboard = keyboard;
         this.enemyDeathAudio = new Audio('/audio/chicken-wing.mp3');
+
+        // Zeitpunkt des Spielstarts merken (für Start-Schutzfenster)
+        this.gameStartedAt = performance.now();
 
         // Level-Objekte referenzieren
         this.hutGate = this.level.hutGate || null;
@@ -292,9 +331,20 @@ class World {
         // Normale Flasche (D)
         if (this.keyboard.D && this.bottlesCollected > 0) {
             const facingRight = true; // optional: this.character.otherDirection ? false : true;
-            let bottle = new ThrowableObject(this.character.x + 100, this.character.y + 80, facingRight);
+
+            // let bottle = new ThrowableObject(this.character.x + 100, this.character.y + 80, facingRight);
+
+            // NEU: World-Referenz mitgeben
+            let bottle = new ThrowableObject(
+                this.character.x + 100,
+                this.character.y + 80,
+                facingRight,
+                this          // <--- World-Instanz
+            );
+
             this.throwableObjects.push(bottle);
             this.bottlesCollected--;
+
             const pct = (this.bottlesCollected / this.maxBottles) * 100;
             this.bottleStatusBar.setPercentage(pct);
         }
@@ -373,6 +423,9 @@ class World {
     // }
 
     checkProjectileCollisions() {
+        // Zu Beginn: Projektile ignorieren, solange Start-Schutz aktiv ist
+        // if (this.isInStartGrace()) return;
+
         if (!Array.isArray(this.throwableObjects) || !this.level || !Array.isArray(this.level.enemies)) return;
 
         this.throwableObjects.forEach((proj, idx) => {
@@ -455,6 +508,9 @@ class World {
     }
 
     checkCollisions() {
+        // Während des Start-Schutzfensters keine Gegner-Kollisionen auswerten
+        if (this.isInStartGrace()) return;
+
         this.level.enemies.forEach((enemy) => {
             if (!enemy || enemy.dead === true) return;
 
@@ -667,9 +723,12 @@ class World {
         try {
             if (!this.gameOverScreen) this.gameOverScreen = new GameOverScreen();
             this.gameOverScreen.attachDom('.stage'); // an Stage anhängen
+
             this.gameOverScreen.onTryAgain(() => {
                 try { this.stopAllGameOverAudio(); } catch (e) {}
-                if (window.restartNow) window.restartNow(); else window.location.reload();
+                if (window.restartNow) {
+                    window.restartNow();
+                }
             });
         } catch (e) {}
 
@@ -781,6 +840,9 @@ class World {
     }
 
     draw() {
+        // Hard-Stop für alte World-Instanzen (z.B. nach Restart ohne Reload)
+        if (this.destroyed) return;
+
         // Canvas löschen
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
@@ -1006,6 +1068,34 @@ class World {
         } catch (e) {}
     }
 
+    /**
+     * Optional-Bonus:
+     * Wird von ThrowableObject.onGroundHit() aufgerufen,
+     * um verfehlte Flaschen wieder als "Pickup-Bottle" ins Level zu legen.
+     */
+    reuseBottleFromThrow(projectile) {
+        if (!projectile || !this.level) return;
+
+        const x = projectile.x;
+        const y = projectile.y;
+
+        try {
+            // Wurf-Projektil aus der Liste entfernen
+            this.throwableObjects = (this.throwableObjects || []).filter(p => p !== projectile);
+        } catch (e) {}
+
+        try {
+            // Sicherstellen, dass die Level-Bottle-Liste existiert
+            if (!Array.isArray(this.level.bottles)) {
+            this.level.bottles = [];
+            }
+
+            // Neue "normale" Bottle am Landepunkt platzieren
+            this.level.bottles.push(new Bottle(x, y));
+        } catch (e) {}
+    }
+
+
     /** Story: einmalig aktivieren, danach bis Boss-Tod sichtbar lassen */
     checkHutProximityAndStory() {
         if (!this.hutGate || !this.hutStory) return;
@@ -1050,15 +1140,21 @@ class World {
     if (this.winnerScreen) {
         this.winnerScreen.show(); // spielt One-Shot + Audio, zeigt Buttons erst danach
         // Buttons (nach One-Shot):
+
         if (typeof this.winnerScreen.onRestartNow === 'function') {
         this.winnerScreen.onRestartNow(() => {
-            if (window.restartNow) window.restartNow(); else window.location.reload();
-        });
+                if (window.restartNow) {
+                    window.restartNow();
+                }
+            });
         }
+
         if (typeof this.winnerScreen.onBackToStart === 'function') {
         this.winnerScreen.onBackToStart(() => {
-            if (window.backToStart) window.backToStart(); else window.location.reload();
-        });
+                if (window.backToStart) {
+                    window.backToStart();
+                }
+            });
         }
     }
     try { this.pauseBgMusic(); } catch(e) {}
