@@ -407,7 +407,7 @@ html, body { overflow:hidden; } /* Single Page: keine Seiten-Scrollbars */
 .overlay h2{ 
   margin:14px 16px;
   font-family: 'Courier New', Courier, monospace; 
-  font-size:32px; 
+  font-size:20px;
 }
 
 .to-top-in{ 
@@ -470,12 +470,22 @@ html, body { overflow:hidden; } /* Single Page: keine Seiten-Scrollbars */
         /* display: none; */
         /* font-size: 32px; */
         padding-top: 32px;
-        font-size: 48px;
+        font-size: 40px;
+    }
+
+    .footer-bar{
+      display: flex;
+      flex-direction: column-reverse;
+      gap: 8px;
     }
 
     .foot-left,.foot-mid,.foot-right{ 
-      font-size: 12px; 
+      font-size: 16px; 
       letter-spacing: 1px;
+    }
+
+    .foot-left {
+      display: none;
     }
 }
 
