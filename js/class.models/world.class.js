@@ -21,6 +21,12 @@ class World {
     endbossStatusBar = new EndbossStatusBar();
     endbossInSight = false;
 
+    // We're in the Endgame Now! Timer-Mechanik
+    endbossTimerId = null;
+    endbossTimerActive = false;
+    endbossTimerSeconds = 0;
+    ENDBOSS_TIMEOUT_SECONDS = 60;
+
     // ADD: Background music (low volume ambience)
     bgMusic = new Audio('/audio/cajon-bonus-lvl_3.mp3'); // lege diese Datei ins /audio
 
@@ -311,6 +317,10 @@ class World {
             if (endboss) {
                 endboss.updateAI(this.character?.x || 0);
                 this.endbossInSight = (endboss.aiState === 'CHASE');
+
+                if (this.endbossInSight) {
+                this.startEndbossTimer();
+                }
             }
 
             // ADD: BG music follow state
@@ -644,6 +654,8 @@ class World {
         if (this.gameOver) return;
         this.gameOver = true;
 
+        this.stopEndbossTimer();
+
         // Schritt-Sounds stoppen
         try {
             this.character.walking_sound.pause();
@@ -839,6 +851,48 @@ class World {
         this.gameOverScreen.showButton();
     }
 
+
+    /**
+    * Bestimmt die Farbe des Endboss-Timers (weiß oder blinkend rot).
+    */
+    getEndbossTimerColor(now, seconds) {
+        if (seconds > 10) return '#ffffff';
+        const blinkOn = (Math.floor(now / 250) % 2) === 0;
+        return blinkOn ? '#ff3333' : '#ffffff';
+    }
+
+
+    /**
+     * Zeichnet den Endboss-Countdown mittig oben im Canvas.
+     * Letzte 10 Sekunden blinken rot für mehr Dramatik.
+     */
+    drawEndbossTimer(ctx, canvas, now) {
+        if (!this.endbossTimerActive || !canvas) return;
+
+        const seconds = Math.max(0, this.endbossTimerSeconds);
+        const cx = canvas.width / 2;
+        const cy = 40;
+
+        ctx.save();
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.font = '32px sans-serif';
+
+        const w = 96;
+        const h = 48;
+        const x = cx - w / 2;
+        const y = cy - h / 2;
+
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+        ctx.fillRect(x, y, w, h);
+
+        ctx.fillStyle = this.getEndbossTimerColor(now, seconds);
+        ctx.fillText(String(seconds), cx, cy);
+
+        ctx.restore();
+    }
+
+
     draw() {
         // Hard-Stop für alte World-Instanzen (z.B. nach Restart ohne Reload)
         if (this.destroyed) return;
@@ -923,6 +977,8 @@ class World {
         this.addToMap(this.whiskeyCounter);
         if (this.endbossInSight) this.addToMap(this.endbossStatusBar);
 
+        this.drawEndbossTimer(this.ctx, this.canvas, now);
+
         // Winner-Overlay
         if (this.winnerScreen && this.winnerScreen.visible) {
             this.winnerScreen.drawOverlay(this.ctx, this.canvas);
@@ -940,6 +996,7 @@ class World {
         let self = this;
         requestAnimationFrame(function() { self.draw(); });
     }
+
 
     /**
  * True, wenn Pepe den Gegner VON OBEN trifft (Stomp).
@@ -1096,6 +1153,87 @@ class World {
     }
 
 
+        /**
+     * Liefert den aktuellen lebenden Endboss.
+     * @returns {object|null} Endboss oder null.
+     */
+    getCurrentEndboss() {
+        const enemies = this.level?.enemies || [];
+        const boss = enemies.find(e => e instanceof Endboss && !e.dead);
+        return boss || null;
+    }
+
+
+    /**
+     * Startet den Endboss-Countdown, wenn der Kampf beginnt.
+     */
+    startEndbossTimer() {
+        if (this.endbossTimerActive) return;
+        const boss = this.getCurrentEndboss();
+        if (!boss) return;
+
+        this.endbossTimerActive = true;
+        this.endbossTimerSeconds = this.ENDBOSS_TIMEOUT_SECONDS;
+
+        this.endbossTimerId = setInterval(() => {
+            this.tickEndbossTimer();
+        }, 1000);
+    }
+
+
+    /**
+     * Verarbeitet jeden Tick des Endboss-Timers.
+     */
+    tickEndbossTimer() {
+        if (!this.endbossTimerActive) return;
+
+        if (this.gameOver || this.gameWon) {
+            this.stopEndbossTimer();
+            return;
+        }
+
+        const boss = this.getCurrentEndboss();
+        if (!boss || boss.energy <= 0 || this.character.energy <= 0) {
+            this.stopEndbossTimer();
+            return;
+        }
+
+        this.endbossTimerSeconds -= 1;
+
+        if (this.endbossTimerSeconds <= 0) {
+            this.handleEndbossTimeout();
+        }
+    }
+
+
+    /**
+     * Stoppt den Endboss-Timer und räumt das Interval auf.
+     */
+    stopEndbossTimer() {
+        if (this.endbossTimerId) {
+            clearInterval(this.endbossTimerId);
+            this.endbossTimerId = null;
+        }
+
+        this.endbossTimerActive = false;
+        this.endbossTimerSeconds = 0;
+    }
+
+
+    /**
+     * Löst die Niederlage aus, wenn die Boss-Zeit abgelaufen ist.
+     */
+    handleEndbossTimeout() {
+        this.stopEndbossTimer();
+
+        if (this.gameOver || this.gameWon) return;
+
+        this.character.energy = 0;
+        this.statusBar.setPercentage(this.character.energy);
+        this.onPlayerDeath();
+    }
+
+
     /** Story: einmalig aktivieren, danach bis Boss-Tod sichtbar lassen */
     checkHutProximityAndStory() {
         if (!this.hutGate || !this.hutStory) return;
@@ -1163,6 +1301,8 @@ class World {
     onEndbossDeath(endboss) {
         this.endbossInSight = false;
         if (endboss) endboss.isInSight = false;
+
+        this.stopEndbossTimer();
 
         try { this.stopAmbienceLoop(); } catch (e) {}
         try {

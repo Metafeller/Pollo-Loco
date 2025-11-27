@@ -22,8 +22,10 @@ class Endboss extends MovableObject {
     minX = 0;
 
     inAggroMode = false;
-    baseSpeed = 0.5; // vroher 0.3
-    aggroSpeed = 2.0; // vorher 0.6
+    baseSpeed = 0.5;          // Basis-Speed, wenn nicht im Kampf
+    aggroSpeed = 3.0;         // Aggro-Speed: spürbar schneller als Pepe (bei Bedarf feinjustieren)
+    permanentChase = true;    // true = Boss verfolgt dauerhaft, kein automatisches RETURN
+    targetX = null;           // letzte bekannte X-Position von Pepe
     isDying = false;
 
     IMAGES_WALKING = [
@@ -77,6 +79,7 @@ class Endboss extends MovableObject {
         this.animate();
     }
 
+
     clampX() {
         // Failsafe: falls x kein Zahlwert ist (z.B. durch Bug), auf 0 u/o Ziel setzen
         if (!Number.isFinite(this.x)) {
@@ -87,6 +90,7 @@ class Endboss extends MovableObject {
         if (this.x < this.minX) this.x = this.minX;
     }
 
+
     // === INSERT: Ziel für den RETURN-State berechnen ===
     getReturnTargetX() {
         const target = this.useRetreatOffset
@@ -95,6 +99,7 @@ class Endboss extends MovableObject {
         return Math.max(this.minX, target);
     }
 
+
     // === REPLACE: snapToStart() ===
     snapToStart() {
         this.x = this.getReturnTargetX();
@@ -102,8 +107,10 @@ class Endboss extends MovableObject {
         this.aiState = 'IDLE';
     }
 
+
     moveLeft()  { this.x -= this.speed; this.clampX(); }
     moveRight() { this.x += this.speed; this.clampX(); }
+
 
     enterAggro() {
         if (this.inAggroMode) return;
@@ -111,29 +118,68 @@ class Endboss extends MovableObject {
         this.speed = Math.max(this.speed, this.aggroSpeed);
     }
 
+
     /** Von world.run() 1–5x/s aufrufen, um Ping-Pong zu vermeiden */
+    // updateAI(characterX) {
+    //     if (this.dead || this.isDying) return;
+
+    //     const inSight = (characterX > this.x - this.sightRange);
+
+    //     // State-Wechsel:
+    //     if (this.aiState === 'IDLE' && inSight) {
+    //         this.aiState = 'CHASE';
+    //     }
+
+    //     // Wenn wir im RETURN sind, ignorieren wir inSight bis Start erreicht
+    //     if (this.aiState === 'RETURN') return;
+
+    //     // Leash-Limit erreicht? → RETURN
+    //     const leftLimit = this.startPosition - this.leashRadius;
+    //     if (this.aiState === 'CHASE' && this.x <= leftLimit) {
+    //         this.aiState = 'RETURN';
+    //         this.returning = true;
+    //     }
+
+    //     this.isInSight = (this.aiState === 'CHASE'); // für StatusBar
+    // }
+
+
+    /**
+     * Aktualisiert den KI-State in Abhängigkeit von Pepes X-Position.
+     * Wird von world.run() mehrmals pro Sekunde aufgerufen.
+     */
     updateAI(characterX) {
         if (this.dead || this.isDying) return;
 
-        const inSight = (characterX > this.x - this.sightRange);
+        this.targetX = characterX;
 
-        // State-Wechsel:
+        const inSight = (characterX > this.x - this.sightRange);
         if (this.aiState === 'IDLE' && inSight) {
             this.aiState = 'CHASE';
+            this.enterAggro(); // sofort in Aggro-Speed wechseln
         }
 
-        // Wenn wir im RETURN sind, ignorieren wir inSight bis Start erreicht
-        if (this.aiState === 'RETURN') return;
-
-        // Leash-Limit erreicht? → RETURN
-        const leftLimit = this.startPosition - this.leashRadius;
-        if (this.aiState === 'CHASE' && this.x <= leftLimit) {
-            this.aiState = 'RETURN';
-            this.returning = true;
+        if (!this.permanentChase) {
+            this.applyLeash();
         }
 
         this.isInSight = (this.aiState === 'CHASE'); // für StatusBar
     }
+
+
+    /**
+     * Begrenzt die Verfolgung nach links, falls permanentChase deaktiviert ist.
+     */
+    applyLeash() {
+        if (this.aiState !== 'CHASE') return;
+
+        const leftLimit = this.startPosition - this.leashRadius;
+        if (this.x <= leftLimit) {
+            this.aiState = 'RETURN';
+            this.returning = true;
+        }
+    }
+
 
     hit() {
         this.energy -= 20;
@@ -149,6 +195,7 @@ class Endboss extends MovableObject {
         }
     }
 
+
     ensureCorrectLanding() {
         setInterval(() => {
             if (this.y > 60) {
@@ -158,11 +205,13 @@ class Endboss extends MovableObject {
         }, 1000 / 60);
     }
 
+
     playAnimation(images, speedFactor = 4) {
         let i = Math.floor(this.currentImage / speedFactor) % images.length;
         this.img = this.imageCache[images[i]];
         this.currentImage++;
     }
+
 
     activateHurtAnimation() {
         this.isHurtAnimation = true;
@@ -174,6 +223,7 @@ class Endboss extends MovableObject {
             this.loadImages(this.IMAGES_WALKING);
         }, 1000);
     }
+
 
     die() {
         clearTimeout(this.hurtTimeout);
@@ -203,10 +253,12 @@ class Endboss extends MovableObject {
         }, 180);
     }
 
+
     endHurtAnimation() {
         this.isHurtAnimation = false;
         this.y = 60;
     }
+
 
     // === REPLACE: returnToStart() ===
     returnToStart() {
@@ -232,13 +284,48 @@ class Endboss extends MovableObject {
         this.playAnimation(this.IMAGES_WALKING);
     }
 
+
+    // animate() {
+    //     setInterval(() => {
+    //         if (this.dead || this.isDying) return;
+
+    //         if (this.aiState === 'CHASE' && !this.isHurtAnimation) {
+    //             this.moveLeft();
+    //             this.otherDirection = false;
+    //             const frames = this.inAggroMode ? this.IMAGES_ALERT : this.IMAGES_WALKING;
+    //             this.playAnimation(frames);
+
+    //         } else if (this.aiState === 'RETURN' && !this.isHurtAnimation) {
+    //             this.returnToStart();
+
+    //         } else if (this.isHurtAnimation) {
+    //             this.playAnimation(this.IMAGES_HURT);
+    //         }
+
+    //         this.clampX();
+    //     }, 1000 / 60);
+    // }
+
     animate() {
         setInterval(() => {
             if (this.dead || this.isDying) return;
 
             if (this.aiState === 'CHASE' && !this.isHurtAnimation) {
-                this.moveLeft();
-                this.otherDirection = false;
+                const target = (typeof this.targetX === 'number') ? this.targetX : this.x;
+                const dx = target - this.x;
+                const absDx = Math.abs(dx);
+
+                // Nur bewegen, wenn noch Abstand vorhanden ist (kein Jitter bei minimaler Distanz)
+                if (absDx > 5) {
+                    if (dx < 0) {
+                        this.moveLeft();
+                        this.otherDirection = false; // Blick nach links
+                    } else {
+                        this.moveRight();
+                        this.otherDirection = true;  // Blick nach rechts
+                    }
+                }
+
                 const frames = this.inAggroMode ? this.IMAGES_ALERT : this.IMAGES_WALKING;
                 this.playAnimation(frames);
 
@@ -252,4 +339,5 @@ class Endboss extends MovableObject {
             this.clampX();
         }, 1000 / 60);
     }
+
 }

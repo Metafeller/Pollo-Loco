@@ -39,7 +39,7 @@ function buildLevel1() {
         [
             ...chickensDistributed,
             ...minisDistributed,
-            new Endboss(6666)
+            new Endboss(6800)
         ],
 
         [
@@ -128,7 +128,8 @@ function buildLevel1() {
             new Bottle(3400, 350),
             new Bottle(4000, 390),
             new Bottle(4600, 390),
-            new Bottle(5900, 320),
+            new Bottle(5400, 320),
+            new Bottle(5900, 400),
             new Bottle(6000, 360)
         ],
 
