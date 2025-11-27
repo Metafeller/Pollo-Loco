@@ -102,24 +102,92 @@ function bootApp() {
 
 // === World-Reset ohne Page-Reload ==================================
 
+// function shutdownWorld() {
+//     if (!world) return;
+
+//     try { world.setPaused(true); } catch (e) {}
+//     try { world.stopAllGameOverAudio(); } catch (e) {}
+//     try { world.pauseBgMusic(); } catch (e) {}
+
+//     // 🔥 WICHTIG: GameOver-/Winner-Overlays sauber zurücksetzen
+//     try {
+//         if (world.gameOverScreen) {
+//             world.gameOverScreen.visible = false;
+
+//           // NEU: DOM-Button wirklich verstecken
+//             if (typeof world.gameOverScreen.hideButton === 'function') {
+//                 world.gameOverScreen.hideButton();
+//             }
+//         }
+          
+//         if (world.winnerScreen) {
+//             // WinnerScreen hat eine eigene hide()-Methode
+//             if (typeof world.winnerScreen.hide === 'function') {
+//                 world.winnerScreen.hide();
+//             } else {
+//                 world.winnerScreen.visible = false;
+//             }
+//         }
+          
+//         world.gameOver = false;
+//         world.gameWon  = false;
+//     } catch (e) {}
+
+//     // Draw-Loop dieser Instanz hart stoppen
+//     world.destroyed = true;
+// }
+
 function shutdownWorld() {
     if (!world) return;
 
+    // 1) Logik pausieren, damit keine weitere Spiel-Loop aktiv ist
     try { world.setPaused(true); } catch (e) {}
-    try { world.stopAllGameOverAudio(); } catch (e) {}
-    try { world.pauseBgMusic(); } catch (e) {}
 
-    // 🔥 WICHTIG: GameOver-/Winner-Overlays sauber zurücksetzen
+    // 2) Story-/Boss-Umgebung stoppen (kein "Help / What are you doing" im Startscreen)
+    try {
+        if (world.hutStory && typeof world.hutStory.deactivate === 'function') {
+            world.hutStory.deactivate();
+        }
+    } catch (e) {}
+
+    // Endboss-Countdown + Ambience hart aus
+    try {
+        if (typeof world.stopEndbossTimer === 'function') {
+            world.stopEndbossTimer();
+        }
+    } catch (e) {}
+
+    try {
+        if (typeof world.stopAmbienceLoop === 'function') {
+            world.stopAmbienceLoop();
+        }
+    } catch (e) {}
+
+    // 3) Alle World-Audios (Boss, Story, GO/Win, BG, Steps …) sauber stoppen & zurücksetzen
+    try {
+        if (typeof world.resetAllAudios === 'function') {
+            world.resetAllAudios();
+        } else {
+            if (typeof world.stopAllGameOverAudio === 'function') {
+                world.stopAllGameOverAudio();
+            }
+            if (typeof world.pauseBgMusic === 'function') {
+                world.pauseBgMusic();
+            }
+        }
+    } catch (e) {}
+
+    // 4) GameOver-/Winner-Overlays sauber zurücksetzen
     try {
         if (world.gameOverScreen) {
             world.gameOverScreen.visible = false;
 
-          // NEU: DOM-Button wirklich verstecken
+            // NEU: DOM-Button wirklich verstecken
             if (typeof world.gameOverScreen.hideButton === 'function') {
                 world.gameOverScreen.hideButton();
             }
         }
-          
+
         if (world.winnerScreen) {
             // WinnerScreen hat eine eigene hide()-Methode
             if (typeof world.winnerScreen.hide === 'function') {
@@ -128,12 +196,12 @@ function shutdownWorld() {
                 world.winnerScreen.visible = false;
             }
         }
-          
+
         world.gameOver = false;
         world.gameWon  = false;
     } catch (e) {}
 
-    // Draw-Loop dieser Instanz hart stoppen
+    // 5) Draw-Loop dieser Instanz hart stoppen
     world.destroyed = true;
 }
 

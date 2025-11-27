@@ -732,17 +732,39 @@ class World {
         } catch (e) {}
 
         // Overlay-Objekt + TryAgain Hook
+        // try {
+        //     if (!this.gameOverScreen) this.gameOverScreen = new GameOverScreen();
+        //     this.gameOverScreen.attachDom('.stage'); // an Stage anhängen
+
+        //     this.gameOverScreen.onTryAgain(() => {
+        //         try { this.stopAllGameOverAudio(); } catch (e) {}
+        //         if (window.restartNow) {
+        //             window.restartNow();
+        //         }
+        //     });
+        // } catch (e) {}
+
+
         try {
             if (!this.gameOverScreen) this.gameOverScreen = new GameOverScreen();
             this.gameOverScreen.attachDom('.stage'); // an Stage anhängen
 
             this.gameOverScreen.onTryAgain(() => {
-                try { this.stopAllGameOverAudio(); } catch (e) {}
+                // Hard-Reset aller World-Audios (kein Doppel-/Leck-Sound)
+                try {
+                    if (typeof this.resetAllAudios === 'function') {
+                        this.resetAllAudios();
+                    } else if (typeof this.stopAllGameOverAudio === 'function') {
+                        this.stopAllGameOverAudio();
+                    }
+                } catch (e) {}
+
                 if (window.restartNow) {
                     window.restartNow();
                 }
             });
         } catch (e) {}
+
 
         // Sequencer starten
         this.goT0 = performance.now();
@@ -1413,21 +1435,34 @@ class World {
         return Array.from(bag);
     }
 
-        /** Pause / Resume: frieren & auftauen */
-        setPaused(flag) {
-        if (flag === this.paused) return;
-        this.paused = !!flag;
+    // === NEU: alle World-Audios hart stoppen (für Restart / BackToStart) ===
+    resetAllAudios() {
+        try {
+            const audios = this.getAllAudiosDeep();
+            audios.forEach((a) => {
+                try {
+                    a.pause();
+                    a.currentTime = 0;
+                } catch (e) {}
+            });
+        } catch (e) {}
+    }
 
-        if (this.paused) {
-            this.freezeWorld();
-            // alle aktuell spielenden Audios pausieren (kein Stop -> kein currentTime Reset)
-            try { this.getAllAudiosDeep().forEach(a => { try { a.pause(); } catch(e){} }); } catch(e){}
-        } else {
-            this.unfreezeWorld();
-            // nur die BG-Musik ggf. wieder anlaufen lassen
-            try { if (!this.endbossInSight && !this.gameOver && !this.gameWon && !this.bgMusic.muted) this.bgMusic.play(); } catch(e){}
-        }
-        }
+    /** Pause / Resume: frieren & auftauen */
+    setPaused(flag) {
+            if (flag === this.paused) return;
+            this.paused = !!flag;
+
+            if (this.paused) {
+                this.freezeWorld();
+                // alle aktuell spielenden Audios pausieren (kein Stop -> kein currentTime Reset)
+                try { this.getAllAudiosDeep().forEach(a => { try { a.pause(); } catch(e){} }); } catch(e){}
+            } else {
+                this.unfreezeWorld();
+                // nur die BG-Musik ggf. wieder anlaufen lassen
+                try { if (!this.endbossInSight && !this.gameOver && !this.gameWon && !this.bgMusic.muted) this.bgMusic.play(); } catch(e){}
+            }
+    }
 
         /** Methoden sichern & auf no-op patchen */
         freezeWorld() {
