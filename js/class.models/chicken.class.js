@@ -4,15 +4,18 @@ class Chicken extends MovableObject {
     width = 80;
     energy = 10;  // Lebenspunkte, können je nach Bedarf angepasst werden
 
+
     IMAGES_WALKING = [
         '/img/3_enemies_chicken/chicken_normal/1_walk/1_w.png',
         '/img/3_enemies_chicken/chicken_normal/1_walk/2_w.png',
         '/img/3_enemies_chicken/chicken_normal/1_walk/3_w.png'
     ];
 
+
     IMAGES_DEAD = [
         '/img/3_enemies_chicken/chicken_normal/2_dead/dead.png'
     ];
+
 
     constructor(x = null) {
         super().loadImage(this.IMAGES_WALKING[0]);
@@ -23,19 +26,30 @@ class Chicken extends MovableObject {
         this.x = (typeof x === 'number') ? x : (4200 + Math.random() * 700);
         this.speed = 0.15 + Math.random() * 0.5;
 
+        // Treff-Hitbox etwas kleiner als das Bild, damit kein „Luftschaden“ entsteht.
+        this.offset = {
+            left:   12,
+            right:  12,
+            top:    20,
+            bottom: 8
+        };
+
         this.animate();
     }
+
 
     hit() {
         this.energy = 0;
         this.die();
     }
 
+
     die() {
         this.dead = true; // block animations & collisions
         this.speed = 0;   // Stoppe die Bewegung nach dem Tod
         this.loadImage(this.IMAGES_DEAD[0]);
     }
+
 
     animate() {
         setInterval(() => {
@@ -46,4 +60,6 @@ class Chicken extends MovableObject {
             this.playAnimation(this.IMAGES_WALKING);
         }, 200);
     }
+
+    
 }

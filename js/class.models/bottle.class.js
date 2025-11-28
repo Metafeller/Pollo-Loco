@@ -5,5 +5,13 @@ class Bottle extends MovableObject {
         this.y = y;
         this.width = 70;
         this.height = 60;
+
+         // Pickup-Hitbox etwas enger, damit die Flasche nicht „aus der Luft“ eingesammelt wird.
+        this.offset = {
+            left:   40, // vorher 10
+            right:  40, // vorher 10
+            top:    8,
+            bottom: 6
+        };
     }
 }

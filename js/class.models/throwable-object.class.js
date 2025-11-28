@@ -64,6 +64,14 @@ class ThrowableObject extends MovableObject {
     this.hasHit = false;      // Kollision mit Gegner?
     this.done = false;        // World benutzt das, um aufzuräumen
 
+    // Kollision nur im sichtbaren Flaschenkörper
+    this.offset = {
+        left:   10, // vorher 10
+        right:  10, // vorher 10
+        top:    8,
+        bottom: 8
+    };
+
     this.applyGravity();
     this.startThrow();
     this.startSpin();

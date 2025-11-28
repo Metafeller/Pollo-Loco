@@ -16,6 +16,10 @@ class Character extends MovableObject {
     invulnerable = false;  // Unverwundbarkeits-Status
     invulnerabilityDuration = 900;  // Dauer der Unverwundbarkeit in Millisekunden / Vorher 1500
 
+    // === Jump-Anim-State (einmal pro Sprung) ===
+    jumpInProgress = false;
+    jumpFrameIndex = 0;
+
     // === NEU: Idle Frames ===
     IMAGES_IDLE = [
         '/img/2_character_pepe/1_idle/idle/I-1.png',
@@ -183,7 +187,7 @@ class Character extends MovableObject {
             // Spielzustände zuerst
             if (this.world?.gameOver) return;
             if (this.world?.gameWon)  return;
-            if (this.world?.paused) return;
+            if (this.world?.paused)   return;
 
             // Prioritäten: Dead > Hurt > Jump > Snore > Idle > Walk > Fallback
             if (this.isDead()) {
@@ -196,8 +200,16 @@ class Character extends MovableObject {
                 return;
             }
 
-            if (this.isAboveGround()) {
-                this.playAnimation(this.IMAGES_JUMPING);
+            const aboveGround = this.isAboveGround();
+
+            // Wieder am Boden → Jump-Anim zurücksetzen
+            if (!aboveGround && this.jumpInProgress) {
+                this.resetJumpAnimation();
+            }
+
+            // In der Luft → Jump-Anim, aber nur einmal durchlaufen
+            if (aboveGround) {
+                this.playJumpAnimation();
                 return;
             }
 
@@ -214,7 +226,6 @@ class Character extends MovableObject {
 
             // --- Aktiv, aber keine Sprünge/Hits → ggf. Walking ---
             if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
-                // this.x += this.speed;
                 this.playAnimation(this.IMAGES_WALKING);
                 return;
             }
@@ -222,7 +233,6 @@ class Character extends MovableObject {
             // --- Fallback ---
             this.playAnimation(this.IMAGES_IDLE);
         }, 50);
-
 
     }
 
@@ -323,8 +333,41 @@ class Character extends MovableObject {
 
 
     jump() {
+        // Safety: kein Doppelsprung in der Luft
+        if (this.isAboveGround()) return;
+
         this.speedY = 25;
+        this.resetJumpAnimation();
+        this.jumpInProgress = true;
     }
+
+
+        resetJumpAnimation() {
+        this.jumpInProgress = false;
+        this.jumpFrameIndex = 0;
+    }
+
+    
+    playJumpAnimation() {
+        const frames = this.IMAGES_JUMPING;
+        if (!Array.isArray(frames) || frames.length === 0) return;
+
+        if (!this.jumpInProgress) {
+            this.jumpInProgress = true;
+            this.jumpFrameIndex = 0;
+        }
+
+        const idx = Math.min(this.jumpFrameIndex, frames.length - 1);
+        const path = frames[idx];
+        const img = this.imageCache[path];
+
+        if (img) this.img = img;
+
+        if (this.jumpFrameIndex < frames.length - 1) {
+            this.jumpFrameIndex++;
+        }
+    }
+
 
     // Unverwundbarkeit kurz aktivieren
     makeInvulnerable() {

@@ -14,7 +14,7 @@ class World {
     gameStartedAt = 0;     // Zeitstempel des Spielstarts
 
     // ADD: Debug toggle
-    DEBUG_FRAMES = false; // zum Testen true setzen, später false
+    DEBUG_FRAMES = true; // zum Testen true setzen, später false
 
     statusBar = new StatusBar();
     bottleStatusBar = new BottleStatusBar();
@@ -1035,13 +1035,19 @@ class World {
         const ca = this.character.getBounds();
         const eb = (typeof enemy.getBounds === 'function')
             ? enemy.getBounds()
-            : { left:enemy.x, top:enemy.y, right:enemy.x + enemy.width, bottom:enemy.y + enemy.height };
+            : { 
+                left:enemy.x, 
+                top:enemy.y, 
+                right:enemy.x + enemy.width, 
+                bottom:enemy.y + enemy.height 
+            };
 
         // 3) Fuß-Zone (etwas breiter & deutlich höher)
         const charH   = Math.max(1, ca.bottom - ca.top);
-        const footH   = Math.max(28, Math.floor(charH * 0.42)); // vorher ~0.33
-        const footL   = ca.left + 10;
-        const footR   = ca.right - 10;
+        const footH   = Math.max(32, Math.floor(charH * 0.42)); // vorher 28, * 0.42
+        const marginX = 6;                                       // vorher 10
+        const footL   = ca.left + marginX;
+        const footR   = ca.right - marginX;
         const footTop = ca.bottom - footH;
         const footBot = ca.bottom;
 
@@ -1049,16 +1055,20 @@ class World {
         const overlapY = footTop < eb.bottom && footBot > eb.top;
         if (!(overlapX && overlapY)) return false;
 
-        // 4) Vertikale Gating: kam von oben ODER nur flach eingedrungen
-        const prevY       = (typeof this.character.prevY === 'number') ? this.character.prevY : this.character.y;
+        // 4) === Vertikale Herkunft: wirklich von oben gekommen? ===
+        const prevY       = (typeof this.character.prevY === 'number') 
+            ? this.character.prevY 
+            : this.character.y;
         const prevBottom  = prevY + this.character.height - (this.character.offset?.bottom || 0);
         const nowBottom   = ca.bottom;
 
-        const cameFromAbove    = prevBottom <= eb.top + 18;   // vorher strenger
-        const shallowPenetrate = (nowBottom - eb.top) <= 26;  // kleine Eindringtiefe zählt als Stomp
+        // Mehr Toleranz: auch wenn Pepe schon minimal „drinsteckt“, zählt es als Stomp
+        const cameFromAbove    = prevBottom <= eb.top + 26;   // vorher strenger 18
+        const shallowPenetrate = (nowBottom - eb.top) <= 34;  // kleine Eindringtiefe zählt als Stomp vorher 26
 
         return cameFromAbove || shallowPenetrate;
     }
+
 
     addObjectsToMap(objects) {
         if (!Array.isArray(objects) || objects.length === 0) return;
@@ -1075,24 +1085,37 @@ class World {
         if (mo.otherDirection) this.flipImageBack(mo); // ← erst zurückflippen
 
         if (this.DEBUG_FRAMES && typeof mo.drawFrame === 'function') {
-            // Nur Gameplay-Objekte debuggen (keine Backgrounds/Clouds)
+        // Nur Gameplay-Objekte debuggen (keine Backgrounds/Clouds)
             const show =
-            (mo === this.character) || (mo instanceof Chicken) || (mo instanceof MiniChicken) ||
-            (mo instanceof Endboss) || (mo instanceof ThrowableObject) || (mo instanceof Gravestone);
-            (mo instanceof HutGate) || (mo instanceof StoryBillboard);
+                (mo === this.character) ||
+                (mo instanceof Chicken) ||
+                (mo instanceof MiniChicken) ||
+                (mo instanceof Endboss) ||
+                (mo instanceof ThrowableObject) ||
+                (mo instanceof Gravestone) ||
+                (mo instanceof HutGate) ||
+                (mo instanceof StoryBillboard) ||
+                (mo instanceof Coin) ||
+                (mo instanceof Bottle) ||
+                (mo instanceof WhiskeyPickup) ||
+                (mo instanceof HeartPickup);
+
             if (show) mo.drawFrame(this.ctx);
         }
 
         if (this.DEBUG_FRAMES && mo === this.character) {
             const ca = this.character.getBounds();
-            const charH = Math.max(1, ca.bottom - ca.top);
-            const footH = Math.max(28, Math.floor(charH * 0.42));
+            const charH   = Math.max(1, ca.bottom - ca.top);
+            const footH   = Math.max(32, Math.floor(charH * 0.52)); // wie in didStompEnemy
+            const marginX = 6;
+
             const footRect = {
-                x: ca.left + 10,
+                x: ca.left + marginX,
                 y: ca.bottom - footH,
-                w: (ca.right - ca.left) - 20,
+                w: (ca.right - ca.left) - marginX * 2,
                 h: footH
             };
+
             this.ctx.save();
             this.ctx.setLineDash([6,4]);
             this.ctx.lineWidth = 2;
