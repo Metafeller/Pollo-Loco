@@ -25,7 +25,7 @@ class World {
     endbossTimerId = null;
     endbossTimerActive = false;
     endbossTimerSeconds = 0;
-    ENDBOSS_TIMEOUT_SECONDS = 60;
+    ENDBOSS_TIMEOUT_SECONDS = 30;
 
     // ADD: Background music (low volume ambience)
     bgMusic = new Audio('/audio/cajon-bonus-lvl_3.mp3'); // lege diese Datei ins /audio
@@ -1092,6 +1092,7 @@ class World {
                 (mo instanceof MiniChicken) ||
                 (mo instanceof Endboss) ||
                 (mo instanceof ThrowableObject) ||
+                (mo instanceof Fireball) ||
                 (mo instanceof Gravestone) ||
                 (mo instanceof HutGate) ||
                 (mo instanceof StoryBillboard) ||
