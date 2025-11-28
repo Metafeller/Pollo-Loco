@@ -549,21 +549,17 @@ class World {
 
             } else if (bodyHit && !this.character.invulnerable) {
 
-                // Einmal Schaden auslösen === Körperkollision (seitlich / nicht von oben) ===
-                this.character.hit(20); // 20% Balken-Abzug pro Körperkontakt
-                this.statusBar.setPercentage(this.character.energy);
+                // Seitliche/untere Kollision → Schaden
+                this.character.hit(20);
                 this.playPainOnce();
 
-                // ... und SOFORT kurz unverwundbar machen (globaler Cooldown)
+                // Kurze Unverwundbarkeit (globaler Cooldown)
                 this.character.makeInvulnerable();
 
-                // optional mini-bounce, damit man nicht „klebt“ (sehr mild, zerstört nichts)
+                // Kleines Abstoßen, damit Pepe nicht „klebt“
                 this.character.speedY = Math.max(this.character.speedY, 8);
-
-                if (this.character.energy <= 0) {
-                    this.onPlayerDeath();
-                }
             }
+
         });
     }
 
@@ -1021,31 +1017,30 @@ class World {
 
 
     /**
- * True, wenn Pepe den Gegner VON OBEN trifft (Stomp).
- * Großzügiger: größere Fuß-Zone, leichtes Fallen reicht, zusätzliche Vertikal-Checks.
- */
+     * True, wenn Pepe den Gegner VON OBEN trifft (Stomp).
+     * Großzügig: breite Fuß-Zone + Treffer in der oberen Gegnerhälfte.
+     */
     didStompEnemy(enemy) {
         if (!enemy) return false;
 
-        // 1) Muss fallen oder fast fallen (−0.2 reicht)
+        // Muss fallen (leichter negativer speedY reicht)
         const vy = this.character.speedY || 0;
         if (vy > -0.2) return false;
 
-        // 2) Bounds
         const ca = this.character.getBounds();
         const eb = (typeof enemy.getBounds === 'function')
             ? enemy.getBounds()
-            : { 
-                left:enemy.x, 
-                top:enemy.y, 
-                right:enemy.x + enemy.width, 
-                bottom:enemy.y + enemy.height 
+            : {
+                left:   enemy.x,
+                top:    enemy.y,
+                right:  enemy.x + enemy.width,
+                bottom: enemy.y + enemy.height
             };
 
-        // 3) Fuß-Zone (etwas breiter & deutlich höher)
         const charH   = Math.max(1, ca.bottom - ca.top);
-        const footH   = Math.max(32, Math.floor(charH * 0.42)); // vorher 28, * 0.42
-        const marginX = 6;                                       // vorher 10
+        const footH   = Math.max(32, Math.floor(charH * 0.52)); // großzügige Fuß-Zone
+        const marginX = 6;
+
         const footL   = ca.left + marginX;
         const footR   = ca.right - marginX;
         const footTop = ca.bottom - footH;
@@ -1053,20 +1048,12 @@ class World {
 
         const overlapX = footL < eb.right && footR > eb.left;
         const overlapY = footTop < eb.bottom && footBot > eb.top;
-        if (!(overlapX && overlapY)) return false;
+        if (!overlapX || !overlapY) return false;
 
-        // 4) === Vertikale Herkunft: wirklich von oben gekommen? ===
-        const prevY       = (typeof this.character.prevY === 'number') 
-            ? this.character.prevY 
-            : this.character.y;
-        const prevBottom  = prevY + this.character.height - (this.character.offset?.bottom || 0);
-        const nowBottom   = ca.bottom;
+        const enemyMidY    = eb.top + (eb.bottom - eb.top) * 0.5;
+        const hitAtTopHalf = footBot <= enemyMidY + 8;
 
-        // Mehr Toleranz: auch wenn Pepe schon minimal „drinsteckt“, zählt es als Stomp
-        const cameFromAbove    = prevBottom <= eb.top + 26;   // vorher strenger 18
-        const shallowPenetrate = (nowBottom - eb.top) <= 34;  // kleine Eindringtiefe zählt als Stomp vorher 26
-
-        return cameFromAbove || shallowPenetrate;
+        return hitAtTopHalf;
     }
 
 

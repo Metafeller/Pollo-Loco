@@ -78,7 +78,7 @@ class Character extends MovableObject {
     IMAGES_HURT = [
         '/img/2_character_pepe/4_hurt/H-41.png',
         '/img/2_character_pepe/4_hurt/H-42.png',
-        '/img/2_character_pepe/4_hurt/H-43.png'
+        '/img/2_character_pepe/4_hurt/H-43.png' 
     ];
 
     IMAGES_DEAD = [
@@ -399,6 +399,41 @@ class Character extends MovableObject {
             this.invulnerable = false;
         }, this.invulnerabilityDuration);
     }
+
+
+    /**
+     * Wendet Schaden an, clamped HP und triggert bei 0 HP sofort den Game-Over-Flow.
+     * Holt außerdem den Hurt-State (lastHit) zurück, damit IMAGES_HURT wieder laufen.
+     */
+    hit(amount = 5) {
+        if (this.world?.gameOver || this.world?.gameWon) return;
+
+        const dmg = (typeof amount === 'number' && amount > 0) ? amount : 5;
+        const current = (typeof this.energy === 'number') ? this.energy : 100;
+
+        let next = current - dmg;
+        if (next < 0) next = 0;
+        if (next > 100) next = 100;
+        this.energy = next;
+
+        // 🔥 WICHTIG: Hurt-Flag wie früher setzen (ersetzt super.hit())
+        if (this.energy > 0) {
+            // entspricht der Logik aus MovableObject.hit()
+            this.lastHit = Date.now ? Date.now() : new Date().getTime();
+        }
+
+        // Statusbar syncen
+        if (this.world?.statusBar && typeof this.world.statusBar.setPercentage === 'function') {
+            this.world.statusBar.setPercentage(this.energy);
+        }
+
+        // Sofort sterben, wenn HP 0 erreicht
+        if (this.energy <= 0 && typeof this.world?.onPlayerDeath === 'function') {
+            this.world.onPlayerDeath();
+        }
+    }
+
+
 
     // WICHTIG: KEINE lokale isAboveGround() hier!
     // checkIfJumpedOnEnemy benutzt die aus MovableObject

@@ -74,8 +74,16 @@ class Endboss extends MovableObject {
         this.startPosition = startX;
         // this.x = this.startPosition;
         this.x = startX;
-
         this.minX = 0;
+
+        // Treff-Hitbox etwas kleiner als das Bild, damit kein „Luftschaden“ entsteht.
+        this.offset = {
+            left:   50,
+            right:  50,
+            top:    20,
+            bottom: 8
+        };
+
         this.animate();
     }
 
