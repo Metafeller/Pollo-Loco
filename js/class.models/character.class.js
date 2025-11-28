@@ -2,12 +2,18 @@ class Character extends MovableObject {
 
     height = 280;
     y = 80;
-    speed = 5;
+    speed = 3; // vorher 5 → ruhigeres Tempo passend zum Laufsound
 
     // === Idle/Snore State ===
-    idlePhase = 'idle';                              // 'active' | 'idle' | 'snore'
-    lastActiveAt = (typeof performance !== 'undefined' ? performance.now() : Date.now()) - 3000; 
-    // ^ Start direkt in Idle (3s "vordatieren"), damit Punkt 1 erfüllt ist
+    idlePhase = 'active'; // 'active' | 'idle' | 'snore'
+    lastActiveAt = (typeof performance !== 'undefined' ? performance.now() : Date.now()); 
+
+    // Idle/Sleep-Timings (Inaktivität)
+    IDLE_DELAY_MS  = 300;  // ~6,5s bis ruhiges Idle/Pre-Sleep
+    SNORE_DELAY_MS = 9500;  // ~9,5s bis Schnarch-/Sleep-Phase
+
+    // Zähler, um Idle-/Sleep-Frames zu verlangsamen
+    idleAnimTick = 0;
 
     // Audios
     snoreAudio = new Audio('/audio/snoring-man.mp3');        // loop
@@ -215,11 +221,13 @@ class Character extends MovableObject {
 
             // --- Idle-State (am Boden) ---
             if (this.idlePhase === 'snore') {
+                if (!this.shouldAdvanceIdleFrame()) return; // langsamer
                 this.playAnimation(this.IMAGES_LONG_IDLE);
                 return;
             }
 
             if (this.idlePhase === 'idle') {
+                if (!this.shouldAdvanceIdleFrame()) return; // langsamer
                 this.playAnimation(this.IMAGES_IDLE);
                 return;
             }
@@ -232,9 +240,22 @@ class Character extends MovableObject {
 
             // --- Fallback ---
             this.playAnimation(this.IMAGES_IDLE);
+            if (!this.shouldAdvanceIdleFrame()) return;
+            this.playAnimation(this.IMAGES_IDLE);
         }, 50);
 
     }
+
+    
+    /**
+     * Verlangsamt die Idle-/Sleep-Animation:
+     * Nur jedes zweite Tick (ca. 100ms) wird ein Frame weitergeschaltet.
+     */
+    shouldAdvanceIdleFrame() {
+        this.idleAnimTick = (this.idleAnimTick || 0) + 1;
+        return (this.idleAnimTick % 2) === 0;
+    }
+
 
     // === Eingaben prüfen (welche Tasten zählen als "aktiv") ===
     isControlActive() {
@@ -320,12 +341,14 @@ class Character extends MovableObject {
         // Keine Eingabe → Dauer berechnen
         const idleFor = nowMs - (this.lastActiveAt || nowMs);
 
-        if (idleFor >= 5000) {
-            this.enterSnore();      // 3s + 2s = 5s → Schnarch
-        } else if (idleFor >= 3000) {
-            this.enterIdle();       // ab 3s → Standard-Idle
+        if (idleFor >= this.SNORE_DELAY_MS) {
+           // Sleep/Schnarch nach ca. 9–10s
+           this.enterSnore();
+        } else if (idleFor >= this.IDLE_DELAY_MS) {
+            // Ruhiges Idle nach ca. 6–7s Inaktivität
+            this.enterIdle();
         } else {
-            // < 3s: noch aktiv
+            // Noch im "aktiven" Bereich
             if (this.idlePhase === 'snore') this.stopSnore();
             this.idlePhase = 'active';
         }

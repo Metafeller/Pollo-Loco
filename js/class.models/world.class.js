@@ -28,7 +28,7 @@ class World {
     ENDBOSS_TIMEOUT_SECONDS = 30;
 
     // ADD: Background music (low volume ambience)
-    bgMusic = new Audio('/audio/cajon-bonus-lvl_3.mp3'); // lege diese Datei ins /audio
+    bgMusic = new Audio('/audio/pixel-adventure.mp3'); // lege diese Datei ins /audio
 
     // === Coins & Superpower ===
     coinStatusBar = new CoinStatusBar();
