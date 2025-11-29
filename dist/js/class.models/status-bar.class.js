@@ -23,24 +23,27 @@ class StatusBar extends DrawableObject {
 
     // setPercentage(50);
     setPercentage(percentage) {
-        this.percentage = percentage; // => 0 ... 5
-        let path = this.IMAGES[this.resolveImageIndex()];
-        this.img = this.imageCache[path];
+    let clamped = Math.max(0, Math.min(percentage, 100));
+    this.percentage = clamped;
+
+    let path = this.IMAGES[this.resolveImageIndex()];
+    this.img = this.imageCache[path];
     }
 
         resolveImageIndex() {
-            if(this.percentage == 100) {
-                return 5; // Bild Nr. 5
-            } else if (this.percentage > 80) {
-                return 4; // Bild Nr. 4
-            } else if (this.percentage > 60) {
-                return 3; // Bild Nr. 3
-            } else if (this.percentage > 40) {
-                return 2; // Bild Nr. 2
-            } else if (this.percentage > 20) {
-                return 1; // Bild Nr. 1
+            if (this.percentage >= 100) {
+                return 5; // 100
+            } else if (this.percentage >= 80) {
+                return 4; // 80
+            } else if (this.percentage >= 60) {
+                return 3; // 60
+            } else if (this.percentage >= 40) {
+                return 2; // 40
+            } else if (this.percentage >= 20) {
+                return 1; // 20
             } else {
-                return 0; // Bild Nr. 0
+                return 0; // 0
             }
         }
+
 }

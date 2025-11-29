@@ -5,6 +5,7 @@
   --mc-gap: 12px;
   --mc-btn: 68px;
   --mc-safe: 12px;
+
     /* Canvas-UI Z unter Startscreen (Startscreen = z-index:1000) */
   --mc-z: 900;
 }
@@ -93,6 +94,12 @@ body.is-mobile-ui.is-portrait .canvas-ui .mc-panel {
   backdrop-filter: blur(4px);
 }
 .mc-btn:active { transform: translateY(-1px) scale(0.98); }
+
+/* Aktiver Zustand (per data-active vom JS) */
+.mc-btn[data-active="1"]{
+  transform: translateY(-2px) scale(1.02);
+  background: rgba(0,0,0,0.55);
+}
 
 /* ---------- Burger (unten links) ---------- */
 .mc-burger { position: absolute; left: var(--mc-safe); bottom: calc(var(--mc-safe) + env(safe-area-inset-bottom)); }

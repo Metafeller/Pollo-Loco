@@ -2,12 +2,18 @@ class Character extends MovableObject {
 
     height = 280;
     y = 80;
-    speed = 5;
+    speed = 3; // vorher 5 → ruhigeres Tempo passend zum Laufsound
 
     // === Idle/Snore State ===
-    idlePhase = 'idle';                              // 'active' | 'idle' | 'snore'
-    lastActiveAt = (typeof performance !== 'undefined' ? performance.now() : Date.now()) - 3000; 
-    // ^ Start direkt in Idle (3s "vordatieren"), damit Punkt 1 erfüllt ist
+    idlePhase = 'active'; // 'active' | 'idle' | 'snore'
+    lastActiveAt = (typeof performance !== 'undefined' ? performance.now() : Date.now()); 
+
+    // Idle/Sleep-Timings (Inaktivität)
+    IDLE_DELAY_MS  = 300;  // ~6,5s bis ruhiges Idle/Pre-Sleep
+    SNORE_DELAY_MS = 9500;  // ~9,5s bis Schnarch-/Sleep-Phase
+
+    // Zähler, um Idle-/Sleep-Frames zu verlangsamen
+    idleAnimTick = 0;
 
     // Audios
     snoreAudio = new Audio('/audio/snoring-man.mp3');        // loop
@@ -15,6 +21,10 @@ class Character extends MovableObject {
 
     invulnerable = false;  // Unverwundbarkeits-Status
     invulnerabilityDuration = 900;  // Dauer der Unverwundbarkeit in Millisekunden / Vorher 1500
+
+    // === Jump-Anim-State (einmal pro Sprung) ===
+    jumpInProgress = false;
+    jumpFrameIndex = 0;
 
     // === NEU: Idle Frames ===
     IMAGES_IDLE = [
@@ -68,7 +78,7 @@ class Character extends MovableObject {
     IMAGES_HURT = [
         '/img/2_character_pepe/4_hurt/H-41.png',
         '/img/2_character_pepe/4_hurt/H-42.png',
-        '/img/2_character_pepe/4_hurt/H-43.png'
+        '/img/2_character_pepe/4_hurt/H-43.png' 
     ];
 
     IMAGES_DEAD = [
@@ -183,7 +193,7 @@ class Character extends MovableObject {
             // Spielzustände zuerst
             if (this.world?.gameOver) return;
             if (this.world?.gameWon)  return;
-            if (this.world?.paused) return;
+            if (this.world?.paused)   return;
 
             // Prioritäten: Dead > Hurt > Jump > Snore > Idle > Walk > Fallback
             if (this.isDead()) {
@@ -196,35 +206,56 @@ class Character extends MovableObject {
                 return;
             }
 
-            if (this.isAboveGround()) {
-                this.playAnimation(this.IMAGES_JUMPING);
+            const aboveGround = this.isAboveGround();
+
+            // Wieder am Boden → Jump-Anim zurücksetzen
+            if (!aboveGround && this.jumpInProgress) {
+                this.resetJumpAnimation();
+            }
+
+            // In der Luft → Jump-Anim, aber nur einmal durchlaufen
+            if (aboveGround) {
+                this.playJumpAnimation();
                 return;
             }
 
             // --- Idle-State (am Boden) ---
             if (this.idlePhase === 'snore') {
+                if (!this.shouldAdvanceIdleFrame()) return; // langsamer
                 this.playAnimation(this.IMAGES_LONG_IDLE);
                 return;
             }
 
             if (this.idlePhase === 'idle') {
+                if (!this.shouldAdvanceIdleFrame()) return; // langsamer
                 this.playAnimation(this.IMAGES_IDLE);
                 return;
             }
 
             // --- Aktiv, aber keine Sprünge/Hits → ggf. Walking ---
             if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
-                // this.x += this.speed;
                 this.playAnimation(this.IMAGES_WALKING);
                 return;
             }
 
             // --- Fallback ---
             this.playAnimation(this.IMAGES_IDLE);
+            if (!this.shouldAdvanceIdleFrame()) return;
+            this.playAnimation(this.IMAGES_IDLE);
         }, 50);
 
-
     }
+
+    
+    /**
+     * Verlangsamt die Idle-/Sleep-Animation:
+     * Nur jedes zweite Tick (ca. 100ms) wird ein Frame weitergeschaltet.
+     */
+    shouldAdvanceIdleFrame() {
+        this.idleAnimTick = (this.idleAnimTick || 0) + 1;
+        return (this.idleAnimTick % 2) === 0;
+    }
+
 
     // === Eingaben prüfen (welche Tasten zählen als "aktiv") ===
     isControlActive() {
@@ -310,12 +341,14 @@ class Character extends MovableObject {
         // Keine Eingabe → Dauer berechnen
         const idleFor = nowMs - (this.lastActiveAt || nowMs);
 
-        if (idleFor >= 5000) {
-            this.enterSnore();      // 3s + 2s = 5s → Schnarch
-        } else if (idleFor >= 3000) {
-            this.enterIdle();       // ab 3s → Standard-Idle
+        if (idleFor >= this.SNORE_DELAY_MS) {
+           // Sleep/Schnarch nach ca. 9–10s
+           this.enterSnore();
+        } else if (idleFor >= this.IDLE_DELAY_MS) {
+            // Ruhiges Idle nach ca. 6–7s Inaktivität
+            this.enterIdle();
         } else {
-            // < 3s: noch aktiv
+            // Noch im "aktiven" Bereich
             if (this.idlePhase === 'snore') this.stopSnore();
             this.idlePhase = 'active';
         }
@@ -323,8 +356,41 @@ class Character extends MovableObject {
 
 
     jump() {
+        // Safety: kein Doppelsprung in der Luft
+        if (this.isAboveGround()) return;
+
         this.speedY = 25;
+        this.resetJumpAnimation();
+        this.jumpInProgress = true;
     }
+
+
+        resetJumpAnimation() {
+        this.jumpInProgress = false;
+        this.jumpFrameIndex = 0;
+    }
+
+    
+    playJumpAnimation() {
+        const frames = this.IMAGES_JUMPING;
+        if (!Array.isArray(frames) || frames.length === 0) return;
+
+        if (!this.jumpInProgress) {
+            this.jumpInProgress = true;
+            this.jumpFrameIndex = 0;
+        }
+
+        const idx = Math.min(this.jumpFrameIndex, frames.length - 1);
+        const path = frames[idx];
+        const img = this.imageCache[path];
+
+        if (img) this.img = img;
+
+        if (this.jumpFrameIndex < frames.length - 1) {
+            this.jumpFrameIndex++;
+        }
+    }
+
 
     // Unverwundbarkeit kurz aktivieren
     makeInvulnerable() {
@@ -333,6 +399,41 @@ class Character extends MovableObject {
             this.invulnerable = false;
         }, this.invulnerabilityDuration);
     }
+
+
+    /**
+     * Wendet Schaden an, clamped HP und triggert bei 0 HP sofort den Game-Over-Flow.
+     * Holt außerdem den Hurt-State (lastHit) zurück, damit IMAGES_HURT wieder laufen.
+     */
+    hit(amount = 5) {
+        if (this.world?.gameOver || this.world?.gameWon) return;
+
+        const dmg = (typeof amount === 'number' && amount > 0) ? amount : 5;
+        const current = (typeof this.energy === 'number') ? this.energy : 100;
+
+        let next = current - dmg;
+        if (next < 0) next = 0;
+        if (next > 100) next = 100;
+        this.energy = next;
+
+        // 🔥 WICHTIG: Hurt-Flag wie früher setzen (ersetzt super.hit())
+        if (this.energy > 0) {
+            // entspricht der Logik aus MovableObject.hit()
+            this.lastHit = Date.now ? Date.now() : new Date().getTime();
+        }
+
+        // Statusbar syncen
+        if (this.world?.statusBar && typeof this.world.statusBar.setPercentage === 'function') {
+            this.world.statusBar.setPercentage(this.energy);
+        }
+
+        // Sofort sterben, wenn HP 0 erreicht
+        if (this.energy <= 0 && typeof this.world?.onPlayerDeath === 'function') {
+            this.world.onPlayerDeath();
+        }
+    }
+
+
 
     // WICHTIG: KEINE lokale isAboveGround() hier!
     // checkIfJumpedOnEnemy benutzt die aus MovableObject

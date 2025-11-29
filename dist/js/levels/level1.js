@@ -39,7 +39,7 @@ function buildLevel1() {
         [
             ...chickensDistributed,
             ...minisDistributed,
-            new Endboss(6666)
+            new Endboss(6800)
         ],
 
         [
@@ -128,7 +128,8 @@ function buildLevel1() {
             new Bottle(3400, 350),
             new Bottle(4000, 390),
             new Bottle(4600, 390),
-            new Bottle(5900, 320),
+            new Bottle(5400, 320),
+            new Bottle(5900, 400),
             new Bottle(6000, 360)
         ],
 
@@ -138,10 +139,10 @@ function buildLevel1() {
 
     // Coins, Whiskey & Hearts anhängen
     level.coins = [
-        new Coin(1200, 280),  new Coin(1700, 240),  new Coin(1800, 200),
+        new Coin(1200,240),  new Coin(1700,240),  new Coin(1800,200),
         new Coin(1900,160),   new Coin(2000,200),   new Coin(2100, 240),
-        new Coin(3200,200),   new Coin(4200,200),   new Coin(5200, 200),
-        new Coin(5400,200)
+        new Coin(3200,160),   new Coin(4200,160),   new Coin(5400, 160),
+        new Coin(5800,280)
     ];
 
     level.whiskeys = [

@@ -21,8 +21,20 @@ class World {
     endbossStatusBar = new EndbossStatusBar();
     endbossInSight = false;
 
+    // We're in the Endgame Now! Timer-Mechanik
+    endbossTimerId = null;
+    endbossTimerActive = false;
+    endbossTimerSeconds = 0;
+    ENDBOSS_TIMEOUT_SECONDS = 30;
+
+    // Portal-Countdown nach Boss-Tod (Zeitfenster zum Tor)
+    portalTimerId = null;
+    portalTimerActive = false;
+    portalTimerSeconds = 0;
+    PORTAL_TIMEOUT_SECONDS = 11;
+
     // ADD: Background music (low volume ambience)
-    bgMusic = new Audio('/audio/cajon-bonus-lvl_3.mp3'); // lege diese Datei ins /audio
+    bgMusic = new Audio('/audio/pixel-adventure.mp3'); // lege diese Datei ins /audio
 
     // === Coins & Superpower ===
     coinStatusBar = new CoinStatusBar();
@@ -80,6 +92,9 @@ class World {
     dramaticAudio = new Audio('/audio/dark-battle.mp3');
     bossDeathAudio = new Audio('/audio/cry-dead.mp3');
     hitAudio = new Audio('/audio/punch-3.mp3');
+
+    // Einmal-Sound für Portal-Countdown (11s)
+    portalTimerAudio = new Audio('/audio/10sec-countdown.mp3'); // 11s Sound
 
     throwableObjects = [];
     effects = [];
@@ -311,6 +326,10 @@ class World {
             if (endboss) {
                 endboss.updateAI(this.character?.x || 0);
                 this.endbossInSight = (endboss.aiState === 'CHASE');
+
+                if (this.endbossInSight) {
+                this.startEndbossTimer();
+                }
             }
 
             // ADD: BG music follow state
@@ -539,21 +558,17 @@ class World {
 
             } else if (bodyHit && !this.character.invulnerable) {
 
-                // Einmal Schaden auslösen === Körperkollision (seitlich / nicht von oben) ===
-                this.character.hit(20); // 20% Balken-Abzug pro Körperkontakt
-                this.statusBar.setPercentage(this.character.energy);
+                // Seitliche/untere Kollision → Schaden
+                this.character.hit(20);
                 this.playPainOnce();
 
-                // ... und SOFORT kurz unverwundbar machen (globaler Cooldown)
+                // Kurze Unverwundbarkeit (globaler Cooldown)
                 this.character.makeInvulnerable();
 
-                // optional mini-bounce, damit man nicht „klebt“ (sehr mild, zerstört nichts)
+                // Kleines Abstoßen, damit Pepe nicht „klebt“
                 this.character.speedY = Math.max(this.character.speedY, 8);
-
-                if (this.character.energy <= 0) {
-                    this.onPlayerDeath();
-                }
             }
+
         });
     }
 
@@ -639,10 +654,54 @@ class World {
         setTimeout(() => this._painLock = false, 300);
     }
 
+
+    /** Einmaliger Sound beim Start des Portal-Countdowns. */
+    playPortalTimerStartSound() {
+        try {
+            if (!this.portalTimerAudio) return;
+            this.portalTimerAudio.pause();
+            this.portalTimerAudio.currentTime = 0;
+            this.portalTimerAudio.volume = 0.9;
+            this.portalTimerAudio.muted = !!window.IS_MUTED; // respektiert globalen Mute, falls gesetzt
+            this.portalTimerAudio.play();
+        } catch (e) {}
+    }
+
+
+    /** Stoppt den Portal-Countdown-Sound hart (sofort aus, auf Anfang). */
+    stopPortalTimerSound() {
+        try {
+            if (!this.portalTimerAudio) return;
+            this.portalTimerAudio.pause();
+            this.portalTimerAudio.currentTime = 0;
+        } catch (e) {}
+    }
+
+
+    /**
+     * Stoppt den Portal-Timer und räumt das Interval auf.
+     */
+    stopPortalTimer() {
+        if (this.portalTimerId) {
+            clearInterval(this.portalTimerId);
+            this.portalTimerId = null;
+        }
+
+        this.portalTimerActive = false;
+        this.portalTimerSeconds = 0;
+
+        // NEU: zugehörigen Countdown-Sound garantiert stoppen
+        this.stopPortalTimerSound();
+    }
+
+
     /** Endgültiger Spieler-Tod: Logik stoppen, Grabstein setzen + GO-Sequenz. */
     onPlayerDeath() {
         if (this.gameOver) return;
         this.gameOver = true;
+
+        this.stopEndbossTimer();
+        this.stopPortalTimer(); // ← NEU
 
         // Schritt-Sounds stoppen
         try {
@@ -720,17 +779,39 @@ class World {
         } catch (e) {}
 
         // Overlay-Objekt + TryAgain Hook
+        // try {
+        //     if (!this.gameOverScreen) this.gameOverScreen = new GameOverScreen();
+        //     this.gameOverScreen.attachDom('.stage'); // an Stage anhängen
+
+        //     this.gameOverScreen.onTryAgain(() => {
+        //         try { this.stopAllGameOverAudio(); } catch (e) {}
+        //         if (window.restartNow) {
+        //             window.restartNow();
+        //         }
+        //     });
+        // } catch (e) {}
+
+
         try {
             if (!this.gameOverScreen) this.gameOverScreen = new GameOverScreen();
             this.gameOverScreen.attachDom('.stage'); // an Stage anhängen
 
             this.gameOverScreen.onTryAgain(() => {
-                try { this.stopAllGameOverAudio(); } catch (e) {}
+                // Hard-Reset aller World-Audios (kein Doppel-/Leck-Sound)
+                try {
+                    if (typeof this.resetAllAudios === 'function') {
+                        this.resetAllAudios();
+                    } else if (typeof this.stopAllGameOverAudio === 'function') {
+                        this.stopAllGameOverAudio();
+                    }
+                } catch (e) {}
+
                 if (window.restartNow) {
                     window.restartNow();
                 }
             });
         } catch (e) {}
+
 
         // Sequencer starten
         this.goT0 = performance.now();
@@ -839,6 +920,125 @@ class World {
         this.gameOverScreen.showButton();
     }
 
+
+    /**
+    * Bestimmt die Farbe des Endboss-Timers (weiß oder blinkend rot).
+    */
+    getEndbossTimerColor(now, seconds) {
+        if (seconds > 10) return '#ffffff';
+        const blinkOn = (Math.floor(now / 250) % 2) === 0;
+        return blinkOn ? '#ff3333' : '#ffffff';
+    }
+
+
+    /**
+     * Farbe für den Portal-Countdown:
+     * Grün → entspannt, letzte 5s blinkend gelb/rot.
+     */
+    getPortalTimerColor(now, seconds) {
+        if (seconds > 5) return '#7CFC00'; // hellgrün
+
+        const blinkOn = (Math.floor(now / 250) % 2) === 0;
+        return blinkOn ? '#ffcc33' : '#ff3333';
+    }
+
+
+    /**
+     * Zeichnet den Endboss-Countdown mittig oben im Canvas.
+     * Letzte 10 Sekunden blinken rot für mehr Dramatik.
+     */
+    drawEndbossTimer(ctx, canvas, now) {
+        if (!canvas) return;
+
+        let seconds = 0;
+        let isBossPhase = false;
+        let isPortalPhase = false;
+
+        if (this.endbossTimerActive && this.endbossTimerSeconds > 0) {
+            seconds = Math.max(0, this.endbossTimerSeconds);
+            isBossPhase = true;
+        } else if (this.portalTimerActive && this.portalTimerSeconds > 0) {
+            seconds = Math.max(0, this.portalTimerSeconds);
+            isPortalPhase = true;
+        } else {
+            return;
+        }
+
+        const cx = canvas.width / 2;
+        const cy = 40;
+
+        ctx.save();
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.font = '32px sans-serif';
+
+        const w = 96;
+        const h = 48;
+        const x = cx - w / 2;
+        const y = cy - h / 2;
+
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+        ctx.fillRect(x, y, w, h);
+
+        if (isBossPhase) {
+            ctx.fillStyle = this.getEndbossTimerColor(now, seconds);
+        } else if (isPortalPhase) {
+            ctx.fillStyle = this.getPortalTimerColor(now, seconds);
+        }
+
+        ctx.fillText(String(seconds), cx, cy);
+
+        ctx.restore();
+    }
+
+
+    /**
+     * Zeichnet einen blinkenden, pulsierenden Pfeil nach rechts
+     * direkt unter dem Timer im HUD, solange der Portal-Countdown aktiv ist.
+     */
+    drawPortalArrow(ctx, now) {
+        if (!this.portalTimerActive || this.portalTimerSeconds <= 0) return;
+        if (this.gameOver || this.gameWon) return;
+
+        const canvas = this.canvas;
+        if (!canvas) return;
+
+        // Blink: ein/aus alle ~200ms
+        const blinkOn = (Math.floor(now / 200) % 2) === 0;
+        if (!blinkOn) return;
+
+        // Timer-Position wie in drawEndbossTimer()
+        const cx = canvas.width / 2;
+        const timerCy = 40;
+        const timerH = 48;
+
+        // Pfeil-Zentrum etwas unterhalb der Timer-Box
+        const arrowCy = timerCy + (timerH / 2) + 32;
+
+        // Pulsierende Größe
+        const t = now / 220;
+        const scale = 1 + 0.2 * Math.sin(t);
+
+        const w = 64 * scale;
+        const h = 32 * scale;
+
+        const baseX = cx - w / 2;
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(baseX,       arrowCy - h / 2); // linker oberer Punkt
+        ctx.lineTo(baseX + w,   arrowCy);        // Spitze (rechts)
+        ctx.lineTo(baseX,       arrowCy + h / 2); // linker unterer Punkt
+        ctx.closePath();
+
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+        ctx.shadowColor = 'rgba(0, 255, 0, 0.9)';
+        ctx.shadowBlur = 16;
+        ctx.fill();
+        ctx.restore();
+    }
+
+
     draw() {
         // Hard-Stop für alte World-Instanzen (z.B. nach Restart ohne Reload)
         if (this.destroyed) return;
@@ -912,8 +1112,10 @@ class World {
         this.addObjectsToMap(this.throwableObjects);
         this.addObjectsToMap(this.effects);
 
+        // Portal-Pfeil in Welt-Koordinaten zeichnen (an der Hütte)
+        // this.drawPortalArrow(this.ctx, now);
+
         // Kamera aus
-        // this.ctx.translate(-this.camera_x, 0);
         this.ctx.translate(-__camX__, 0);
 
         // === FIXE UI (immer ganz oben) ===
@@ -922,6 +1124,12 @@ class World {
         this.addToMap(this.coinStatusBar);
         this.addToMap(this.whiskeyCounter);
         if (this.endbossInSight) this.addToMap(this.endbossStatusBar);
+
+        // Timer (Boss-Phase ODER Portal-Phase)
+        this.drawEndbossTimer(this.ctx, this.canvas, now);
+
+        // Pfeil direkt unter dem Timer, nur während Portal-Countdown
+        this.drawPortalArrow(this.ctx, now);
 
         // Winner-Overlay
         if (this.winnerScreen && this.winnerScreen.visible) {
@@ -941,45 +1149,47 @@ class World {
         requestAnimationFrame(function() { self.draw(); });
     }
 
+
     /**
- * True, wenn Pepe den Gegner VON OBEN trifft (Stomp).
- * Großzügiger: größere Fuß-Zone, leichtes Fallen reicht, zusätzliche Vertikal-Checks.
- */
+     * True, wenn Pepe den Gegner VON OBEN trifft (Stomp).
+     * Großzügig: breite Fuß-Zone + Treffer in der oberen Gegnerhälfte.
+     */
     didStompEnemy(enemy) {
         if (!enemy) return false;
 
-        // 1) Muss fallen oder fast fallen (−0.2 reicht)
+        // Muss fallen (leichter negativer speedY reicht)
         const vy = this.character.speedY || 0;
         if (vy > -0.2) return false;
 
-        // 2) Bounds
         const ca = this.character.getBounds();
         const eb = (typeof enemy.getBounds === 'function')
             ? enemy.getBounds()
-            : { left:enemy.x, top:enemy.y, right:enemy.x + enemy.width, bottom:enemy.y + enemy.height };
+            : {
+                left:   enemy.x,
+                top:    enemy.y,
+                right:  enemy.x + enemy.width,
+                bottom: enemy.y + enemy.height
+            };
 
-        // 3) Fuß-Zone (etwas breiter & deutlich höher)
         const charH   = Math.max(1, ca.bottom - ca.top);
-        const footH   = Math.max(28, Math.floor(charH * 0.42)); // vorher ~0.33
-        const footL   = ca.left + 10;
-        const footR   = ca.right - 10;
+        const footH   = Math.max(32, Math.floor(charH * 0.52)); // großzügige Fuß-Zone
+        const marginX = 6;
+
+        const footL   = ca.left + marginX;
+        const footR   = ca.right - marginX;
         const footTop = ca.bottom - footH;
         const footBot = ca.bottom;
 
         const overlapX = footL < eb.right && footR > eb.left;
         const overlapY = footTop < eb.bottom && footBot > eb.top;
-        if (!(overlapX && overlapY)) return false;
+        if (!overlapX || !overlapY) return false;
 
-        // 4) Vertikale Gating: kam von oben ODER nur flach eingedrungen
-        const prevY       = (typeof this.character.prevY === 'number') ? this.character.prevY : this.character.y;
-        const prevBottom  = prevY + this.character.height - (this.character.offset?.bottom || 0);
-        const nowBottom   = ca.bottom;
+        const enemyMidY    = eb.top + (eb.bottom - eb.top) * 0.5;
+        const hitAtTopHalf = footBot <= enemyMidY + 8;
 
-        const cameFromAbove    = prevBottom <= eb.top + 18;   // vorher strenger
-        const shallowPenetrate = (nowBottom - eb.top) <= 26;  // kleine Eindringtiefe zählt als Stomp
-
-        return cameFromAbove || shallowPenetrate;
+        return hitAtTopHalf;
     }
+
 
     addObjectsToMap(objects) {
         if (!Array.isArray(objects) || objects.length === 0) return;
@@ -996,24 +1206,38 @@ class World {
         if (mo.otherDirection) this.flipImageBack(mo); // ← erst zurückflippen
 
         if (this.DEBUG_FRAMES && typeof mo.drawFrame === 'function') {
-            // Nur Gameplay-Objekte debuggen (keine Backgrounds/Clouds)
+        // Nur Gameplay-Objekte debuggen (keine Backgrounds/Clouds)
             const show =
-            (mo === this.character) || (mo instanceof Chicken) || (mo instanceof MiniChicken) ||
-            (mo instanceof Endboss) || (mo instanceof ThrowableObject) || (mo instanceof Gravestone);
-            (mo instanceof HutGate) || (mo instanceof StoryBillboard);
+                (mo === this.character) ||
+                (mo instanceof Chicken) ||
+                (mo instanceof MiniChicken) ||
+                (mo instanceof Endboss) ||
+                (mo instanceof ThrowableObject) ||
+                (mo instanceof Fireball) ||
+                (mo instanceof Gravestone) ||
+                (mo instanceof HutGate) ||
+                (mo instanceof StoryBillboard) ||
+                (mo instanceof Coin) ||
+                (mo instanceof Bottle) ||
+                (mo instanceof WhiskeyPickup) ||
+                (mo instanceof HeartPickup);
+
             if (show) mo.drawFrame(this.ctx);
         }
 
         if (this.DEBUG_FRAMES && mo === this.character) {
             const ca = this.character.getBounds();
-            const charH = Math.max(1, ca.bottom - ca.top);
-            const footH = Math.max(28, Math.floor(charH * 0.42));
+            const charH   = Math.max(1, ca.bottom - ca.top);
+            const footH   = Math.max(32, Math.floor(charH * 0.52)); // wie in didStompEnemy
+            const marginX = 6;
+
             const footRect = {
-                x: ca.left + 10,
+                x: ca.left + marginX,
                 y: ca.bottom - footH,
-                w: (ca.right - ca.left) - 20,
+                w: (ca.right - ca.left) - marginX * 2,
                 h: footH
             };
+
             this.ctx.save();
             this.ctx.setLineDash([6,4]);
             this.ctx.lineWidth = 2;
@@ -1096,6 +1320,160 @@ class World {
     }
 
 
+        /**
+     * Liefert den aktuellen lebenden Endboss.
+     * @returns {object|null} Endboss oder null.
+     */
+    getCurrentEndboss() {
+        const enemies = this.level?.enemies || [];
+        const boss = enemies.find(e => e instanceof Endboss && !e.dead);
+        return boss || null;
+    }
+
+
+    /**
+     * Startet den Endboss-Countdown, wenn der Kampf beginnt.
+     */
+    startEndbossTimer() {
+        if (this.endbossTimerActive) return;
+        const boss = this.getCurrentEndboss();
+        if (!boss) return;
+
+        this.endbossTimerActive = true;
+        this.endbossTimerSeconds = this.ENDBOSS_TIMEOUT_SECONDS;
+
+        this.endbossTimerId = setInterval(() => {
+            this.tickEndbossTimer();
+        }, 1000);
+    }
+
+
+    /**
+     * Verarbeitet jeden Tick des Endboss-Timers.
+     */
+    tickEndbossTimer() {
+        if (!this.endbossTimerActive) return;
+
+        // NEU: während der Pause läuft der Timer nicht weiter
+        if (this.paused) return;
+
+        if (this.gameOver || this.gameWon) {
+            this.stopEndbossTimer();
+            return;
+        }
+
+        const boss = this.getCurrentEndboss();
+        if (!boss || boss.energy <= 0 || this.character.energy <= 0) {
+            this.stopEndbossTimer();
+            return;
+        }
+
+        this.endbossTimerSeconds -= 1;
+
+        if (this.endbossTimerSeconds <= 0) {
+            this.handleEndbossTimeout();
+        }
+    }
+
+
+    /**
+     * Stoppt den Endboss-Timer und räumt das Interval auf.
+     */
+    stopEndbossTimer() {
+        if (this.endbossTimerId) {
+            clearInterval(this.endbossTimerId);
+            this.endbossTimerId = null;
+        }
+
+        this.endbossTimerActive = false;
+        this.endbossTimerSeconds = 0;
+    }
+
+
+    /**
+     * Löst die Niederlage aus, wenn die Boss-Zeit abgelaufen ist.
+     */
+    handleEndbossTimeout() {
+        this.stopEndbossTimer();
+
+        if (this.gameOver || this.gameWon) return;
+
+        this.character.energy = 0;
+        this.statusBar.setPercentage(this.character.energy);
+        this.onPlayerDeath();
+    }
+
+
+    // ===== Portal-Timeout (nach Boss-Tod, Tor ist offen) =====
+
+    /**
+     * Startet den Portal-Countdown, sobald der Endboss besiegt
+     * und das Tor geöffnet wurde. Spieler hat nur begrenzt Zeit,
+     * durch das Portal zu laufen.
+     */
+    startPortalTimer() {
+        if (this.portalTimerActive) return;
+        if (!this.hutGate) return;
+        if (this.gameOver || this.gameWon) return;
+
+        this.portalTimerActive = true;
+        this.portalTimerSeconds = this.PORTAL_TIMEOUT_SECONDS;
+
+        // Einmaliger Alarm bei Start des 10s-Timers
+        this.playPortalTimerStartSound();   // ← NEU
+
+        this.portalTimerId = setInterval(() => {
+            this.tickPortalTimer();
+        }, 1000);
+    }
+
+
+    /**
+     * Tick-Logik für den Portal-Countdown.
+     */
+    tickPortalTimer() {
+        if (!this.portalTimerActive) return;
+
+        // NEU: während der Pause läuft der Portal-Countdown nicht weiter
+        if (this.paused) return;
+
+        if (this.gameOver || this.gameWon) {
+            this.stopPortalTimer();
+            return;
+        }
+
+        // Falls der Boss aus irgendeinem Grund wiederbelebt würde o.ä.:
+        const bossAlive = (this.level?.enemies || [])
+            .some(e => e instanceof Endboss && !e.dead);
+        if (bossAlive) {
+            this.stopPortalTimer();
+            return;
+        }
+
+        this.portalTimerSeconds -= 1;
+
+        if (this.portalTimerSeconds <= 0) {
+            this.handlePortalTimeout();
+        }
+    }
+
+
+    /**
+     * Timeout verpasst → Pepe stirbt wie bei einem normalen Game-Over.
+     */
+    handlePortalTimeout() {
+        this.stopPortalTimer();
+
+        if (this.gameOver || this.gameWon) return;
+
+        this.character.energy = 0;
+        if (this.statusBar && typeof this.statusBar.setPercentage === 'function') {
+            this.statusBar.setPercentage(this.character.energy);
+        }
+        this.onPlayerDeath();
+    }
+
+
     /** Story: einmalig aktivieren, danach bis Boss-Tod sichtbar lassen */
     checkHutProximityAndStory() {
         if (!this.hutGate || !this.hutStory) return;
@@ -1130,12 +1508,15 @@ class World {
         if (!this.hutGate.isOpen) return;
 
         if (this.hutGate.isCharacterInPortal(this.character)) {
+            this.stopPortalTimer();   // ← NEU: Countdown stoppen
             this.showWinnerScreen();
         }
     }
 
    showWinnerScreen() {
     this.gameWon = true;
+    this.stopPortalTimer(); // Safety, falls er genau im letzten Tick durchläuft
+
     try { this.stopAmbienceLoop(); } catch(e) {}
     if (this.winnerScreen) {
         this.winnerScreen.show(); // spielt One-Shot + Audio, zeigt Buttons erst danach
@@ -1164,6 +1545,8 @@ class World {
         this.endbossInSight = false;
         if (endboss) endboss.isInSight = false;
 
+        this.stopEndbossTimer();
+
         try { this.stopAmbienceLoop(); } catch (e) {}
         try {
             if (this.bossDeathAudio) {
@@ -1179,6 +1562,8 @@ class World {
         // Boss tot → dramatisch aus, ruhige BG wieder sanft an (bis zum Portal/Win)
         try { this.resumeBgMusic(); } catch(e) {}
 
+        // Boss tot → Portal-Countdown starten (Spieler kann nicht endlos trödeln)
+        this.startPortalTimer();
     }
 
     getAllAudios() {
@@ -1200,6 +1585,7 @@ class World {
         this.dramaticAudio, 
         this.bossDeathAudio, 
         this.hitAudio,
+        this.portalTimerAudio,          // ← NEU
         this.character?.walking_sound, 
         this.character?.walking_sound_back,
         this.enemyDeathAudio
@@ -1273,25 +1659,74 @@ class World {
         return Array.from(bag);
     }
 
-        /** Pause / Resume: frieren & auftauen */
-        setPaused(flag) {
+    // === NEU: alle World-Audios hart stoppen (für Restart / BackToStart) ===
+    resetAllAudios() {
+        try {
+            const audios = this.getAllAudiosDeep();
+            audios.forEach((a) => {
+                try {
+                    a.pause();
+                    a.currentTime = 0;
+                } catch (e) {}
+            });
+        } catch (e) {}
+    }
+
+    
+    /** Pause / Resume: frieren & auftauen */
+    setPaused(flag) {
         if (flag === this.paused) return;
         this.paused = !!flag;
 
+        // StoryBillboard informieren (für Dialog-/Atmo-Audios)
+        try {
+            if (this.hutStory && typeof this.hutStory.setWorldPaused === 'function') {
+                this.hutStory.setWorldPaused(this.paused);
+            }
+        } catch (e) {}
+
         if (this.paused) {
             this.freezeWorld();
+
             // alle aktuell spielenden Audios pausieren (kein Stop -> kein currentTime Reset)
-            try { this.getAllAudiosDeep().forEach(a => { try { a.pause(); } catch(e){} }); } catch(e){}
+            try {
+                this.getAllAudiosDeep().forEach(a => {
+                    try { a.pause(); } catch (e) {}
+                });
+            } catch (e) {}
+
         } else {
             this.unfreezeWorld();
-            // nur die BG-Musik ggf. wieder anlaufen lassen
-            try { if (!this.endbossInSight && !this.gameOver && !this.gameWon && !this.bgMusic.muted) this.bgMusic.play(); } catch(e){}
-        }
-        }
 
-        /** Methoden sichern & auf no-op patchen */
-        freezeWorld() {
-        // Gegner/Clouds/Background/Projectiles/Effekte: Methoden einfrieren
+            // BG-Musik ggf. wieder anlaufen lassen
+            try {
+                if (!this.endbossInSight &&
+                    !this.gameOver &&
+                    !this.gameWon &&
+                    this.bgMusic &&
+                    !this.bgMusic.muted) {
+                    this.bgMusic.play();
+                }
+            } catch (e) {}
+
+            // falls Portal-Countdown aktiv ist, Countdown-Sound fortsetzen
+            try {
+                if (this.portalTimerActive &&
+                    this.portalTimerSeconds > 0 &&
+                    this.portalTimerAudio &&
+                    this.portalTimerAudio.paused &&
+                    !this.portalTimerAudio.muted) {
+
+                    this.portalTimerAudio.play();
+                }
+            } catch (e) {}
+        }
+    }
+
+
+    /** Methoden sichern & auf no-op patchen */
+    freezeWorld() {
+    // Gegner/Clouds/Background/Projectiles/Effekte: Methoden einfrieren
         const patchOne = (o) => {
             if (!o || o.__frozen) return;
             o.__frozen = true;
@@ -1319,10 +1754,10 @@ class World {
         // Pepe selbst wird bereits in character.animate() über this.world.paused gestoppt,
         // aber sicherheitshalber auch hier patchen:
         patchOne(this.character);
-        }
+    }
 
-        /** Originalmethoden & Speeds wiederherstellen */
-        unfreezeWorld() {
+    /** Originalmethoden & Speeds wiederherstellen */
+    unfreezeWorld() {
         const unpatchOne = (o) => {
             if (!o || !o.__frozen) return;
             o.__frozen = false;

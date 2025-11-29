@@ -407,7 +407,7 @@ html, body { overflow:hidden; } /* Single Page: keine Seiten-Scrollbars */
 .overlay h2{ 
   margin:14px 16px;
   font-family: 'Courier New', Courier, monospace; 
-  font-size:32px; 
+  font-size:20px;
 }
 
 .to-top-in{ 
@@ -470,12 +470,22 @@ html, body { overflow:hidden; } /* Single Page: keine Seiten-Scrollbars */
         /* display: none; */
         /* font-size: 32px; */
         padding-top: 32px;
-        font-size: 48px;
+        font-size: 40px;
+    }
+
+    .footer-bar{
+      display: flex;
+      flex-direction: column-reverse;
+      gap: 8px;
     }
 
     .foot-left,.foot-mid,.foot-right{ 
-      font-size: 12px; 
+      font-size: 16px; 
       letter-spacing: 1px;
+    }
+
+    .foot-left {
+      display: none;
     }
 }
 
@@ -520,4 +530,153 @@ body.is-mobile-ui.is-portrait canvas{
   width: min(100vw - (env(safe-area-inset-left) + env(safe-area-inset-right)), 720px);
   height: auto;
   aspect-ratio: 3 / 2;
+}
+
+/* =========================================================
+   Galaxy S9+ / 320px – PORTRAIT-Optimierung
+   Ziel: Startscreen + Spielfläche komplett sichtbar,
+         nichts hängt aus dem Viewport.
+   Gilt nur für extrem schmale Geräte (≤ 360px Breite).
+   ========================================================= */
+@media only screen and (max-width: 360px) {
+
+  :root{
+    /* kompaktere Abstände für Header/Footer + Game-Container */
+    --header-h: 32px;
+    --footer-h: 30px;
+    --ui-gap: 8px;
+  }
+
+  /* Body nicht mehr vertikal zentrieren → mehr Platz nach oben */
+  body{
+    align-items: flex-start;
+  }
+
+  /* Header + Footer kompakter machen */
+  .header-bar{
+    padding: 8px 10px;
+  }
+
+  .footer-bar{
+    padding: 8px 12px;
+    flex-direction: column-reverse;
+    gap: 4px;
+  }
+
+  .foot-left{ 
+    display:none; 
+  }
+
+  .foot-mid,
+  .foot-right{
+    font-size: 14px;
+  }
+
+  /* WICHTIG: Game-Container darf nicht mehr 800px hoch sein */
+  .game-container{
+    height: auto;
+    margin-top: calc(var(--header-h) + var(--ui-gap));
+    margin-bottom: calc(var(--footer-h) + var(--ui-gap));
+    align-items: center;
+  }
+
+  /* Titel etwas kleiner/kompakter */
+  #lbl-title{
+    font-size: 32px;
+    margin-bottom: 8px;
+    padding-top: 8px;
+  }
+
+  /* UI-Bar kompakter, aber volle Breite nutzbar */
+  .ui-bar{
+    max-width: 100%;
+    padding: 6px 4px;
+    margin-bottom: 8px;
+  }
+
+  .btn-row{
+    gap: 4px;
+    padding-left: 4px;
+    flex-wrap: wrap;
+  }
+
+  .hdr-btn{
+  padding:4px 8px; 
+  font-size: 18px;
+  }
+
+  .brand-logo{
+    height: 64px;
+  }
+
+  .ui-btn{
+    padding: 4px 6px;
+    font-size: 16px;
+  }
+
+  .ui-right{
+    gap: 8px;
+  }
+
+  .lang-switch{
+    font-size: 16px;
+    gap: 4px;
+    padding-right: 0;
+  }
+
+  /* Canvas: sauber im verfügbaren Bereich, korrekte Proportion (3:2) */
+  canvas{
+    width: 100%;
+    height: auto;
+    aspect-ratio: 3 / 2;
+  }
+
+  /* Rules/Impressum/Datenschutz-Overlays an Canvas-Breite anpassen */
+  .overlay-card{
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    aspect-ratio: 3 / 2;
+  }
+
+  .footer-bar{
+    padding: 20px 12px;
+  }
+
+  .foot-right{ 
+  font-size:32px;
+  }
+
+}
+
+
+/* =========================================================
+   Galaxy S9+ / 320px – LANDSCAPE-Optimierung
+   Ziel: Spielfläche ragt nicht aus dem Bild,
+         keine abgeschnittenen Pixel am unteren Rand.
+   Gilt nur für sehr niedrige Viewports (≤ 360px Höhe).
+   ========================================================= */
+@media only screen and (max-height: 360px) {
+
+  body.is-mobile-ui.is-landscape canvas{
+    /* 
+      Seitenverhältnis 3:2 (Original 720x480).
+      width beträgt entweder:
+      - 100vw      (wenn genug Höhe vorhanden)
+      - oder 1.5 * 100vh (damit height ≤ 100vh bleibt)
+     */
+
+    /* width: min(100vw, calc(1.5 * 100vh)); */
+    height: auto;
+    aspect-ratio: 4.2 / 2;
+  }
+
+  .stage{
+    max-width: 100vw;
+  }
+
+  /* Wird von JS gesetzt */
+  /* .start-screen{
+    height: 313px;
+  } */
 }
