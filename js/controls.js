@@ -7,6 +7,73 @@ let isMuted = false;
 let isStarting = false;
 let pauseOverlay = null;
 
+
+/**
+ * True, wenn das Mobile-UI im Portrait läuft und das Rotate-Overlay aktiv ist.
+ * Blockiert Spielstart/Resume im Hochformat.
+ */
+function isPortraitBlocked() {
+  try {
+    const body = document.body;
+    if (!body) return false;
+
+    const isMobileUI = body.classList.contains('is-mobile-ui');
+    const isPortrait = body.classList.contains('is-portrait');
+    const rotateVisible = !!window.__ROTATE_OVERLAY_VISIBLE__;
+
+    return isMobileUI && (isPortrait || rotateVisible);
+  } catch (e) {
+    return false;
+  }
+}
+
+
+/**
+ * Behandelt den Fall, dass der Start im Portrait-Modus geblockt wird.
+ * Zeigt den Rotate-Overlay sichtbar an und blendet den Startscreen aus.
+ * Falls kein Overlay existiert, bleibt der Startscreen als Fallback sichtbar.
+ */
+function handlePortraitBlockedStart() {
+  let overlayFound = false;
+
+  try {
+    const overlay = document.getElementById('rotate-overlay');
+    if (overlay) {
+      overlay.classList.add('show');
+      window.__ROTATE_OVERLAY_VISIBLE__ = true;
+      overlayFound = true;
+    }
+  } catch (e) {}
+
+  // Nur wenn wirklich ein Overlay vorhanden ist, Startscreen ausblenden,
+  // damit der Hinweis nicht unter dem Startscreen "verschwindet".
+  if (overlayFound && startScreen && typeof startScreen.hide === 'function') {
+    try {
+      startScreen.hide();
+    } catch (e) {}
+  } else if (startScreen && typeof startScreen.show === 'function') {
+    // Fallback: kein Overlay gefunden -> Startscreen sichtbar lassen
+    try {
+      startScreen.show();
+    } catch (e) {}
+  }
+
+  // sorgt dafür, dass responsive.js / touch-controls.js sofort layouten
+  pokeMobileUiLayout();
+}
+
+
+/**
+ * Triggert ein globales Resize-Event, damit responsive.js & touch-controls.js
+ * die Canvas-UI und die Touch-Controls sofort neu layouten.
+ */
+function pokeMobileUiLayout() {
+  try {
+    window.dispatchEvent(new Event('resize'));
+  } catch (e) {}
+}
+
+
 /**
  * Liest den Mute-Status sicher aus dem localStorage.
  * Gibt bei Fehlern oder fehlendem Wert standardmäßig false zurück.
@@ -61,7 +128,14 @@ function bootApp() {
 
   startScreen = new StartScreen('/img/9_intro_outro_screens/start/startscreen_3.png');
   startScreen.attachDom('#stage'); // vorher '.game-container'
-  startScreen.onStart(() => startGame());
+  startScreen.onStart(() => {
+    // Start im Portrait-Modus blockieren – erst drehen, dann spielen
+    if (isPortraitBlocked()) {
+      handlePortraitBlockedStart();  // ← zentraler Portrait-Block
+      return;
+    }
+    startGame();
+  });
   startScreen.show();
 
   // Menü-Musik initialisieren
@@ -98,6 +172,20 @@ function bootApp() {
   // initiale Labels + auf Sprachwechsel reagieren
   applyI18nLabels();
   window.addEventListener('i18n:changed', applyI18nLabels);
+
+  // NEU: Wenn wir von Portrait → Landscape wechseln und noch keine World läuft,
+  // stellen wir sicher, dass der Startscreen wieder sichtbar ist.
+  const ensureStartScreenVisible = () => {
+    // nur, wenn noch kein Spiel läuft:
+    if (!world && startScreen && !isPortraitBlocked()) {
+      try {
+        startScreen.show();
+      } catch (e) {}
+    }
+  };
+
+  window.addEventListener('resize', ensureStartScreenVisible);
+  window.addEventListener('orientationchange', ensureStartScreenVisible);
 }
 
 // === World-Reset ohne Page-Reload ==================================
@@ -207,25 +295,28 @@ function shutdownWorld() {
 
 
 function restartNow() {
-    // optional: Flag behalten, falls du Autostart später nochmal nutzt
     try { localStorage.setItem('autostart', '1'); } catch (e) {}
 
-    // alte World sauber abschalten
     shutdownWorld();
 
-    // NEU: Level komplett neu bauen (Enemies, Coins, Clouds, etc.)
     try {
         if (typeof resetLevel1 === 'function') {
             resetLevel1();
         }
     } catch (e) {}
 
-    // globale Referenz freigeben
     world = null;
     if (typeof window !== 'undefined') window.world = null;
     isStarting = false;
 
-    // Startscreen bleibt versteckt → direkt neue World starten
+    // Im Portrait nicht direkt neu starten – zurück zum Startscreen
+    if (isPortraitBlocked()) {
+        if (startScreen && typeof startScreen.show === 'function') {
+            startScreen.show();
+        }
+        return;
+    }
+
     if (startScreen && typeof startScreen.hide === 'function') {
         startScreen.hide();
     }
@@ -287,29 +378,72 @@ function backToStart() {
 // }
 
 
+// function startGame() {
+//   if (isStarting || world) { startScreen?.hide(); return; }
+//   isStarting = true;
+//   try { stopMenuAudio(); } catch(e) {}
+
+//   const canvas = document.getElementById('canvas');
+
+//   // Fokusierbar machen (einmal reicht, schadet aber nicht)
+// //   canvas.setAttribute('tabindex', '0');
+
+//   world = new World(canvas, keyboard);
+
+//   setMuted(isMuted);
+
+//   // UI-Start Button auf Resume
+//   const btnStart = document.getElementById('btn-start');
+//   if (btnStart) btnStart.textContent = (window.I18N ? window.I18N.t('ui.resume') : 'Resume');
+
+//   startScreen?.hide();
+  
+//   // <<< WICHTIG: Canvas fokussieren, damit Space nicht Buttons triggert
+//   canvas.focus();
+// }
+
+
 function startGame() {
-  if (isStarting || world) { startScreen?.hide(); return; }
+  // Portrait-Block: wenn Rotate-Overlay aktiv ist, kein Spielstart
+  if (isPortraitBlocked()) {
+    pokeMobileUiLayout();
+    return;
+  }
+
+  if (isStarting || world) {
+    startScreen?.hide();
+    return;
+  }
+
   isStarting = true;
-  try { stopMenuAudio(); } catch(e) {}
+  try { stopMenuAudio(); } catch (e) {}
 
   const canvas = document.getElementById('canvas');
-
-  // Fokusierbar machen (einmal reicht, schadet aber nicht)
-//   canvas.setAttribute('tabindex', '0');
+  if (!canvas) {
+    isStarting = false;
+    return;
+  }
 
   world = new World(canvas, keyboard);
 
   setMuted(isMuted);
 
-  // UI-Start Button auf Resume
   const btnStart = document.getElementById('btn-start');
-  if (btnStart) btnStart.textContent = (window.I18N ? window.I18N.t('ui.resume') : 'Resume');
+  if (btnStart) {
+    btnStart.textContent = (window.I18N ? window.I18N.t('ui.resume') : 'Resume');
+  }
 
   startScreen?.hide();
-  
-  // <<< WICHTIG: Canvas fokussieren, damit Space nicht Buttons triggert
+
+  // Canvas fokussieren, damit Space nicht Buttons triggert
+  canvas.setAttribute('tabindex', '0');
   canvas.focus();
+
+  // WICHTIG: Touch-Controls sofort neu layouten, damit D-Pad beim ersten Start
+  // im Landscape-Modus direkt sichtbar ist (kein zweiter Rotate nötig)
+  pokeMobileUiLayout();
 }
+
 
 function stopMenuAudio() {
   try { if (menuAudio) { menuAudio.pause(); menuAudio.currentTime = 0; } } catch(e){}
@@ -344,12 +478,22 @@ function setMuted(flag) {
 
 function toggleMute(){ setMuted(!isMuted); }
 
+
 function wireUiControls() {
   const qs = id => document.getElementById(id);
 
   qs('btn-start')?.addEventListener('click', () => {
-    if (!world) { startScreen?.hide(); startGame(); }
-    else { resumeGame(); }
+    if (!world) {
+      // Kein Start im Portrait-Modus
+      if (isPortraitBlocked()) {
+        handlePortraitBlockedStart();   // ← gleicher Flow wie auf dem Startscreen
+      } else {
+        startScreen?.hide();
+        startGame();
+      }
+    } else {
+      resumeGame();
+    }
     document.activeElement?.blur();
   });
 
@@ -359,6 +503,7 @@ function wireUiControls() {
   qs('btn-mute')?.addEventListener('click', () => { toggleMute(); document.activeElement?.blur(); });
 }
 
+
 /* ===== Pause / Resume ===== */
 function pauseGame() {
   if (!world || world.paused) return;
@@ -366,8 +511,30 @@ function pauseGame() {
   showPauseOverlay(true);
 }
 
+// function resumeGame() {
+//   if (!world || !world.paused) return;
+//   showPauseOverlay(false);
+//   world.setPaused(false);
+
+//   // Canvas wieder fokussieren
+//   const cv = document.getElementById('canvas');
+//   cv?.setAttribute('tabindex','0');
+//   cv?.focus();
+
+//   const btnStart = document.getElementById('btn-start');
+//   if (btnStart) btnStart.textContent = (window.I18N ? window.I18N.t('ui.resume') : 'Resume');
+// }
+
+
 function resumeGame() {
   if (!world || !world.paused) return;
+
+  // Im Portrait-Modus nicht fortsetzen, solange Rotate-Overlay aktiv ist
+  if (isPortraitBlocked()) {
+    pokeMobileUiLayout();
+    return;
+  }
+
   showPauseOverlay(false);
   world.setPaused(false);
 
@@ -377,8 +544,11 @@ function resumeGame() {
   cv?.focus();
 
   const btnStart = document.getElementById('btn-start');
-  if (btnStart) btnStart.textContent = (window.I18N ? window.I18N.t('ui.resume') : 'Resume');
+  if (btnStart) {
+    btnStart.textContent = (window.I18N ? window.I18N.t('ui.resume') : 'Resume');
+  }
 }
+
 
 /* ===== Pause-Overlay DOM ===== */
 function createPauseOverlay() {

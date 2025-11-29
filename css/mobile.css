@@ -5,6 +5,7 @@
   --mc-gap: 12px;
   --mc-btn: 68px;
   --mc-safe: 12px;
+
     /* Canvas-UI Z unter Startscreen (Startscreen = z-index:1000) */
   --mc-z: 900;
 }
