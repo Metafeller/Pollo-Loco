@@ -12,6 +12,7 @@
     super:  `<svg viewBox="0 0 24 24"><path d="M12 2l2.4 6.8L22 9l-5 4 1.9 7L12 16l-6.9 4L7 13 2 9l7.6-.2z"/></svg>`
   };
 
+
   function clickSfx(){
     try{
       if (window.IS_MUTED) return;
@@ -21,11 +22,101 @@
     }catch(_){}
   }
 
+
   function setKey(flagName, on){
     const kb = window.KEYBOARD;
     if (!kb || !(flagName in kb)) return;
+
+    // Exklusive Richtungslogik nur für das Mobile-D-Pad
+    if (flagName === 'LEFT' && on) {
+      kb.RIGHT = false;
+    } else if (flagName === 'RIGHT' && on) {
+      kb.LEFT = false;
+    }
+
     kb[flagName] = !!on;
   }
+
+
+  const touchDirTimers = { LEFT: null, RIGHT: null };
+
+
+  function clearDir(flag){
+    setKey(flag, false);
+  }
+
+  function cancelDirTimer(flag){
+    const t = touchDirTimers[flag];
+    if (t){
+      clearTimeout(t);
+      touchDirTimers[flag] = null;
+    }
+  }
+
+  function activateDir(flag){
+    cancelDirTimer(flag);
+    setKey(flag, true);
+  }
+
+  /**
+   * Smart-Tap für D-Pad:
+   * - kurzer Tap: kurzer Sticky-Impulse (Pepe dreht sich & steppt kurz)
+   * - Hold: klassisches gedrückt-halten
+   */
+  function wireDirectionButton(btn, flag){
+    if (!btn) return;
+
+    const TAP_MAX_MS = 170; // <= 170ms = Tap
+    const STICK_MS   = 140; // wie lange der Impuls bleibt
+
+    const downEv = (e)=>{
+      e.preventDefault();
+      btn.setAttribute('data-active','1');
+      btn.__pressTs = performance.now();
+      activateDir(flag); // sofortige Richtungsaktivierung
+    };
+
+    const upCore = (tapLike)=>{
+      if (!tapLike){
+        // normaler Hold -> direkt loslassen
+        clearDir(flag);
+        btn.removeAttribute('data-active');
+        return;
+      }
+
+      // Tap -> kurzer Sticky-Impulse
+      cancelDirTimer(flag);
+      touchDirTimers[flag] = setTimeout(()=>{
+        clearDir(flag);
+        btn.removeAttribute('data-active');
+        touchDirTimers[flag] = null;
+      }, STICK_MS);
+    };
+
+    const upEv = (e)=>{
+      e.preventDefault();
+      const now = performance.now();
+      const ts  = btn.__pressTs || now;
+      btn.__pressTs = 0;
+      const dt  = now - ts;
+      const tapLike = dt <= TAP_MAX_MS;
+      upCore(tapLike);
+    };
+
+    // Pointer (Touch / Stift)
+    btn.addEventListener('pointerdown', downEv);
+    btn.addEventListener('pointerup', upEv);
+    btn.addEventListener('pointercancel', upEv);
+    btn.addEventListener('pointerleave', (e)=>{
+      if (!btn.hasAttribute('data-active')) return;
+      upEv(e);
+    });
+
+    // Fallback für Maus (kleines Fenster am Desktop)
+    btn.addEventListener('mousedown', downEv);
+    ['mouseup','mouseleave'].forEach(ev => btn.addEventListener(ev, upEv));
+  }
+
 
   function hold(btn, down, up){
     if (!btn) return;
@@ -40,9 +131,11 @@
     ['mouseup','mouseleave'].forEach(ev=>btn.addEventListener(ev, upEv));
   }
 
+
   function isFullscreen(){
     return !!(document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement);
   }
+
 
   async function toggleFullscreenForCanvas(){
     const stage = document.getElementById('stage') || document.getElementById('canvas');
@@ -60,12 +153,14 @@
     setTimeout(applyVisibility, 50);
   }
 
+
   function togglePanel(){
     const panel = $('#mc-panel');
     if (!panel) return;
     panel.classList.toggle('open');
     clickSfx();
   }
+
 
   function ensureOverlay(){
     const root = document.getElementById('stage') || document.body;
@@ -108,8 +203,10 @@
     $('#mc-burger')?.addEventListener('click', togglePanel);
     $('#mc-fs')?.addEventListener('click', toggleFullscreenForCanvas);
 
-    hold($('#mc-left'),  ()=> setKey('LEFT', true),  ()=> setKey('LEFT', false));
-    hold($('#mc-right'), ()=> setKey('RIGHT', true), ()=> setKey('RIGHT', false));
+    wireDirectionButton($('#mc-left'),  'LEFT');
+    wireDirectionButton($('#mc-right'), 'RIGHT');
+    // hold($('#mc-left'),  ()=> setKey('LEFT', true),  ()=> setKey('LEFT', false));
+    // hold($('#mc-right'), ()=> setKey('RIGHT', true), ()=> setKey('RIGHT', false));
     hold($('#mc-jump'),  ()=> setKey('SPACE', true), ()=> setKey('SPACE', false));
     hold($('#mc-throw'), ()=> setKey('D', true),     ()=> setKey('D', false));
     hold($('#mc-super'), ()=> setKey('F', true),     ()=> setKey('F', false));
@@ -124,6 +221,7 @@
     window.dispatchEvent(new Event('mc:dock-ready'));
   }
 
+
   function t(key, fallback){
     try{
       return (window.I18N && typeof window.I18N.t === 'function')
@@ -132,9 +230,11 @@
     }catch(_){ return fallback; }
   }
 
+
   function isVisible(el){
     return !!el && el.offsetParent !== null && getComputedStyle(el).display !== 'none';
   }
+
 
   function anyGameOverlayOpen(){
     if (document.querySelector('.overlay.show')) return true;
@@ -144,6 +244,7 @@
     return false;
   }
 
+
   function showControlsGroup(on){
     const nodes = [
       '#mc-burger', '.mc-dpad', '.mc-actions', '#mc-fs', '#mc-panel'
@@ -152,6 +253,7 @@
     if (!on) document.getElementById('mc-panel')?.classList.remove('open');
     if (!on){ setKey('LEFT', false); setKey('RIGHT', false); setKey('SPACE', false); setKey('D', false); setKey('F', false); }
   }
+
 
   function applyVisibility(){
     const isMobileUI   = document.body.classList.contains('is-mobile-ui');
@@ -165,6 +267,7 @@
     showControlsGroup(showControls);
   }
 
+  
   function syncBox(){
     const host = $('.canvas-ui');
     if (!host) return;
