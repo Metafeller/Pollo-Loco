@@ -39,7 +39,7 @@ function buildLevel1() {
         [
             ...chickensDistributed,
             ...minisDistributed,
-            new Endboss(6800)
+            new Endboss(6900)
         ],
 
         [
@@ -148,6 +148,7 @@ function buildLevel1() {
     level.whiskeys = [
         new WhiskeyPickup(3200, 340),
         new WhiskeyPickup(5250, 400)
+        // new WhiskeyPickup(5250, 400)
     ];
 
     level.hearts = [

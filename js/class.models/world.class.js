@@ -20,6 +20,7 @@ class World {
     bottleStatusBar = new BottleStatusBar();
     endbossStatusBar = new EndbossStatusBar();
     endbossInSight = false;
+    bossDefeated = false;   // <--- NEU: Endboss wurde endgültig besiegt
 
     // We're in the Endgame Now! Timer-Mechanik
     endbossTimerId = null;
@@ -35,6 +36,17 @@ class World {
 
     // ADD: Background music (low volume ambience)
     bgMusic = new Audio('/audio/pixel-adventure.mp3'); // lege diese Datei ins /audio
+
+    // === Mini-chicken swarm (Endboss fight) ===
+    MINI_SWARM_INTERVAL_MS = 3000;   // every 7 seconds
+    MINI_SWARM_GROUP_SIZE  = 5;      // how many per wave
+    MINI_SWARM_MAX_COUNT   = 8;      // max boss-spawned minis alive
+
+    miniSwarmTimerId = null;
+    miniSwarmActive  = false;
+
+    // NEU: fester Spawnpunkt für Boss-Minis
+    miniSwarmOriginX = null;
 
     // === Coins & Superpower ===
     coinStatusBar = new CoinStatusBar();
@@ -322,15 +334,22 @@ class World {
             this.checkWhiskeyCollection();
             this.checkHeartCollection(); // ← NEU
 
-            const endboss = (this.level?.enemies || []).find(e => e instanceof Endboss);
-            if (endboss) {
-                endboss.updateAI(this.character?.x || 0);
-                this.endbossInSight = (endboss.aiState === 'CHASE');
+            let endboss = this.getCurrentEndboss(); // <--- benutzt jetzt nur lebende Bosse
+                if (endboss && !this.bossDefeated) {
+                    endboss.updateAI(this.character?.x || 0);
+                    this.endbossInSight = (endboss.aiState === 'CHASE');
 
-                if (this.endbossInSight) {
-                this.startEndbossTimer();
-                }
+                    if (this.endbossInSight) {
+                        this.startEndbossTimer();
+                        this.startMiniChickenSwarm();
+                    } else {
+                        this.stopMiniChickenSwarm();
+                    }
+                } else {
+                    this.endbossInSight = false;
+                    this.stopMiniChickenSwarm();
             }
+
 
             // ADD: BG music follow state
             if (this.endbossInSight) this.pauseBgMusic();
@@ -382,64 +401,6 @@ class World {
         this.throwableObjects = this.throwableObjects.filter(p => !p.done);
     }
 
-    // checkBottleCollisions() {
-    //     if (!Array.isArray(this.throwableObjects) || !this.level || !Array.isArray(this.level.enemies)) return;
-
-    //     this.throwableObjects.forEach((bottle, bottleIndex) => {
-    //         this.level.enemies.forEach((enemy) => {
-    //             if (bottle.isColliding(enemy)) {
-    //                 if (bottle.hasHit === true) return;
-    //                 bottle.hasHit = true;
-    //                 this.onBottleHitsEnemy(bottle, enemy);
-
-    //                 if (enemy instanceof Chicken || enemy instanceof MiniChicken) {
-    //                     if (typeof enemy.die === 'function') enemy.die();
-    //                     setTimeout(() => {
-    //                         try { this.playEnemyDeathSound(); } catch(e) {}
-    //                         this.level.enemies = this.level.enemies.filter(e => e !== enemy);
-    //                     }, 320);
-
-    //                 } else if (enemy instanceof Endboss) {
-    //                     if (typeof enemy.enterAggro === 'function') enemy.enterAggro();
-    //                     this.startAmbienceLoop();
-
-    //                     // Schaden ermitteln: default 20, Supernova 40
-    //                     const dmg = bottle.isSupernova ? 40 : 20;
-
-    //                     // Wenn Endboss.hit(dmg) nicht existiert → sicher manipulieren
-    //                     try {
-    //                         if (enemy.hit.length >= 1) {
-    //                             enemy.hit(dmg);
-    //                         } else {
-    //                             enemy.hit(); // klassische 20% Implementierung
-    //                             // zusätzliche Korrektur falls nötig:
-    //                             if (bottle.isSupernova && typeof enemy.energy === 'number') {
-    //                                 // wir wollen insgesamt 40%. Falls hit() schon 20% abgezogen hat:
-    //                                 enemy.energy = Math.max(0, enemy.energy - 20);
-    //                             }
-    //                         }
-    //                     } catch (e) {
-    //                         // Fallback: direkte Energie-Manipulation
-    //                         if (typeof enemy.energy === 'number') {
-    //                             enemy.energy = Math.max(0, enemy.energy - dmg);
-    //                         }
-    //                     }
-
-    //                     // UI aktualisieren
-    //                     this.endbossStatusBar.setPercentage(enemy.energy);
-
-    //                     // Boss tot?
-    //                     if (enemy.energy === 0 && typeof this.onEndbossDeath === 'function') {
-    //                         this.onEndbossDeath(enemy);
-    //                     }
-    //                 }
-
-
-    //                 this.throwableObjects.splice(bottleIndex, 1);
-    //             }
-    //         });
-    //     });
-    // }
 
     checkProjectileCollisions() {
         // Zu Beginn: Projektile ignorieren, solange Start-Schutz aktiv ist
@@ -701,7 +662,8 @@ class World {
         this.gameOver = true;
 
         this.stopEndbossTimer();
-        this.stopPortalTimer(); // ← NEU
+        this.stopPortalTimer();
+        this.stopMiniChickenSwarm();
 
         // Schritt-Sounds stoppen
         try {
@@ -1320,7 +1282,7 @@ class World {
     }
 
 
-        /**
+    /**
      * Liefert den aktuellen lebenden Endboss.
      * @returns {object|null} Endboss oder null.
      */
@@ -1329,6 +1291,121 @@ class World {
         const boss = enemies.find(e => e instanceof Endboss && !e.dead);
         return boss || null;
     }
+
+
+    /**
+     * Returns all living mini chickens that were spawned by the Endboss.
+     * @returns {MiniChicken[]} active boss-spawned mini chickens
+     */
+    getActiveMiniChickens() {
+        let enemies = this.level?.enemies || [];
+        return enemies.filter(
+            (e) => e instanceof MiniChicken && !e.dead && e.spawnedByBoss
+        );
+    }
+
+
+    /**
+     * Starts the mini-chicken swarm routine when the boss fight begins.
+     * Only runs once per boss fight.
+     */
+    startMiniChickenSwarm() {
+        // Wenn Boss schon tot → nie wieder Schwarm
+        if (this.miniSwarmActive || this.bossDefeated) return;
+
+        const boss = this.getCurrentEndboss();
+        if (!boss) return;
+
+        // ⬇️ Nur einmal beim Start des Kampfes festlegen:
+        if (this.miniSwarmOriginX == null) {
+            this.miniSwarmOriginX =
+                boss.startX || boss.spawnX || boss.homeX || boss.x;
+        }
+
+        this.miniSwarmActive = true;
+        this.spawnMiniChickenGroup(boss);
+
+        this.miniSwarmTimerId = setInterval(() => {
+            this.tickMiniChickenSwarm();
+        }, this.MINI_SWARM_INTERVAL_MS);
+    }
+
+
+    /**
+     * Swarm tick: spawns new waves while the boss is alive and the game is running.
+     */
+    tickMiniChickenSwarm() {
+        if (!this.miniSwarmActive || this.bossDefeated) return;
+        if (this.paused || this.gameOver || this.gameWon) return;
+
+        let boss = this.getCurrentEndboss();
+        if (!boss) {
+            this.stopMiniChickenSwarm();
+            return;
+        }
+
+        let active = this.getActiveMiniChickens();
+        if (active.length >= this.MINI_SWARM_MAX_COUNT) return;
+
+        this.spawnMiniChickenGroup(boss);
+    }
+
+
+    /**
+     * Spawns a small group of mini chickens near the Endboss.
+     * They always spawn in front of the boss (to the left).
+     */
+    spawnMiniChickenGroup(boss) {
+        if (!boss) return;
+
+        const active = this.getActiveMiniChickens();
+        const freeSlots = this.MINI_SWARM_MAX_COUNT - active.length;
+        if (freeSlots <= 0) return;
+
+        const groupSize = Math.min(this.MINI_SWARM_GROUP_SIZE, freeSlots);
+        const enemies = this.level?.enemies || [];
+
+        // ⬇️ immer dieselbe Start-Region: „wo der Endboss gestartet ist“
+        const originX =
+            this.miniSwarmOriginX ||
+            boss.startX ||
+            boss.spawnX ||
+            boss.homeX ||
+            boss.x;
+
+        const baseX = originX - 120;
+
+        for (let i = 0; i < groupSize; i++) {
+            const offset = i * 70;
+            const spawnX = baseX - offset;
+            enemies.push(new MiniChicken(spawnX, true));
+        }
+
+        this.level.enemies = enemies;
+    }
+
+
+    /**
+     * Stops the mini-chicken swarm timer.
+     */
+    stopMiniChickenSwarm() {
+        if (this.miniSwarmTimerId) {
+            clearInterval(this.miniSwarmTimerId);
+            this.miniSwarmTimerId = null;
+        }
+        this.miniSwarmActive = false;
+    }
+
+    /**
+     * Clears all boss-spawned mini chickens from the level.
+     */
+    clearBossSpawnedMiniChickens() {
+        let enemies = this.level?.enemies || [];
+        this.level.enemies = enemies.filter(
+            (e) => !(e instanceof MiniChicken && e.spawnedByBoss)
+        );
+    }
+
 
 
     /**
@@ -1541,11 +1618,24 @@ class World {
     try { this.pauseBgMusic(); } catch(e) {}
     }
 
+
     onEndbossDeath(endboss) {
+        // Nur einmal ausführen, falls mehrfach getroffen o.Ä.
+        if (this.bossDefeated) return;
+        this.bossDefeated = true;
+
         this.endbossInSight = false;
-        if (endboss) endboss.isInSight = false;
+
+        if (endboss) {
+            endboss.isInSight   = false;
+            endboss.inAggroMode = false;
+            endboss.returning   = false;
+            endboss.aiState     = 'IDLE';   // <--- wichtig: kein CHASE mehr
+        }
 
         this.stopEndbossTimer();
+        this.stopMiniChickenSwarm();
+        this.clearBossSpawnedMiniChickens(); // alle Boss-Minis raus
 
         try { this.stopAmbienceLoop(); } catch (e) {}
         try {
@@ -1565,6 +1655,7 @@ class World {
         // Boss tot → Portal-Countdown starten (Spieler kann nicht endlos trödeln)
         this.startPortalTimer();
     }
+
 
     getAllAudios() {
     // alle bekannten Audio-Objekte sammeln (nur wenn vorhanden)
