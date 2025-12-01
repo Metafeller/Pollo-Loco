@@ -916,12 +916,12 @@ class World {
         let isBossPhase = false;
         let isPortalPhase = false;
 
-        if (this.endbossTimerActive && this.endbossTimerSeconds > 0) {
-            seconds = Math.max(0, this.endbossTimerSeconds);
-            isBossPhase = true;
-        } else if (this.portalTimerActive && this.portalTimerSeconds > 0) {
+        if (this.portalTimerActive && this.portalTimerSeconds > 0) {
             seconds = Math.max(0, this.portalTimerSeconds);
             isPortalPhase = true;
+        } else if (this.endbossTimerActive && this.endbossTimerSeconds > 0) {
+            seconds = Math.max(0, this.endbossTimerSeconds);
+            isBossPhase = true;
         } else {
             return;
         }
@@ -1373,7 +1373,7 @@ class World {
             boss.homeX ||
             boss.x;
 
-        const baseX = originX - 120;
+        const baseX = originX - 100; // Mini-Chicken Final vorher 120
 
         for (let i = 0; i < groupSize; i++) {
             const offset = i * 70;
@@ -1489,15 +1489,17 @@ class World {
      * durch das Portal zu laufen.
      */
     startPortalTimer() {
-        if (this.portalTimerActive) return;
+        // Immer mit sauberem Zustand starten (alter Timer + Sound weg)
+        this.stopPortalTimer();
+
         if (!this.hutGate) return;
         if (this.gameOver || this.gameWon) return;
 
-        this.portalTimerActive = true;
+        this.portalTimerActive  = true;
         this.portalTimerSeconds = this.PORTAL_TIMEOUT_SECONDS;
 
-        // Einmaliger Alarm bei Start des 10s-Timers
-        this.playPortalTimerStartSound();   // ← NEU
+        // Einmaliger Alarm bei Start des Timers
+        this.playPortalTimerStartSound();
 
         this.portalTimerId = setInterval(() => {
             this.tickPortalTimer();
@@ -1519,10 +1521,15 @@ class World {
             return;
         }
 
-        // Falls der Boss aus irgendeinem Grund wiederbelebt würde o.ä.:
+        // Falls aus irgendeinem Grund ein Portal-Timer läuft,
+        // während der Boss NOCH lebt UND wir ihn nicht als besiegt markiert haben,
+        // brechen wir den Timer ab.
+        // Nach einem regulären Boss-Tod (bossDefeated === true)
+        // darf dieser Block NICHT mehr feuern.
         const bossAlive = (this.level?.enemies || [])
             .some(e => e instanceof Endboss && !e.dead);
-        if (bossAlive) {
+
+        if (bossAlive && !this.bossDefeated) {
             this.stopPortalTimer();
             return;
         }

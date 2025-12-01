@@ -39,7 +39,7 @@ function buildLevel1() {
         [
             ...chickensDistributed,
             ...minisDistributed,
-            new Endboss(6900)
+            new Endboss(6800)
         ],
 
         [
