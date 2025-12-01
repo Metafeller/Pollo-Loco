@@ -23,7 +23,7 @@ class Endboss extends MovableObject {
 
     inAggroMode = false;
     baseSpeed = 0.5;          // Basis-Speed, wenn nicht im Kampf
-    aggroSpeed = 3.0;         // Aggro-Speed: spürbar schneller als Pepe (bei Bedarf feinjustieren)
+    aggroSpeed = 5.0;         // Aggro-Speed: spürbar schneller als Pepe (bei Bedarf feinjustieren)
     permanentChase = true;    // true = Boss verfolgt dauerhaft, kein automatisches RETURN
     targetX = null;           // letzte bekannte X-Position von Pepe
     isDying = false;

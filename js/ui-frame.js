@@ -52,15 +52,89 @@
     ss.style.height = stage.clientHeight + 'px';
   }
 
-  // Overlay-Card auf Canvas legen (Pause/Imprint/Privacy/Rules etc.)
-  function placeOverlayCard(card){
-    const r = canvasRect();
-    if (!r || !card) return;
-    card.style.left   = r.left + 'px';
-    card.style.top    = r.top  + 'px';
-    card.style.width  = r.w    + 'px';
-    card.style.height = r.h    + 'px';
+
+  function overlaySafeBox(){
+    const vh = window.innerHeight || document.documentElement.clientHeight || 0;
+    let top    = 0;
+    let bottom = vh;
+
+    const header = document.querySelector('.header-bar');
+    const footer = document.querySelector('.footer-bar');
+
+    if (header){
+      const r = header.getBoundingClientRect();
+      top = Math.max(top, r.bottom);
+    }
+
+    if (footer){
+      const r = footer.getBoundingClientRect();
+      bottom = Math.min(bottom, r.top);
+    }
+
+    const height = Math.max(0, bottom - top);
+    return { top, bottom, height };
   }
+
+
+  function sizeOverlayMobile(card){
+    const marginX = 8;
+    const marginY = 8;
+
+    const vw = window.innerWidth || document.documentElement.clientWidth || 0;
+    const safe = overlaySafeBox();
+
+    const width       = Math.max(0, vw - marginX * 2);
+    const innerTop    = safe.top + marginY;
+    const innerHeight = Math.max(0, safe.height - marginY * 2);
+
+    card.style.left   = marginX + 'px';
+    card.style.top    = innerTop + 'px';
+    card.style.width  = width + 'px';
+    card.style.height = innerHeight + 'px';
+  }
+
+
+  function sizeOverlayDesktop(card){
+    const marginY = 16;
+
+    const vw   = window.innerWidth || document.documentElement.clientWidth || 0;
+    const safe = overlaySafeBox();
+    const rect = canvasRect();
+
+    let width = Math.min(720, vw);
+    let left  = Math.max(0, (vw - width) / 2);
+
+    if (rect){
+      width = rect.w;
+      left  = rect.left;
+    }
+
+    const innerTop    = safe.top + marginY;
+    const innerHeight = Math.max(0, safe.height - marginY * 2);
+
+    card.style.left   = left + 'px';
+    card.style.top    = innerTop + 'px';
+    card.style.width  = width + 'px';
+    card.style.height = innerHeight + 'px';
+  }
+
+
+  // Overlay-Card (Rules / Imprint / Privacy) an Viewport anpassen
+  // Desktop: Breite wie Canvas, Höhe ~ Viewport
+  // Mobile: 8px Rand links/rechts, Höhe ~ Viewport
+  function placeOverlayCard(card){
+    if (!card) return;
+
+    const body = document.body;
+    const isMobileUi = body && body.classList.contains('is-mobile-ui');
+
+    if (isMobileUi) {
+      sizeOverlayMobile(card);
+    } else {
+      sizeOverlayDesktop(card);
+    }
+  }
+
 
   // Fokus-Trap + ESC
   function trap(overlay){
