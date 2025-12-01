@@ -7,11 +7,13 @@ class MovableObject extends DrawableObject {
     lastHit = 0;
     dead = false;
 
+
     constructor() {
         super();
         // Standard-Hitbox-Offsets (pro Unterklasse anpassbar)
         this.offset = { left: 0, right: 0, top: 0, bottom: 0 };
     }
+
 
     // === Ground & Gravity (robust) ===
     isAboveGround() {
@@ -26,6 +28,7 @@ class MovableObject extends DrawableObject {
         // Fallback nur für alte Objekte ohne Definition
         return this.y < 150;
     }
+
 
     applyGravity() {
         setInterval(() => {
@@ -46,6 +49,7 @@ class MovableObject extends DrawableObject {
         }, 1000 / 25);
     }
 
+
     // Kollisions-Bounds MIT Offsets
     getBounds() {
         const x = typeof this.x === 'number' ? this.x : 0;
@@ -61,6 +65,7 @@ class MovableObject extends DrawableObject {
             bottom: y + h - (off.bottom || 0)
         };
     }
+
 
     /**
      * Axis-aligned bounding box collision check (robust AABB).
@@ -84,11 +89,6 @@ class MovableObject extends DrawableObject {
         return overlapX && overlapY;
     }
 
-    // hit() {
-    //     this.energy -= 5;
-    //     if (this.energy < 0) this.energy = 0;
-    //     else this.lastHit = new Date().getTime();
-    // }
 
     hit(amount = 5) {
         const dmg = (typeof amount === 'number' && amount > 0) ? amount : 5;
@@ -97,15 +97,19 @@ class MovableObject extends DrawableObject {
         else this.lastHit = new Date().getTime();
     }
 
+
     isHurt() {
         let timepassed = (new Date().getTime() - this.lastHit) / 1000;
         return timepassed < 1.2;
     }
 
+
     isDead() { return this.energy == 0; }
+
 
     moveRight() { if (!this.dead) this.x += this.speed; }
     moveLeft()  { if (!this.dead) { this.x -= this.speed; this.x -= 0.15; } }
+
 
     playAnimation(images) {
         if (this.dead) return;
@@ -115,5 +119,6 @@ class MovableObject extends DrawableObject {
         this.currentImage++;
     }
 
+    
     jump() { /* this.speedY = 25; */ }
 }

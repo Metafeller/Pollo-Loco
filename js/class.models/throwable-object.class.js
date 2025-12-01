@@ -1,37 +1,3 @@
-// class ThrowableObject extends MovableObject {
-
-//     constructor(x, y, facingRight = true) {
-//         super().loadImage('/img/6_salsa_bottle/bottle_rotation/1_bottle_rotation.png');
-//         this.x = x;
-//         this.y = y;
-//         this.width = 60;
-//         this.height = 70;
-
-//         this.facingRight = facingRight;
-//         this.spawnX = x;
-//         this.maxDistance = 420;   // kürzer, bleibt im Sichtfeld
-//         this.done = false;
-
-//         this.throw();
-//     }
-
-//     throw() {
-//         // flacherer Wurf
-//         this.speedY = 10;         // weniger Steigflug
-//         this.acceleration = 1.9;  // sanftere Kurve
-//         this.applyGravity();
-
-//         // horizontale Bewegung etwas langsamer -> bessere Trefferchance
-//         this._interval = setInterval(() => {
-//             this.x += (this.facingRight ? 8 : -8); // vorher 12
-//             if (Math.abs(this.x - this.spawnX) > this.maxDistance) {
-//                 this.done = true;
-//                 clearInterval(this._interval);
-//             }
-//         }, 1000 / 60);
-//     }
-// }
-
 class ThrowableObject extends MovableObject {
   width = 60;
   height = 60;
@@ -77,11 +43,13 @@ class ThrowableObject extends MovableObject {
     this.startSpin();
   }
 
+
   /** Boden-Logik nur für Flaschen */
   isAboveGround() {
     if (this.done) return false;
     return this.y < this.groundY;
   }
+
 
   /** horizontale Flugbahn */
   startThrow() {
@@ -101,6 +69,7 @@ class ThrowableObject extends MovableObject {
     }, 1000 / 60);
   }
 
+
   /** Spin-Animation während des Flugs */
   startSpin() {
     this._spinTimer = setInterval(() => {
@@ -112,6 +81,7 @@ class ThrowableObject extends MovableObject {
     }, 50);
   }
 
+
   /** Wird aufgerufen, wenn die Flasche den Boden erreicht */
   onGroundHit() {
     if (this.done || this.hasHit) return;
@@ -120,6 +90,7 @@ class ThrowableObject extends MovableObject {
     this.speedY = 0;
     this.y = this.groundY;
 
+    
     // Optional-Bonus: verfehlte Flasche wiederverwendbar machen
     try {
       if (this.world && typeof this.world.reuseBottleFromThrow === 'function') {

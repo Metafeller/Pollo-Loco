@@ -127,31 +127,6 @@ class Endboss extends MovableObject {
     }
 
 
-    /** Von world.run() 1–5x/s aufrufen, um Ping-Pong zu vermeiden */
-    // updateAI(characterX) {
-    //     if (this.dead || this.isDying) return;
-
-    //     const inSight = (characterX > this.x - this.sightRange);
-
-    //     // State-Wechsel:
-    //     if (this.aiState === 'IDLE' && inSight) {
-    //         this.aiState = 'CHASE';
-    //     }
-
-    //     // Wenn wir im RETURN sind, ignorieren wir inSight bis Start erreicht
-    //     if (this.aiState === 'RETURN') return;
-
-    //     // Leash-Limit erreicht? → RETURN
-    //     const leftLimit = this.startPosition - this.leashRadius;
-    //     if (this.aiState === 'CHASE' && this.x <= leftLimit) {
-    //         this.aiState = 'RETURN';
-    //         this.returning = true;
-    //     }
-
-    //     this.isInSight = (this.aiState === 'CHASE'); // für StatusBar
-    // }
-
-
     /**
      * Aktualisiert den KI-State in Abhängigkeit von Pepes X-Position.
      * Wird von world.run() mehrmals pro Sekunde aufgerufen.
@@ -292,28 +267,7 @@ class Endboss extends MovableObject {
         this.playAnimation(this.IMAGES_WALKING);
     }
 
-
-    // animate() {
-    //     setInterval(() => {
-    //         if (this.dead || this.isDying) return;
-
-    //         if (this.aiState === 'CHASE' && !this.isHurtAnimation) {
-    //             this.moveLeft();
-    //             this.otherDirection = false;
-    //             const frames = this.inAggroMode ? this.IMAGES_ALERT : this.IMAGES_WALKING;
-    //             this.playAnimation(frames);
-
-    //         } else if (this.aiState === 'RETURN' && !this.isHurtAnimation) {
-    //             this.returnToStart();
-
-    //         } else if (this.isHurtAnimation) {
-    //             this.playAnimation(this.IMAGES_HURT);
-    //         }
-
-    //         this.clampX();
-    //     }, 1000 / 60);
-    // }
-
+    
     animate() {
         setInterval(() => {
             if (this.dead || this.isDying) return;

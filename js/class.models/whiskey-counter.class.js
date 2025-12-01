@@ -12,7 +12,9 @@ class WhiskeyCounter extends DrawableObject {
         this.height = 48;
     }
 
+    
     setCount(n) { this.count = Math.max(0, n | 0); }
+
 
     draw(ctx) {
         if (!ctx) return;

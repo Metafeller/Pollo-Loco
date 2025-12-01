@@ -61,23 +61,6 @@ class HutGate extends DrawableObject {
         this.footMarginPx   = 14;     // wie weit über der Unterkante wir "Füße" messen
     }
 
-    // _applyAspectOnce() {
-    //     if (this._aspectFixed) return;
-    //     const img = this.img;
-    //     if (img && img.naturalWidth && img.naturalHeight) {
-    //         const ratio = img.naturalWidth / img.naturalHeight;
-    //         // Breite aus Zielhöhe ableiten
-    //         this.width = Math.round(this.height * ratio);
-    //         // Top so setzen, dass Bottom sauber am Boden sitzt
-    //         this.y = this.groundY - this.height;
-
-    //         // Portal neu berechnen (mittig)
-    //         this.portalWidth = Math.max(60, this.width - this.portalInsetX * 2);
-
-    //         this._aspectFixed = true;
-    //         console.debug('[Gate] w/h', img.naturalWidth, img.naturalHeight, '→ width:', this.width);
-    //     }
-    // }
 
     _applyAspectOnce() {
         if (this._aspectFixed) return;
@@ -112,10 +95,12 @@ class HutGate extends DrawableObject {
         }, this._openStepMs);
     }
 
+
     update() {
         // Falls Image erst später geladen ist → Aspect/Kanten am Boden korrigieren
         this._applyAspectOnce();
     }
+
 
     getPortalRect() {
         // Portal an den Boden legen: Unterkante = groundY
@@ -127,16 +112,6 @@ class HutGate extends DrawableObject {
         };
     }
 
-    // isCharacterInPortal(character) {
-    //     if (!this.isOpen || !character) return false;
-    //     const r = this.getPortalRect();
-    //     return !(
-    //         character.x + character.width  < r.x ||
-    //         character.x > r.x + r.width ||
-    //         character.y + character.height < r.y ||
-    //         character.y > r.y + r.height
-    //     );
-    // }
 
     // === REPLACE: isCharacterInPortal(character) ===
     isCharacterInPortal(character) {

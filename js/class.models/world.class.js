@@ -157,20 +157,8 @@ class World {
         } catch (e) {}
     }
 
-    // ADD: BG music helpers
-    // startBgMusic() {
-    //     try {
-    //         if (!this.bgMusic) return;
-    //         this.bgMusic.loop = true;
-    //         this.bgMusic.volume = 0.28; // ~28%
-    //         if (this.bgMusic.paused) {
-    //         this.bgMusic.currentTime = 0;
-    //         this.bgMusic.play();
-    //         }
-    //     } catch(e) {}
-    //     }
 
-        /**
+    /**
      * Startet die leise Hintergrundmusik und respektiert den globalen Mute-Status.
      */
     startBgMusic() {
@@ -199,7 +187,7 @@ class World {
         } catch(e) {}
     }
 
-        /**
+    /**
      * Prüft, ob wir uns noch im Start-Schutzfenster befinden.
      * Während dieser Zeit werden Gegner-Kollisionen ignoriert,
      * damit Pepe nicht direkt beim Spielstart überrannt wird.
@@ -264,21 +252,6 @@ class World {
 
     setWorld() { this.character.world = this; }
 
-    // ===== Sammeln / Werfen =====
-    // checkBottleCollection() {
-    //     this.level.bottles.forEach((bottle) => {
-    //         if (this.character.isColliding(bottle)) {
-    //             if (this.bottlesCollected < this.maxBottles) {
-    //                 const picked = bottle;
-    //                 this.level.bottles = this.level.bottles.filter(b => b !== picked);
-    //                 this.bottlesCollected++;
-    //                 const pct = (this.bottlesCollected / this.maxBottles) * 100;
-    //                 this.bottleStatusBar.setPercentage(pct);
-    //             }
-    //         }
-    //     });
-    // }
-
     checkBottleCollection() {
         let picked = false;
         this.level.bottles.forEach((bottle) => {
@@ -316,54 +289,106 @@ class World {
         this.endbossInSight = (endboss.aiState === 'CHASE');
     }
 
+
+    /**
+     * Main world tick (200 ms): updates pickups, boss phase and portal logic.
+     */
     run() {
         setInterval(() => {
-            if (this.gameWon || this.gameOver) {
-                if (this.hutStory) this.hutStory.deactivate();
-                return;
-            }
-
-            if (this.paused) return; // << NEU: bei Pause keine Spiel-Logik
-
-            // this.checkCollisions();
-            this.checkThrowObjects();
-            this.checkBottleCollection();
-            // this.checkBottleCollisions();
-            // this.checkProjectileCollisions();
-            this.checkCoinCollection();
-            this.checkWhiskeyCollection();
-            this.checkHeartCollection(); // ← NEU
-
-            let endboss = this.getCurrentEndboss(); // <--- benutzt jetzt nur lebende Bosse
-                if (endboss && !this.bossDefeated) {
-                    endboss.updateAI(this.character?.x || 0);
-                    this.endbossInSight = (endboss.aiState === 'CHASE');
-
-                    if (this.endbossInSight) {
-                        this.startEndbossTimer();
-                        this.startMiniChickenSwarm();
-                    } else {
-                        this.stopMiniChickenSwarm();
-                    }
-                } else {
-                    this.endbossInSight = false;
-                    this.stopMiniChickenSwarm();
-            }
-
-
-            // ADD: BG music follow state
-            if (this.endbossInSight) this.pauseBgMusic();
-            else this.resumeBgMusic();
-
-            if (this.hutGate)  this.hutGate.update();
-            if (this.hutStory) this.hutStory.update();
-
-            this.checkHutProximityAndStory();
-            this.checkPortalEnter();
-
-            this.effects = Array.isArray(this.effects) ? this.effects.filter(e => !e.done) : [];
+            if (this.shouldSkipWorldTick()) return;
+            this.handleWorldTick();
         }, 200);
     }
+
+    /**
+     * Returns true if the world tick should be skipped (pause or end state).
+     */
+    shouldSkipWorldTick() {
+        if (this.gameWon || this.gameOver) {
+            if (this.hutStory) this.hutStory.deactivate();
+            return true;
+        }
+        if (this.paused) return true;
+        return false;
+    }
+
+    /**
+     * Executes a single logical world tick while the game is running.
+     */
+    handleWorldTick() {
+        this.updatePickupsAndThrows();
+        this.updateEndbossPhase();
+        this.updateBossMusicState();
+        this.updateHutAndPortal();
+        this.cleanupEffectsList();
+    }
+
+    /**
+     * Updates all pickups and throwable objects in a single tick.
+     */
+    updatePickupsAndThrows() {
+        this.checkThrowObjects();
+        this.checkBottleCollection();
+        this.checkCoinCollection();
+        this.checkWhiskeyCollection();
+        this.checkHeartCollection();
+    }
+
+    /**
+     * Handles AI and state for the Endboss and mini-chicken swarm.
+     */
+    updateEndbossPhase() {
+        const endboss = this.getCurrentEndboss();
+        if (endboss && !this.bossDefeated) {
+            endboss.updateAI(this.character?.x || 0);
+            this.endbossInSight = (endboss.aiState === 'CHASE');
+
+            if (this.endbossInSight) {
+                this.startEndbossTimer();
+                this.startMiniChickenSwarm();
+            } else {
+                this.stopMiniChickenSwarm();
+            }
+            return;
+        }
+
+        this.endbossInSight = false;
+        this.stopMiniChickenSwarm();
+    }
+
+    /**
+     * Pauses or resumes background music depending on boss visibility.
+     */
+    updateBossMusicState() {
+        if (this.endbossInSight) {
+            this.pauseBgMusic();
+        } else {
+            this.resumeBgMusic();
+        }
+    }
+
+    /**
+     * Updates hut gate, story billboard and portal checks.
+     */
+    updateHutAndPortal() {
+        if (this.hutGate) this.hutGate.update();
+        if (this.hutStory) this.hutStory.update();
+
+        this.checkHutProximityAndStory();
+        this.checkPortalEnter();
+    }
+
+    /**
+     * Removes finished visual effects from the effects list.
+     */
+    cleanupEffectsList() {
+        if (!Array.isArray(this.effects)) {
+            this.effects = [];
+            return;
+        }
+        this.effects = this.effects.filter(e => !e.done);
+    }
+
 
     checkThrowObjects() {
         // Normale Flasche (D)
@@ -402,90 +427,154 @@ class World {
     }
 
 
+    /**
+     * Checks all projectile ↔ enemy collisions in the current frame.
+     */
     checkProjectileCollisions() {
         // Zu Beginn: Projektile ignorieren, solange Start-Schutz aktiv ist
         // if (this.isInStartGrace()) return;
 
-        if (!Array.isArray(this.throwableObjects) || !this.level || !Array.isArray(this.level.enemies)) return;
+        if (!this.canCheckProjectileCollisions()) return;
 
         this.throwableObjects.forEach((proj, idx) => {
             this.level.enemies.forEach((enemy) => {
                 if (!proj.isColliding(enemy)) return;
-
-                // === FIREBALL: nur Endboss & "fliegende" Gegner (future: enemy.canBeHitByFireball === true)
-                if (proj instanceof Fireball) {
-                    if (enemy instanceof Chicken || enemy instanceof MiniChicken) {
-                        // Ignorieren – fliegt durch kleine Bodengegner
-                        return;
-                    }
-                    if (enemy instanceof Endboss || enemy.canBeHitByFireball === true) {
-                        if (typeof enemy.enterAggro === 'function') enemy.enterAggro();
-                        this.startAmbienceLoop();
-
-                        const dmg = 40;
-                        try {
-                            if (enemy.hit.length >= 1) enemy.hit(dmg);
-                            else {
-                                enemy.hit(); // klassische 20%
-                                if (typeof enemy.energy === 'number') {
-                                    enemy.energy = Math.max(0, enemy.energy - 20); // auf 40% auffüllen
-                                }
-                            }
-                        } catch (e) {
-                            if (typeof enemy.energy === 'number') {
-                                enemy.energy = Math.max(0, enemy.energy - dmg);
-                            }
-                        }
-
-                        this.endbossStatusBar.setPercentage(enemy.energy);
-                        if (enemy.energy === 0 && typeof this.onEndbossDeath === 'function') {
-                            this.onEndbossDeath(enemy);
-                        }
-                        proj.done = true; // Fireball verbrauchen
-                    }
-                    return;
-                }
-
-                // === BOTTLE (ThrowableObject): Standard-Regeln
-                if (proj.hasHit === true) return;
-                proj.hasHit = true;
-                this.onBottleHitsEnemy(proj, enemy);
-
-                if (enemy instanceof Chicken || enemy instanceof MiniChicken) {
-                    if (typeof enemy.die === 'function') enemy.die();
-                    setTimeout(() => {
-                        try { this.playEnemyDeathSound(); } catch (e) {}
-                        this.level.enemies = this.level.enemies.filter(e => e !== enemy);
-                    }, 320);
-
-                } else if (enemy instanceof Endboss) {
-                    if (typeof enemy.enterAggro === 'function') enemy.enterAggro();
-                    this.startAmbienceLoop();
-
-                    const dmg = 20;
-                    try {
-                        if (enemy.hit.length >= 1) enemy.hit(dmg);
-                        else enemy.hit();
-                    } catch (e) {
-                        if (typeof enemy.energy === 'number') {
-                            enemy.energy = Math.max(0, enemy.energy - dmg);
-                        }
-                    }
-
-                    this.endbossStatusBar.setPercentage(enemy.energy);
-                    if (enemy.energy === 0 && typeof this.onEndbossDeath === 'function') {
-                        this.onEndbossDeath(enemy);
-                    }
-                }
-
-                // Bottle verschwindet bei Kollision:
-                this.throwableObjects.splice(idx, 1);
+                this.handleProjectileHitsEnemy(proj, enemy, idx);
             });
         });
 
-        // Rest aufräumen
+        this.cleanupProjectiles();
+    }
+
+    /**
+     * Returns true if projectile collision checks are safe to run.
+     */
+    canCheckProjectileCollisions() {
+        if (!Array.isArray(this.throwableObjects)) return false;
+        if (!this.level) return false;
+        if (!Array.isArray(this.level.enemies)) return false;
+        return true;
+    }
+
+    /**
+     * Dispatches projectile hits to fireball or bottle handlers.
+     */
+    handleProjectileHitsEnemy(proj, enemy, idx) {
+        if (proj instanceof Fireball) {
+            this.handleFireballHitEnemy(proj, enemy);
+            return;
+        }
+        this.handleBottleHitEnemy(proj, enemy, idx);
+    }
+
+    /**
+     * Fireball logic: ignores small ground enemies, hits boss / flying enemies.
+     */
+    handleFireballHitEnemy(proj, enemy) {
+        if (enemy instanceof Chicken || enemy instanceof MiniChicken) return;
+        if (!(enemy instanceof Endboss || enemy.canBeHitByFireball === true)) return;
+
+        if (typeof enemy.enterAggro === 'function') enemy.enterAggro();
+        this.startAmbienceLoop();
+
+        const dmg = 40;
+        this.applyFireballDamage(enemy, dmg);
+
+        this.endbossStatusBar.setPercentage(enemy.energy);
+        if (enemy.energy === 0 && typeof this.onEndbossDeath === 'function') {
+            this.onEndbossDeath(enemy);
+        }
+
+        // Fireball is consumed after a valid hit (boss / flying enemy)
+        proj.done = true;
+    }
+
+    /**
+     * Applies fireball damage with the original fallback behaviour.
+     */
+    applyFireballDamage(enemy, dmg) {
+        try {
+            if (enemy.hit.length >= 1) enemy.hit(dmg);
+            else {
+                enemy.hit(); // classic 20%
+                if (typeof enemy.energy === 'number') {
+                    enemy.energy = Math.max(0, enemy.energy - 20); // top up to 40% total
+                }
+            }
+        } catch (e) {
+            if (typeof enemy.energy === 'number') {
+                enemy.energy = Math.max(0, enemy.energy - dmg);
+            }
+        }
+    }
+
+    /**
+     * Standard bottle behaviour for all enemies.
+     */
+    handleBottleHitEnemy(proj, enemy, idx) {
+        if (proj.hasHit === true) return;
+        proj.hasHit = true;
+
+        this.onBottleHitsEnemy(proj, enemy);
+
+        if (enemy instanceof Chicken || enemy instanceof MiniChicken) {
+            this.handleBottleHitChicken(enemy);
+        } else if (enemy instanceof Endboss) {
+            this.handleBottleHitEndboss(enemy);
+        }
+
+        // Bottle disappears on first collision (unchanged behaviour)
+        this.throwableObjects.splice(idx, 1);
+    }
+
+    /**
+     * Bottle hit on small enemies: kill + delayed removal with sound.
+     */
+    handleBottleHitChicken(enemy) {
+        if (typeof enemy.die === 'function') enemy.die();
+        setTimeout(() => {
+            try { this.playEnemyDeathSound(); } catch (e) {}
+            this.level.enemies = this.level.enemies.filter(e => e !== enemy);
+        }, 320);
+    }
+
+    /**
+     * Bottle hit on Endboss: aggro + damage + death check.
+     */
+    handleBottleHitEndboss(enemy) {
+        if (typeof enemy.enterAggro === 'function') enemy.enterAggro();
+        this.startAmbienceLoop();
+
+        const dmg = 20;
+        this.applyBottleDamageToEndboss(enemy, dmg);
+
+        this.endbossStatusBar.setPercentage(enemy.energy);
+        if (enemy.energy === 0 && typeof this.onEndbossDeath === 'function') {
+            this.onEndbossDeath(enemy);
+        }
+    }
+
+    /**
+     * Applies bottle damage to the Endboss with original fallback.
+     */
+    applyBottleDamageToEndboss(enemy, dmg) {
+        try {
+            if (enemy.hit.length >= 1) enemy.hit(dmg);
+            else enemy.hit();
+        } catch (e) {
+            if (typeof enemy.energy === 'number') {
+                enemy.energy = Math.max(0, enemy.energy - dmg);
+            }
+        }
+    }
+
+    /**
+     * Removes finished projectiles after processing collisions.
+     */
+    cleanupProjectiles() {
         this.throwableObjects = this.throwableObjects.filter(p => !p.done);
     }
+
 
     checkCollisions() {
         // Während des Start-Schutzfensters keine Gegner-Kollisionen auswerten
@@ -656,16 +745,35 @@ class World {
     }
 
 
-    /** Endgültiger Spieler-Tod: Logik stoppen, Grabstein setzen + GO-Sequenz. */
+    /** 
+     * Final player death: stop logic, spawn gravestone and start GO sequence.
+     */
     onPlayerDeath() {
         if (this.gameOver) return;
         this.gameOver = true;
 
+        this.stopBossAndPortalSystems();
+        this.stopStepAndAmbienceSounds();
+        this.freezeEnemiesAndCharacter();
+        this.createGravestoneForCharacter();
+        this.playDeathAudioSequence();
+        this.setupGameOverScreenWithRestartHook();
+        this.initGameOverSequencer();
+    }
+
+    /**
+     * Stops all boss / portal related timers and mini-chicken swarm.
+     */
+    stopBossAndPortalSystems() {
         this.stopEndbossTimer();
         this.stopPortalTimer();
         this.stopMiniChickenSwarm();
+    }
 
-        // Schritt-Sounds stoppen
+    /**
+     * Stops walking sounds and ambience loop safely.
+     */
+    stopStepAndAmbienceSounds() {
         try {
             this.character.walking_sound.pause();
             this.character.walking_sound.currentTime = 0;
@@ -673,18 +781,31 @@ class World {
             this.character.walking_sound_back.currentTime = 0;
         } catch (e) {}
 
-        // Ambience stoppen
         try { this.stopAmbienceLoop(); } catch (e) {}
+    }
 
-        // Enemies hart einfrieren
+    /**
+     * Freezes all enemies and the player character.
+     */
+    freezeEnemiesAndCharacter() {
+        this.freezeAllEnemies();
+        this.freezeCharacter();
+    }
+
+    /**
+     * Sets all enemies to a frozen state (no movement, no AI).
+     */
+    freezeAllEnemies() {
         try {
             (this.level?.enemies || []).forEach(e => {
                 if (!e) return;
                 e.speed = 0;
                 e.baseSpeed = 0;
-                if (typeof e.moveLeft  === 'function') e.moveLeft  = function() {};
-                if (typeof e.moveRight === 'function') e.moveRight = function() {};
-                if (typeof e.updateAI  === 'function') e.updateAI  = function() {};
+
+                if (typeof e.moveLeft  === 'function')  e.moveLeft  = function() {};
+                if (typeof e.moveRight === 'function')  e.moveRight = function() {};
+                if (typeof e.updateAI  === 'function')  e.updateAI  = function() {};
+
                 if (e instanceof Endboss) {
                     e.inAggroMode = false;
                     e.aiState = 'IDLE';
@@ -692,27 +813,40 @@ class World {
                 }
             });
         } catch (e) {}
+    }
 
-        // Charakter einfrieren
+    /**
+     * Freezes the player character and marks him as dead.
+     */
+    freezeCharacter() {
         try {
             this.character.dead = true;
             this.character.speed = 0;
             this.character.speedY = 0;
         } catch (e) {}
+    }
 
-        // Grabstein an Pepes Füße
+    /**
+     * Places the gravestone at the player's feet.
+     */
+    createGravestoneForCharacter() {
         try {
-            const SW = 120, SH = 340; // vorher 120 x 320
-            const gx = this.character.x + (this.character.width * 0.5) - (SW / 2); // vorher 0.5 + 2
+            const SW = 120;
+            const SH = 340;
+            const gx = this.character.x + (this.character.width * 0.5) - (SW / 2);
 
-            // wie viel tiefer als Pepes Bild-Unterkante (8–12px fühlt sich gut an)
             const SINK_PX = 64;
-
             const gy = this.character.y + this.character.height - SH + SINK_PX;
+
             this.gravestone = new Gravestone(gx, gy, SW, SH);
         } catch (e) {}
+    }
 
-        // Pain-Sound stoppen, damit Death-Sound nicht überlappt
+    /**
+     * Stops pain sound and plays death scream + death song.
+     */
+    playDeathAudioSequence() {
+        // stop pain so the death-sound does not overlap
         try {
             if (this.painAudio) {
                 this.painAudio.pause();
@@ -720,7 +854,7 @@ class World {
             }
         } catch (e) {}
 
-        // Sterbe-Sound einmalig
+        // one-shot death scream
         try {
             if (this.playerDeathAudio) {
                 this.playerDeathAudio.pause();
@@ -730,7 +864,7 @@ class World {
             }
         } catch (e) {}
 
-        // 0s: Death-Song
+        // 0s: Death song
         try {
             if (this.deathSong) {
                 this.deathSong.pause();
@@ -739,27 +873,17 @@ class World {
                 this.deathSong.play();
             }
         } catch (e) {}
+    }
 
-        // Overlay-Objekt + TryAgain Hook
-        // try {
-        //     if (!this.gameOverScreen) this.gameOverScreen = new GameOverScreen();
-        //     this.gameOverScreen.attachDom('.stage'); // an Stage anhängen
-
-        //     this.gameOverScreen.onTryAgain(() => {
-        //         try { this.stopAllGameOverAudio(); } catch (e) {}
-        //         if (window.restartNow) {
-        //             window.restartNow();
-        //         }
-        //     });
-        // } catch (e) {}
-
-
+    /**
+     * Builds the GameOver screen and wires the TryAgain-callback.
+     */
+    setupGameOverScreenWithRestartHook() {
         try {
             if (!this.gameOverScreen) this.gameOverScreen = new GameOverScreen();
-            this.gameOverScreen.attachDom('.stage'); // an Stage anhängen
+            this.gameOverScreen.attachDom('.stage');
 
             this.gameOverScreen.onTryAgain(() => {
-                // Hard-Reset aller World-Audios (kein Doppel-/Leck-Sound)
                 try {
                     if (typeof this.resetAllAudios === 'function') {
                         this.resetAllAudios();
@@ -773,28 +897,29 @@ class World {
                 }
             });
         } catch (e) {}
+    }
 
-
-        // Sequencer starten
+    /**
+     * Resets GameOver sequencer timing flags and prepares the splash.
+     */
+    initGameOverSequencer() {
         this.goT0 = performance.now();
         this.goOverlayShown = false;
         this.goButtonShown = false;
         this.goLoopsStarted = false;
         this.goSplashShown  = false;
-        this.goSplashActive = false; // NICHT sofort anzeigen
+        this.goSplashActive = false;
 
-        // Splash nur vor-decodieren (für sauberes Rendern), aber NICHT aktivieren.
-        // Aktivierung übernimmt der Sequencer nach SPLASH_DELAY_MS.
-
+        // decode splash in advance for clean rendering
         try {
             if (this.goSplashImg && typeof this.goSplashImg.decode === 'function') {
                 this.goSplashImg.decode().catch(() => {});
             }
         } catch (e) {}
 
-        try { this.pauseBgMusic(); } catch(e) {}
-
+        try { this.pauseBgMusic(); } catch (e) {}
     }
+
 
     /** Sequencer pro Frame – keine Timer-Races. */
     updateGameOverSequence(now) {
@@ -1001,114 +1126,155 @@ class World {
     }
 
 
+    /**
+     * Main render loop (per frame). Keeps old behaviour, but delegates to helpers.
+     */
     draw() {
-        // Hard-Stop für alte World-Instanzen (z.B. nach Restart ohne Reload)
         if (this.destroyed) return;
 
-        // Canvas löschen
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-        // Sequencer tick
+        this.clearCanvas();
         const now = performance.now();
         this.updateGameOverSequence(now);
 
-        const __camX__ = Math.round(this.camera_x); // pixel-snapping gegen Seams
-
-        // Nur wenn nicht pausiert: Physik/Kollisionen
         if (!this.paused) {
-            this.checkProjectileCollisions();
-            this.checkCollisions();
+            this.updateFrameCollisions();
         }
 
-        // Projektile-Kollisionen pro Frame prüfen (verhindert „Tunneling“)
-        // this.checkProjectileCollisions();
+        const camX = Math.round(this.camera_x);
+        this.drawWorldLayers(camX);
+        this.drawHudAndOverlays(now);
 
-        // SPIELER↔GEGNER: jetzt auch pro Frame → Stomps sind präzise
-        // this.checkCollisions();
+        requestAnimationFrame(() => this.draw());
+    }
 
-        // Kamera an
-        // this.ctx.translate(this.camera_x, 0);
-        this.ctx.translate(__camX__, 0);
+    /**
+     * Clears the entire canvas for the next frame.
+     */
+    clearCanvas() {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    }
 
-        // Hintergrund
+    /**
+     * Per-frame collision checks (projectiles + player ↔ enemies).
+     */
+    updateFrameCollisions() {
+        this.checkProjectileCollisions();
+        this.checkCollisions();
+    }
+
+    /**
+     * Draws all world layers that move with the camera.
+     */
+    drawWorldLayers(camX) {
+        this.drawBackgroundLayer(camX);
+        this.drawForegroundLayer(camX);
+    }
+
+    /**
+     * Background tiles (parallax etc.).
+     */
+    drawBackgroundLayer(camX) {
+        this.ctx.save();
+        this.ctx.translate(camX, 0);
         this.addObjectsToMap(this.level.backgroundObjects);
+        this.ctx.restore();
+    }
 
-        // Kamera aus
-        // this.ctx.translate(-this.camera_x, 0);
-        this.ctx.translate(-__camX__, 0);
+    /**
+     * Foreground: clouds, hut, story, pickups, player, enemies, effects.
+     */
+    drawForegroundLayer(camX) {
+        this.ctx.save();
+        this.ctx.translate(camX, 0);
 
-        // Kamera an
-        // this.ctx.translate(this.camera_x, 0);
-        this.ctx.translate(__camX__, 0);
+        this.drawCloudsAndHut();
+        this.drawPickupsLayer();
+        this.drawPlayerAndActors();
 
-        // Wolken
+        this.ctx.restore();
+    }
+
+    /**
+     * Clouds plus hut gate and story billboard.
+     */
+    drawCloudsAndHut() {
         this.addObjectsToMap(this.level.clouds);
 
-        // Tor & Story
         if (this.hutGate) this.addToMap(this.hutGate);
         if (this.hutStory && this.hutStory.visible) this.addToMap(this.hutStory);
+    }
 
-        // Coins & Whiskey im Level anzeigen
-        if (Array.isArray(this.level.coins))    this.addObjectsToMap(this.level.coins);
-        if (Array.isArray(this.level.whiskeys)) this.addObjectsToMap(this.level.whiskeys);
+    /**
+     * Coins, whiskey and hearts inside the level.
+     */
+    drawPickupsLayer() {
+        if (Array.isArray(this.level.coins)) {
+            this.addObjectsToMap(this.level.coins);
+        }
+        if (Array.isArray(this.level.whiskeys)) {
+            this.addObjectsToMap(this.level.whiskeys);
+        }
+        if (Array.isArray(this.level.hearts)) {
+            this.addObjectsToMap(this.level.hearts);
+        }
+    }
 
-        // Herz-Rendern / im Level anzeigen
-        if (Array.isArray(this.level.coins))    this.addObjectsToMap(this.level.coins);
-        if (Array.isArray(this.level.whiskeys)) this.addObjectsToMap(this.level.whiskeys);
-        if (Array.isArray(this.level.hearts))   this.addObjectsToMap(this.level.hearts); // ← NEU
-
-        // Spieler ODER Grabstein
+    /**
+     * Player (or gravestone), enemies, bottles, projectiles and effects.
+     */
+    drawPlayerAndActors() {
         if (this.gameOver) {
-            if (this.gravestone) this.addToMap(this.gravestone);
+            if (this.gravestone) {
+                this.addToMap(this.gravestone);
+            }
         } else {
             this.addToMap(this.character);
         }
 
-        // Bottles, Enemies, Effekte
         this.addObjectsToMap(this.level.bottles);
-
-        if (!this.gameOver) {
-            this.addObjectsToMap(this.level.enemies);
-        }
+        if (!this.gameOver) this.addObjectsToMap(this.level.enemies);
 
         this.addObjectsToMap(this.throwableObjects);
         this.addObjectsToMap(this.effects);
+    }
 
-        // Portal-Pfeil in Welt-Koordinaten zeichnen (an der Hütte)
-        // this.drawPortalArrow(this.ctx, now);
+    /**
+     * Fixed HUD on top of the world: bars, timers, overlays, splash.
+     */
+    drawHudAndOverlays(now) {
+        this.drawHudBarsAndTimers(now);
+        this.drawWinnerAndGameOverOverlays();
+        this.drawGameOverSplash(this.ctx, this.canvas);
+    }
 
-        // Kamera aus
-        this.ctx.translate(-__camX__, 0);
-
-        // === FIXE UI (immer ganz oben) ===
+    /**
+     * Status bars, counters, boss/portal timers and portal arrow.
+     */
+    drawHudBarsAndTimers(now) {
         this.addToMap(this.statusBar);
         this.addToMap(this.bottleStatusBar);
         this.addToMap(this.coinStatusBar);
         this.addToMap(this.whiskeyCounter);
-        if (this.endbossInSight) this.addToMap(this.endbossStatusBar);
 
-        // Timer (Boss-Phase ODER Portal-Phase)
+        if (this.endbossInSight) {
+            this.addToMap(this.endbossStatusBar);
+        }
+
         this.drawEndbossTimer(this.ctx, this.canvas, now);
-
-        // Pfeil direkt unter dem Timer, nur während Portal-Countdown
         this.drawPortalArrow(this.ctx, now);
+    }
 
-        // Winner-Overlay
+    /**
+     * Winner and Game-Over overlays (UI on top of the HUD).
+     */
+    drawWinnerAndGameOverOverlays() {
         if (this.winnerScreen && this.winnerScreen.visible) {
             this.winnerScreen.drawOverlay(this.ctx, this.canvas);
         }
 
-        // Game-Over-Overlay (über allem)
         if (this.gameOverScreen && this.gameOverScreen.visible) {
             this.gameOverScreen.drawOverlay(this.ctx, this.canvas);
         }
-
-        // 0–4s Game-Over-Splash (liegt über allem, solange aktiv)
-        this.drawGameOverSplash(this.ctx, this.canvas);
-
-        // Loop
-        let self = this;
-        requestAnimationFrame(function() { self.draw(); });
     }
 
 
@@ -1637,7 +1803,15 @@ class World {
             endboss.isInSight   = false;
             endboss.inAggroMode = false;
             endboss.returning   = false;
-            endboss.aiState     = 'IDLE';   // <--- wichtig: kein CHASE mehr
+            endboss.aiState     = 'IDLE';   // kein CHASE mehr
+
+            // 🔒 Safety: Falls hit() die Death-Animation NICHT gestartet hat,
+            // erzwingen wir sie hier ein einziges Mal.
+            if (typeof endboss.die === 'function' &&
+                !endboss.dead &&
+                !endboss.isDying) {
+                endboss.die();
+            }
         }
 
         this.stopEndbossTimer();
@@ -1700,29 +1874,6 @@ class World {
     }
 
     /** Alle Audios tief einsammeln: World, Character, Character-Audio, Enemies (flach), Loops */
-    // getAllAudiosDeep() {
-    //     const bag = new Set();
-    //     // World-eigene Audios
-    //     this.getAllAudios().forEach(a => bag.add(a));
-
-    //     // Character
-    //     try {
-    //         if (this.character) {
-    //         this._collectAudiosShallow(this.character, bag);
-    //         // bekannte Character-Audios explizit
-    //         [this.character.snoreAudio, this.character.wakeAudio,
-    //         this.character.walking_sound, this.character.walking_sound_back].forEach(a => { if (a) bag.add(a); });
-    //         }
-    //     } catch(e){}
-
-    //     // Enemies (shallow)
-    //     try {
-    //         (this.level?.enemies || []).forEach(e => this._collectAudiosShallow(e, bag));
-    //     } catch(e){}
-
-    //     return Array.from(bag);
-    //     }
-
     getAllAudiosDeep() {
         const bag = new Set();
         // World-eigene Audios

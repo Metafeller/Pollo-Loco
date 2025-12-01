@@ -64,6 +64,7 @@ class StoryBillboard extends DrawableObject {
 
     }
 
+    
     _applyAspectOnce() {
         if (this._aspectFixed) return;
         const img = this.img;
@@ -74,14 +75,6 @@ class StoryBillboard extends DrawableObject {
         }
     }
 
-    // _followGate() {
-    //     if (!this.anchorGate) return;
-    //     const g = this.anchorGate;
-    //     // mittig am Gate ausrichten + Offsets
-    //     this.x = g.x + Math.floor((g.width - this.width) / 2) + this.offsetX;
-    //     // unteres Drittel des Gates (sichtbar über dem Boden) + offsetY nach oben
-    //     this.y = g.y + g.height - this.height - this.offsetY;
-    // }
 
     _followGate() {
         if (!this.anchorGate) return;
@@ -114,28 +107,6 @@ class StoryBillboard extends DrawableObject {
         }
         // Beim Entpausieren nichts automatisch starten – das übernimmt der nächste Timer-Tick
     }
-
-
-    // activate() {
-    //     if (this.visible) return;
-    //     this.visible = true;
-    //     try { if (this.atmo.paused) { this.atmo.currentTime = 0; this.atmo.play(); } } catch(e) {}
-    //     this._idx = 0;
-    //     this._aspectFixed = false;
-    //     this._applyAspectOnce();
-    //     this._timer = setInterval(() => {
-    //         this._idx = (this._idx + 1) % this.FRAMES.length;
-    //         this.img = this.imageCache[this.FRAMES[this._idx]];
-    //         this._aspectFixed = false;
-    //         this._applyAspectOnce();
-
-    //         const oneShot = this.audioMap[this._idx];
-    //         if (oneShot && this._lastPlayedFrameIndex !== this._idx) {
-    //             try { oneShot.currentTime = 0; oneShot.play(); } catch(e) {}
-    //             this._lastPlayedFrameIndex = this._idx;
-    //         }
-    //     }, this._delayMs);
-    // }
 
 
     activate() {
@@ -187,6 +158,7 @@ class StoryBillboard extends DrawableObject {
         if (this._timer) { clearInterval(this._timer); this._timer = null; }
         try { if (!this.atmo.paused) { this.atmo.pause(); this.atmo.currentTime = 0; } } catch(e) {}
     }
+
 
     update() {
         this._applyAspectOnce();

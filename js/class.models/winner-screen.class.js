@@ -38,6 +38,7 @@ class WinnerScreen extends DrawableObject {
   onRestartNow(cb){ this._onRestartNow = cb; }
   onBackToStart(cb){ this._onBackToStart = cb; }
 
+
   show() {
     if (this.visible) return;
     this.visible = true;
@@ -75,12 +76,14 @@ class WinnerScreen extends DrawableObject {
     } catch(e){}
   }
 
+
   hide() {
     if (!this.visible) return;
     this.visible = false;
     if (this._timer) { clearInterval(this._timer); this._timer = null; }
     this.toggleButtons(false);
   }
+
 
   drawOverlay(ctx, canvas) {
     if (!this.visible) return;
@@ -99,6 +102,7 @@ class WinnerScreen extends DrawableObject {
       this._syncToCanvas && this._syncToCanvas();
     } catch(e) {}
   }
+
 
   // ===== DOM-Overlay (Buttons) =====
   ensureDom(containerSelector = '.stage') {
@@ -153,13 +157,6 @@ class WinnerScreen extends DrawableObject {
     const btnBackStart = mkBtn('btn-win-backstart');
     btnBackStart.textContent = (window.I18N ? window.I18N.t('ui.backToStart') : 'Back to Start Screen');
 
-    // Back to Start: transparenter Blur-Button
-    // btnBackStart.style.background = 'rgba(0,0,0,0.1)';
-    // btnBackStart.style.color = '#fff';
-    // btnBackStart.style.border = '1px solid rgba(255,255,255,0.35)';
-    // btnBackStart.style.backdropFilter = 'blur(6px)';
-    // btnBackStart.style.marginTop = '8px';
-
     btnBackStart.style.background = '#f2d5a280';
     btnBackStart.style.color = '#1a1a1a';
     btnBackStart.style.border = '1px solid #F2D4A2';
@@ -195,6 +192,7 @@ class WinnerScreen extends DrawableObject {
       ui.style.width  = `${r.width}px`;
       ui.style.height = `${r.height}px`;
     };
+
     this._syncToCanvas = syncToCanvas;
     syncToCanvas();
     window.addEventListener('resize', syncToCanvas);
@@ -213,6 +211,7 @@ class WinnerScreen extends DrawableObject {
     this._btnBackStart  = btnBackStart;
   }
 
+  
   toggleButtons(show) {
     if (!this._ui) return;
     this._ui.style.display = show ? 'flex' : 'none';
