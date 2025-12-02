@@ -7,10 +7,11 @@ let isMuted = false;
 let isStarting = false;
 let pauseOverlay = null;
 
-
 /**
- * True, wenn das Mobile-UI im Portrait läuft und das Rotate-Overlay aktiv ist.
- * Blockiert Spielstart/Resume im Hochformat.
+ * Returns true if the mobile UI is in portrait mode and the rotate-overlay
+ * is active. In that case the game must not start or resume yet.
+ *
+ * @returns {boolean}
  */
 function isPortraitBlocked() {
   try {
@@ -27,11 +28,11 @@ function isPortraitBlocked() {
   }
 }
 
-
 /**
- * Behandelt den Fall, dass der Start im Portrait-Modus geblockt wird.
- * Zeigt den Rotate-Overlay sichtbar an und blendet den Startscreen aus.
- * Falls kein Overlay existiert, bleibt der Startscreen als Fallback sichtbar.
+ * Handles the case where game start is blocked in portrait mode.
+ * - Shows the rotate-overlay (if present)
+ * - Hides the start screen only if overlay exists
+ * - Triggers layout recalculation for responsive UI and touch controls
  */
 function handlePortraitBlockedStart() {
   let overlayFound = false;
@@ -45,27 +46,25 @@ function handlePortraitBlockedStart() {
     }
   } catch (e) {}
 
-  // Nur wenn wirklich ein Overlay vorhanden ist, Startscreen ausblenden,
-  // damit der Hinweis nicht unter dem Startscreen "verschwindet".
+  // Only hide start screen if we really have a rotate overlay.
+  // Otherwise keep start screen visible as fallback.
   if (overlayFound && startScreen && typeof startScreen.hide === 'function') {
     try {
       startScreen.hide();
     } catch (e) {}
   } else if (startScreen && typeof startScreen.show === 'function') {
-    // Fallback: kein Overlay gefunden -> Startscreen sichtbar lassen
     try {
       startScreen.show();
     } catch (e) {}
   }
 
-  // sorgt dafür, dass responsive.js / touch-controls.js sofort layouten
+  // Make responsive.js / touch-controls.js recalc layout immediately
   pokeMobileUiLayout();
 }
 
-
 /**
- * Triggert ein globales Resize-Event, damit responsive.js & touch-controls.js
- * die Canvas-UI und die Touch-Controls sofort neu layouten.
+ * Dispatches a global resize event to trigger responsive layout recalculation
+ * (used by responsive.js and touch-controls.js).
  */
 function pokeMobileUiLayout() {
   try {
@@ -73,11 +72,10 @@ function pokeMobileUiLayout() {
   } catch (e) {}
 }
 
-
 /**
- * Liest den Mute-Status sicher aus dem localStorage.
- * Gibt bei Fehlern oder fehlendem Wert standardmäßig false zurück.
- * @returns {boolean}
+ * Safely reads the mute state from localStorage.
+ *
+ * @returns {boolean} True if muted, false otherwise.
  */
 function loadMutedFromStorage() {
   try {
@@ -88,95 +86,99 @@ function loadMutedFromStorage() {
   return false;
 }
 
+/**
+ * Application bootstrapping:
+ * - Creates a shared Keyboard instance
+ * - Restores mute state
+ * - Wires up global control functions
+ * - Instantiates StartScreen and menu music
+ * - Handles optional autostart
+ * - Sets up pause-overlay and i18n labels
+ */
 function bootApp() {
-  // EIN gemeinsames Keyboard für alles
+  // Single shared keyboard for the whole app
   keyboard = window.KEYBOARD || new Keyboard();
   window.KEYBOARD = keyboard;
 
+  // List of UI-related audio objects managed globally
   window.__UI_AUDIOS = window.__UI_AUDIOS || [];
 
-    // Mute-Status aus localStorage wiederherstellen
+  // Restore mute state from localStorage
   isMuted = loadMutedFromStorage();
 
-  // Game-Controls global machen, damit i18n.js sie verknüpfen kann
-  window.startGame = startGame;
-  window.pauseGame = pauseGame;
-  window.resumeGame = resumeGame;
-  
-  window.restartGame = backToStart; // ← "Zurück zum Startbildschirm"
-  window.restartNow  = restartNow;  // ← direkter Neustart
+  // Expose game control functions globally so i18n.js etc. can wire them
+  window.startGame   = startGame;
+  window.pauseGame   = pauseGame;
+  window.resumeGame  = resumeGame;
+
+  window.restartGame = backToStart; // "Back to start screen"
+  window.restartNow  = restartNow;  // Direct restart
   window.backToStart = backToStart;
 
   wireUiControls();
 
-  // Space auf UI-Buttons beim laufenden Spiel neutralisieren
+  // Prevent Space from triggering UI buttons while the game is running
   document.addEventListener('keydown', (e) => {
     if (e.code === 'Space' && window.world && !window.world.paused) {
       const a = document.activeElement;
       if (a && (a.tagName === 'BUTTON' || a.getAttribute('role') === 'button')) {
         e.preventDefault();
         e.stopPropagation();
-        a.blur(); // Fokus wegnehmen -> kein "Space=Click"
+        a.blur(); // Remove focus so Space no longer clicks the button
       }
     }
   }, true);
 
-  // Autostart früh prüfen (vor Musik-Setup!)
+  // Check pending autostart as early as possible
   const pendingAutostart = (() => {
-    try { return localStorage.getItem('autostart') === '1'; } catch(e){ return false; }
+    try { return localStorage.getItem('autostart') === '1'; } catch (e) { return false; }
   })();
 
+  // Start screen
   startScreen = new StartScreen('/img/9_intro_outro_screens/start/startscreen_3.png');
-  startScreen.attachDom('#stage'); // vorher '.game-container'
+  startScreen.attachDom('#stage'); // previously '.game-container'
   startScreen.onStart(() => {
-    // Start im Portrait-Modus blockieren – erst drehen, dann spielen
+    // Block start in portrait orientation – require rotate first
     if (isPortraitBlocked()) {
-      handlePortraitBlockedStart();  // ← zentraler Portrait-Block
+      handlePortraitBlockedStart();
       return;
     }
     startGame();
   });
   startScreen.show();
 
-  // Menü-Musik initialisieren
+  // Menu background music
   menuAudio = new Audio('audio/background-audio.mp3');
   try {
     menuAudio.loop = true;
     menuAudio.volume = 0.5;
     menuAudio.muted = isMuted;
-    // Nur abspielen, wenn KEIN Autostart ansteht
-    if (!pendingAutostart) {
-      menuAudio.play().catch(()=>{});
-    }
-  } catch(e){}
 
-  // Mute-Status auf UI, Menü-Audio und globale Audios anwenden
+    // Only play menu music if NO autostart is pending
+    if (!pendingAutostart) {
+      menuAudio.play().catch(() => {});
+    }
+  } catch (e) {}
+
+  // Apply mute state to UI, menu audio and global audios
   setMuted(isMuted);
 
-  // Autostart jetzt ausführen (ohne Menümusik)
+  // Run autostart now (without initial menu music)
   if (pendingAutostart) {
-    try { localStorage.removeItem('autostart'); } catch(e){}
-    startGame(); // stoppt ggf. vorhandene Musik, Spiel startet sofort
+    try { localStorage.removeItem('autostart'); } catch (e) {}
+    startGame(); // game start will stop menu music if necessary
   }
 
-  // NEU: Autostart nach Reload?
-//   try {
-//         if (localStorage.getItem('autostart') === '1') {
-//             localStorage.removeItem('autostart');
-//             startGame(); // direkt ins Spiel
-//         }
-//    } catch(e){}
-
+  // Create pause overlay
   pauseOverlay = createPauseOverlay();
 
-  // initiale Labels + auf Sprachwechsel reagieren
+  // Initial labels + react to language changes
   applyI18nLabels();
   window.addEventListener('i18n:changed', applyI18nLabels);
 
-  // NEU: Wenn wir von Portrait → Landscape wechseln und noch keine World läuft,
-  // stellen wir sicher, dass der Startscreen wieder sichtbar ist.
+  // If we switch from portrait → landscape and no world is running yet,
+  // ensure start screen is visible again.
   const ensureStartScreenVisible = () => {
-    // nur, wenn noch kein Spiel läuft:
     if (!world && startScreen && !isPortraitBlocked()) {
       try {
         startScreen.show();
@@ -188,57 +190,28 @@ function bootApp() {
   window.addEventListener('orientationchange', ensureStartScreenVisible);
 }
 
-// === World-Reset ohne Page-Reload ==================================
-
-// function shutdownWorld() {
-//     if (!world) return;
-
-//     try { world.setPaused(true); } catch (e) {}
-//     try { world.stopAllGameOverAudio(); } catch (e) {}
-//     try { world.pauseBgMusic(); } catch (e) {}
-
-//     // 🔥 WICHTIG: GameOver-/Winner-Overlays sauber zurücksetzen
-//     try {
-//         if (world.gameOverScreen) {
-//             world.gameOverScreen.visible = false;
-
-//           // NEU: DOM-Button wirklich verstecken
-//             if (typeof world.gameOverScreen.hideButton === 'function') {
-//                 world.gameOverScreen.hideButton();
-//             }
-//         }
-          
-//         if (world.winnerScreen) {
-//             // WinnerScreen hat eine eigene hide()-Methode
-//             if (typeof world.winnerScreen.hide === 'function') {
-//                 world.winnerScreen.hide();
-//             } else {
-//                 world.winnerScreen.visible = false;
-//             }
-//         }
-          
-//         world.gameOver = false;
-//         world.gameWon  = false;
-//     } catch (e) {}
-
-//     // Draw-Loop dieser Instanz hart stoppen
-//     world.destroyed = true;
-// }
-
+/**
+ * Shuts down the current world instance without reloading the page:
+ * - Pauses the game logic
+ * - Deactivates story billboard and ambience
+ * - Stops all world-related audio (boss, story, GO/Win, BG, steps, ...)
+ * - Resets Game Over and Winner overlays
+ * - Marks the world as destroyed to stop its draw loop
+ */
 function shutdownWorld() {
     if (!world) return;
 
-    // 1) Logik pausieren, damit keine weitere Spiel-Loop aktiv ist
+    // 1) Pause logic so no further game loop runs
     try { world.setPaused(true); } catch (e) {}
 
-    // 2) Story-/Boss-Umgebung stoppen (kein "Help / What are you doing" im Startscreen)
+    // 2) Stop story / boss environment audio (no "Help / What are you doing" on start screen)
     try {
         if (world.hutStory && typeof world.hutStory.deactivate === 'function') {
             world.hutStory.deactivate();
         }
     } catch (e) {}
 
-    // Endboss-Countdown + Ambience hart aus
+    // Endboss countdown and ambience off
     try {
         if (typeof world.stopEndbossTimer === 'function') {
             world.stopEndbossTimer();
@@ -251,7 +224,7 @@ function shutdownWorld() {
         }
     } catch (e) {}
 
-    // 3) Alle World-Audios (Boss, Story, GO/Win, BG, Steps …) sauber stoppen & zurücksetzen
+    // 3) Stop and reset all world-related audio
     try {
         if (typeof world.resetAllAudios === 'function') {
             world.resetAllAudios();
@@ -265,19 +238,19 @@ function shutdownWorld() {
         }
     } catch (e) {}
 
-    // 4) GameOver-/Winner-Overlays sauber zurücksetzen
+    // 4) Reset GameOver/Winner overlays
     try {
         if (world.gameOverScreen) {
             world.gameOverScreen.visible = false;
 
-            // NEU: DOM-Button wirklich verstecken
+            // Hide DOM "Try Again" button if helper exists
             if (typeof world.gameOverScreen.hideButton === 'function') {
                 world.gameOverScreen.hideButton();
             }
         }
 
         if (world.winnerScreen) {
-            // WinnerScreen hat eine eigene hide()-Methode
+            // WinnerScreen has its own hide() method
             if (typeof world.winnerScreen.hide === 'function') {
                 world.winnerScreen.hide();
             } else {
@@ -289,11 +262,17 @@ function shutdownWorld() {
         world.gameWon  = false;
     } catch (e) {}
 
-    // 5) Draw-Loop dieser Instanz hart stoppen
+    // 5) Hard-stop draw loop of this world instance
     world.destroyed = true;
 }
 
-
+/**
+ * "Restart now" flow:
+ * - Mark autostart for next boot
+ * - Shutdown current world
+ * - Reset level
+ * - Either go back to start screen (portrait) or restart game immediately (landscape)
+ */
 function restartNow() {
     try { localStorage.setItem('autostart', '1'); } catch (e) {}
 
@@ -309,7 +288,7 @@ function restartNow() {
     if (typeof window !== 'undefined') window.world = null;
     isStarting = false;
 
-    // Im Portrait nicht direkt neu starten – zurück zum Startscreen
+    // In portrait do NOT start immediately – go back to start screen
     if (isPortraitBlocked()) {
         if (startScreen && typeof startScreen.show === 'function') {
             startScreen.show();
@@ -324,38 +303,44 @@ function restartNow() {
     startGame();
 }
 
-
+/**
+ * Back to start screen flow:
+ * - Clear autostart flag
+ * - Shutdown current world
+ * - Reset level
+ * - Hide pause overlay and show start screen
+ * - Reset start button label
+ * - Restart menu music (honoring mute state)
+ */
 function backToStart() {
-    // Autostart-Flag löschen, damit wir wirklich im Startscreen landen
+    // Make sure we really land on the start screen
     try { localStorage.removeItem('autostart'); } catch (e) {}
 
-    // laufende World beenden
     shutdownWorld();
 
-    // NEU: Level-Reset auch hier
+    // Level reset
     try {
         if (typeof resetLevel1 === 'function') {
             resetLevel1();
         }
     } catch (e) {}
 
-    // globale Referenz freigeben
     world = null;
     if (typeof window !== 'undefined') window.world = null;
     isStarting = false;
 
-    // Pause-Overlay sicher verstecken (falls offen)
+    // Hide pause overlay if open
     try { showPauseOverlay(false); } catch (e) {}
 
-    // Startscreen anzeigen
+    // Show start screen
     if (startScreen && typeof startScreen.show === 'function') {
         startScreen.show();
     }
 
-    // Labels neu setzen (btn-start = "Start" statt "Resume")
+    // Reset labels (start button = "Start" instead of "Resume")
     try { applyI18nLabels(); } catch (e) {}
 
-    // Menü-Musik wieder starten (respektiert Mute-Status)
+    // Restart menu music (respecting mute state)
     try {
         if (menuAudio) {
             menuAudio.muted = !!isMuted;
@@ -365,46 +350,17 @@ function backToStart() {
     } catch (e) {}
 }
 
-// === Alte Versionen (Page-Reload) ================================
-
-// function restartNow(){
-//   try { localStorage.setItem('autostart', '1'); } catch(e){}
-//   window.location.reload();
-// }
-
-// function backToStart(){
-//   try { localStorage.removeItem('autostart'); } catch(e){}
-//   window.location.reload();
-// }
-
-
-// function startGame() {
-//   if (isStarting || world) { startScreen?.hide(); return; }
-//   isStarting = true;
-//   try { stopMenuAudio(); } catch(e) {}
-
-//   const canvas = document.getElementById('canvas');
-
-//   // Fokusierbar machen (einmal reicht, schadet aber nicht)
-// //   canvas.setAttribute('tabindex', '0');
-
-//   world = new World(canvas, keyboard);
-
-//   setMuted(isMuted);
-
-//   // UI-Start Button auf Resume
-//   const btnStart = document.getElementById('btn-start');
-//   if (btnStart) btnStart.textContent = (window.I18N ? window.I18N.t('ui.resume') : 'Resume');
-
-//   startScreen?.hide();
-  
-//   // <<< WICHTIG: Canvas fokussieren, damit Space nicht Buttons triggert
-//   canvas.focus();
-// }
-
-
+/**
+ * Starts the game:
+ * - Blocks start in portrait mode (rotate overlay instead)
+ * - Creates a new World instance
+ * - Applies mute state
+ * - Updates start button label to "Resume"
+ * - Focuses canvas so Space no longer triggers UI buttons
+ * - Forces touch-controls layout recalculation
+ */
 function startGame() {
-  // Portrait-Block: wenn Rotate-Overlay aktiv ist, kein Spielstart
+  // Block start while rotate-overlay / portrait-block is active
   if (isPortraitBlocked()) {
     pokeMobileUiLayout();
     return;
@@ -435,20 +391,35 @@ function startGame() {
 
   startScreen?.hide();
 
-  // Canvas fokussieren, damit Space nicht Buttons triggert
+  // Focus canvas so Space key does not click UI buttons
   canvas.setAttribute('tabindex', '0');
   canvas.focus();
 
-  // WICHTIG: Touch-Controls sofort neu layouten, damit D-Pad beim ersten Start
-  // im Landscape-Modus direkt sichtbar ist (kein zweiter Rotate nötig)
+  // Trigger immediate layout so D-pad is visible on first start in landscape
   pokeMobileUiLayout();
 }
 
-
+/**
+ * Stops menu background audio and resets its playback position.
+ */
 function stopMenuAudio() {
-  try { if (menuAudio) { menuAudio.pause(); menuAudio.currentTime = 0; } } catch(e){}
+  try {
+    if (menuAudio) {
+      menuAudio.pause();
+      menuAudio.currentTime = 0;
+    }
+  } catch (e) {}
 }
 
+/**
+ * Applies the mute state to:
+ * - UI mute button
+ * - Menu music
+ * - All known world and UI audio elements
+ * Also persists the mute state to localStorage.
+ *
+ * @param {boolean} flag - True to mute, false to unmute.
+ */
 function setMuted(flag) {
   isMuted = !!flag;
   const btn = document.getElementById('btn-mute');
@@ -461,32 +432,49 @@ function setMuted(flag) {
   if (world) {
     try {
       const auds = world.getAllAudiosDeep();
-      auds.forEach(a => { try { a.muted = isMuted; } catch(e){} });
-    } catch(e){}
+      auds.forEach(a => {
+        try { a.muted = isMuted; } catch (e) {}
+      });
+    } catch (e) {}
   }
 
   if (window.__UI_AUDIOS && Array.isArray(window.__UI_AUDIOS)) {
-  try { window.__UI_AUDIOS.forEach(a => { try { a.muted = isMuted; } catch(e){} }); } catch(e){}
+    try {
+      window.__UI_AUDIOS.forEach(a => {
+        try { a.muted = isMuted; } catch (e) {}
+      });
+    } catch (e) {}
   }
-  window.IS_MUTED = isMuted; // damit ui-frame.js den Zustand kennt
 
-  // Mute-Status persistent speichern
+  window.IS_MUTED = isMuted; // used by ui-frame.js
+
+  // Persist mute status
   try {
     localStorage.setItem('soundMuted', isMuted ? '1' : '0');
   } catch (e) {}
 }
 
-function toggleMute(){ setMuted(!isMuted); }
+/**
+ * Toggles the mute state on/off.
+ */
+function toggleMute() { setMuted(!isMuted); }
 
-
+/**
+ * Wires up all main UI controls:
+ * - Start / Resume
+ * - Pause
+ * - Back to start
+ * - Restart now
+ * - Mute toggle
+ */
 function wireUiControls() {
   const qs = id => document.getElementById(id);
 
   qs('btn-start')?.addEventListener('click', () => {
     if (!world) {
-      // Kein Start im Portrait-Modus
+      // Do not start in portrait; show rotate-overlay instead
       if (isPortraitBlocked()) {
-        handlePortraitBlockedStart();   // ← gleicher Flow wie auf dem Startscreen
+        handlePortraitBlockedStart();
       } else {
         startScreen?.hide();
         startGame();
@@ -497,39 +485,51 @@ function wireUiControls() {
     document.activeElement?.blur();
   });
 
-  qs('btn-pause')?.addEventListener('click', () => { if (world) pauseGame(); document.activeElement?.blur(); });
-  qs('btn-restart')?.addEventListener('click', () => { backToStart(); document.activeElement?.blur(); });
-  qs('btn-restart-now')?.addEventListener('click', () => { restartNow(); document.activeElement?.blur(); });
-  qs('btn-mute')?.addEventListener('click', () => { toggleMute(); document.activeElement?.blur(); });
+  qs('btn-pause')?.addEventListener('click', () => {
+    if (world) pauseGame();
+    document.activeElement?.blur();
+  });
+
+  qs('btn-restart')?.addEventListener('click', () => {
+    backToStart();
+    document.activeElement?.blur();
+  });
+
+  qs('btn-restart-now')?.addEventListener('click', () => {
+    restartNow();
+    document.activeElement?.blur();
+  });
+
+  qs('btn-mute')?.addEventListener('click', () => {
+    toggleMute();
+    document.activeElement?.blur();
+  });
 }
 
-
 /* ===== Pause / Resume ===== */
+
+/**
+ * Pauses the game:
+ * - Sets world.paused
+ * - Shows pause overlay
+ */
 function pauseGame() {
   if (!world || world.paused) return;
   world.setPaused(true);
   showPauseOverlay(true);
 }
 
-// function resumeGame() {
-//   if (!world || !world.paused) return;
-//   showPauseOverlay(false);
-//   world.setPaused(false);
-
-//   // Canvas wieder fokussieren
-//   const cv = document.getElementById('canvas');
-//   cv?.setAttribute('tabindex','0');
-//   cv?.focus();
-
-//   const btnStart = document.getElementById('btn-start');
-//   if (btnStart) btnStart.textContent = (window.I18N ? window.I18N.t('ui.resume') : 'Resume');
-// }
-
-
+/**
+ * Resumes the game:
+ * - Only resumes in landscape (blocks while rotate-overlay is active)
+ * - Hides pause overlay
+ * - Resumes world
+ * - Refocuses canvas and updates start button label
+ */
 function resumeGame() {
   if (!world || !world.paused) return;
 
-  // Im Portrait-Modus nicht fortsetzen, solange Rotate-Overlay aktiv ist
+  // Do not resume while portrait-block is active
   if (isPortraitBlocked()) {
     pokeMobileUiLayout();
     return;
@@ -538,9 +538,8 @@ function resumeGame() {
   showPauseOverlay(false);
   world.setPaused(false);
 
-  // Canvas wieder fokussieren
   const cv = document.getElementById('canvas');
-  cv?.setAttribute('tabindex','0');
+  cv?.setAttribute('tabindex', '0');
   cv?.focus();
 
   const btnStart = document.getElementById('btn-start');
@@ -549,29 +548,48 @@ function resumeGame() {
   }
 }
 
+/* ===== Pause overlay DOM ===== */
 
-/* ===== Pause-Overlay DOM ===== */
+/**
+ * Creates the DOM pause overlay:
+ * - Semi-transparent mask
+ * - "Continue" button (resumes the game)
+ *
+ * @returns {HTMLDivElement|null} Overlay root element or null.
+ */
 function createPauseOverlay() {
   const host = document.querySelector('#stage') || document.querySelector('.game-container');
   if (!host) return null;
+
   const wrap = document.createElement('div');
   wrap.className = 'pause-overlay hidden';
   wrap.innerHTML = `
     <div class="pause-mask"></div>
     <button id="btn-continue" class="${document.querySelector('.go-btn') ? 'go-btn' : 'game-primary-btn'}"></button>
   `;
+
   host.appendChild(wrap);
   const btn = wrap.querySelector('#btn-continue');
   btn.addEventListener('click', () => resumeGame());
   return wrap;
 }
 
+/**
+ * Shows or hides the pause overlay.
+ *
+ * @param {boolean} show - True to show, false to hide.
+ */
 function showPauseOverlay(show) {
   if (!pauseOverlay) return;
   pauseOverlay.classList.toggle('hidden', !show);
 }
 
-/* ===== i18n-Labels anpassen ===== */
+/* ===== i18n label wiring ===== */
+
+/**
+ * Applies translations to various UI labels and buttons.
+ * Uses I18N.t if available, otherwise falls back to key names.
+ */
 function applyI18nLabels() {
   const t = (k) => (window.I18N ? window.I18N.t(k) : k);
   const btnStart = document.getElementById('btn-start');

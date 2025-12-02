@@ -1,37 +1,52 @@
+// js/scroll-to-top.js
 (() => {
-  const THRESHOLD = 300; // ab 300px Scroll-Tiefe anzeigen
+  const THRESHOLD = 300; // Show button after 300px scroll depth
 
-  function getEl(id){ return document.getElementById(id); }
+  const getEl = (id) => document.getElementById(id);
 
-  function show(el){
+  function show(el) {
     if (!el.classList.contains('show')) el.classList.add('show');
   }
 
-  function hide(el){
+  function hide(el) {
     if (el.classList.contains('show')) el.classList.remove('show');
   }
 
-  function onClick(){
+  /**
+   * Scrolls smoothly back to the top of the page.
+   */
+  function onClick() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  function onKeyDown(e){
-    // Accessibility: Enter/Space aktivieren
+  /**
+   * Keyboard handler:
+   * - Activates scroll-to-top on Enter/Space for accessibility.
+   *
+   * @param {KeyboardEvent} e
+   */
+  function onKeyDown(e) {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
       onClick();
     }
   }
 
-  function init(){
+  /**
+   * Initializes the scroll-to-top button behavior:
+   * - Wires click/keyboard handlers
+   * - Uses rAF throttling for scroll performance
+   * - Applies initial visibility based on current scroll position
+   */
+  function init() {
     const btn = getEl('btn-to-top');
     if (!btn) return;
 
-    // Click + Keyboard
+    // Click + keyboard activation
     btn.addEventListener('click', onClick);
     btn.addEventListener('keydown', onKeyDown);
 
-    // Performantes Scroll-Handling (rAF Throttle)
+    // Performant scroll handling via rAF throttle
     let ticking = false;
     window.addEventListener('scroll', () => {
       if (!ticking) {
@@ -44,11 +59,11 @@
       }
     });
 
-    // Initialer Zustand beim Laden
+    // Initial state on load
     const y0 = window.scrollY || document.documentElement.scrollTop;
     if (y0 > THRESHOLD) show(btn); else hide(btn);
   }
 
-  // Start
+  // Boot on DOM ready
   document.addEventListener('DOMContentLoaded', init);
 })();

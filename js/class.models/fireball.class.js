@@ -1,30 +1,46 @@
+/**
+ * Special projectile that behaves like a fireball:
+ * flies in a straight line, has a maximum travel distance
+ * and can be treated as "done" once it exceeded its range.
+ *
+ * @extends MovableObject
+ */
 class Fireball extends MovableObject {
+    /**
+     * Creates a new fireball instance.
+     *
+     * @param {number} x - Initial X-position (spawn point).
+     * @param {number} y - Initial Y-position (hand position).
+     * @param {boolean} [facingRight=true] - Direction: true → right, false → left.
+     */
     constructor(x, y, facingRight = true) {
         super();
 
-        // Robustes Laden des Sprites
+        // Robust sprite loading
         this.loadImage('/img/objects/fireball.png');
 
         this.x = x;
-        this.y = y + 14;     // kleiner Offset aus der Hand
+        this.y = y + 14; // small offset from Pepe's hand
         this.width = 64;
         this.height = 64;
 
         this.facingRight = !!facingRight;
-        this.speedX = 10;    // langsamer (vorher 18)
+        this.speedX = 10; // slower (was 18)
         this.spawnX = x;
-        this.maxDistance = 540; // ~¾ Bildschirmbreite
+        this.maxDistance = 540; // ~¾ of the screen width
         this.done = false;
 
         this._interval = null;
         this.animate();
     }
 
-
     /**
-     * Sichere Darstellung:
-     * - Wenn das Bild geladen ist → normales Draw
-     * - Wenn noch nicht → gut sichtbarer orangener Kreis als Fallback
+     * Safe drawing:
+     * - If the sprite is ready → render the image
+     * - If not yet loaded → draw a visible orange fallback circle
+     *
+     * @param {CanvasRenderingContext2D} ctx - Canvas 2D context.
+     * @returns {void}
      */
     draw(ctx) {
         const imgReady =
@@ -38,19 +54,25 @@ class Fireball extends MovableObject {
             return;
         }
 
-        // 🔥 Fallback: sichtbarer "Energyball", falls Sprite noch lädt
+        // 🔥 Fallback: visible "energy ball" while the sprite is still loading
         ctx.save();
         ctx.fillStyle = 'rgba(255, 180, 0, 0.9)';
         const cx = this.x + this.width / 2;
         const cy = this.y + this.height / 2;
-        const r  = Math.min(this.width, this.height) / 2;
+        const r = Math.min(this.width, this.height) / 2;
         ctx.beginPath();
         ctx.arc(cx, cy, r, 0, Math.PI * 2);
         ctx.fill();
         ctx.restore();
     }
 
-
+    /**
+     * Starts the movement interval:
+     * moves in a straight line and marks the projectile as done
+     * once it exceeded its maximum travel distance.
+     *
+     * @returns {void}
+     */
     animate() {
         this._interval = setInterval(() => {
             if (this.done) {
@@ -58,9 +80,9 @@ class Fireball extends MovableObject {
                 return;
             }
 
-            this.x += (this.facingRight ? this.speedX : -this.speedX);
+            this.x += this.facingRight ? this.speedX : -this.speedX;
 
-            // Lebensdauer/Weite begrenzen
+            // Limit lifetime / travel distance
             if (Math.abs(this.x - this.spawnX) > this.maxDistance) {
                 this.done = true;
                 clearInterval(this._interval);

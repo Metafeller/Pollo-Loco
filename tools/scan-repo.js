@@ -1,17 +1,44 @@
 // tools/scan-repo.js
+/**
+ * Basic repo scanner:
+ * - Walks over all files with selected extensions
+ * - Searches for specific keywords (scroll, audio, endboss, etc.)
+ * - Collects surrounding context lines
+ * - Extracts HTML ids
+ *
+ * Output:
+ *   reports/repo-scan-report.json
+ *
+ * Used as a helper for later tooling (e.g. file-inventory, i18n mapping).
+ */
+
 const fs = require('fs');
 const path = require('path');
 
 const ROOT = process.cwd();
+
+// Keywords to be detected (case-insensitive)
 const KEYWORDS = [
   'translate', 'scroll', 'language', 'lang', 'btn',
   'bottle', 'supersalsa', 'endboss', 'chicken', 'chick',
   'audio', 'sound', 'status', 'bar', 'hp'
 ];
-const EXTS = ['.js', '.ts', '.html', '.css', '.json'];
-const IGNORE_DIRS = ['node_modules', '.git', 'dist', 'out', 'build', 'coverage'];
-const CONTEXT = 1; // lines before/after
 
+// File extensions to scan
+const EXTS = ['.js', '.ts', '.html', '.css', '.json'];
+
+// Directories to skip to keep scanning fast
+const IGNORE_DIRS = ['node_modules', '.git', 'dist', 'out', 'build', 'coverage'];
+
+// Number of context lines before/after each hit
+const CONTEXT = 1;
+
+/**
+ * Recursively walks a directory and returns all file paths.
+ *
+ * @param {string} dir
+ * @returns {string[]}
+ */
 function walk(dir) {
   return fs.readdirSync(dir).flatMap((name) => {
     const p = path.join(dir, name);
@@ -24,6 +51,13 @@ function walk(dir) {
   });
 }
 
+/**
+ * Scans a single file for keyword hits and returns
+ * a list of match entries with small line context.
+ *
+ * @param {string} file
+ * @returns {Array}
+ */
 function scanFile(file) {
   const content = fs.readFileSync(file, 'utf8');
   const lines = content.split(/\r?\n/);
@@ -50,6 +84,12 @@ function scanFile(file) {
   return hits;
 }
 
+/**
+ * Extracts all HTML id="..." attributes from a file.
+ *
+ * @param {string} file
+ * @returns {string[]}
+ */
 function extractHtmlIds(file) {
   const html = fs.readFileSync(file, 'utf8');
   const idRegex = /id="([^"]+)"/g;
@@ -67,6 +107,7 @@ files.forEach((file) => {
   const rel = path.relative(ROOT, file);
   const hits = scanFile(file);
   const entry = { file: rel };
+
   if (hits.length) {
     entry.hits = hits;
     stats.filesWithHits++;
@@ -74,10 +115,12 @@ files.forEach((file) => {
       stats.keywordCounts[h.keyword] = (stats.keywordCounts[h.keyword] || 0) + 1;
     });
   }
+
   if (file.endsWith('.html')) {
     const ids = extractHtmlIds(file);
     if (ids.length) entry.ids = ids;
   }
+
   if (entry.hits || entry.ids) report.push(entry);
 });
 

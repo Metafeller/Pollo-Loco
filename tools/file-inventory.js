@@ -1,4 +1,19 @@
 // tools/file-inventory.js
+/**
+ * Simple helper script to generate a file inventory based on
+ * the repo scan report (created by tools/scan-repo.js).
+ *
+ * Input:
+ *   reports/repo-scan-report.json
+ *
+ * Output:
+ *   reports/file-inventory.json
+ *
+ * Includes:
+ *   - lists of HTML/CSS/JS files
+ *   - basic HTML metadata: embedded scripts/styles, regions and element-ids
+ */
+
 const fs = require('fs');
 const path = require('path');
 
@@ -19,32 +34,55 @@ const htmlFiles = files.filter(f => f.endsWith('.html'));
 const cssFiles  = files.filter(f => f.endsWith('.css'));
 const jsFiles   = files.filter(f => f.endsWith('.js'));
 
+/**
+ * Reads a file as UTF-8, returns empty string on failure.
+ *
+ * @param {string} file
+ * @returns {string}
+ */
 function read(file) {
   try { return fs.readFileSync(path.join(ROOT, file), 'utf8'); } catch { return ''; }
 }
 
+/**
+ * Extracts all regex group(1) matches into an array.
+ *
+ * @param {RegExp} regex
+ * @param {string} text
+ * @returns {string[]}
+ */
 function extract(regex, text) {
   const out = []; let m;
   while ((m = regex.exec(text))) out.push(m[1]);
   return out;
 }
 
+/**
+ * Parses basic embed information from an HTML file:
+ * - element IDs
+ * - <script src="..."> references
+ * - <link rel="stylesheet" href="..."> references
+ * - header/nav/footer/section IDs
+ *
+ * @param {string} file
+ * @returns {object|null}
+ */
 function parseHtmlEmbeds(file) {
   const src = read(file);
   if (!src) return null;
 
-  // collect element IDs (for i18n mapping via getElementById)
+  // Collect element IDs (useful for i18n mapping via getElementById)
   const elementIds = extract(/id="([^"]+)"/g, src);
 
-  // scripts and styles referenced
+  // Scripts and styles referenced
   const scripts = extract(/<script[^>]*\ssrc="([^"]+)"[^>]*>/gi, src);
   const styles  = extract(/<link[^>]*rel="stylesheet"[^>]*\shref="([^"]+)"[^>]*>/gi, src);
 
-  // regions (header, nav, footer, sections with ids)
-  const headerIds = extract(/<header[^>]*id="([^"]+)"[^>]*>/gi, src);
-  const navIds    = extract(/<nav[^>]*id="([^"]+)"[^>]*>/gi, src);
-  const footerIds = extract(/<footer[^>]*id="([^"]+)"[^>]*>/gi, src);
-  const sectionIds= extract(/<section[^>]*id="([^"]+)"[^>]*>/gi, src);
+  // Regions (header, nav, footer, sections with ids)
+  const headerIds  = extract(/<header[^>]*id="([^"]+)"[^>]*>/gi, src);
+  const navIds     = extract(/<nav[^>]*id="([^"]+)"[^>]*>/gi, src);
+  const footerIds  = extract(/<footer[^>]*id="([^"]+)"[^>]*>/gi, src);
+  const sectionIds = extract(/<section[^>]*id="([^"]+)"[^>]*>/gi, src);
 
   return {
     file,

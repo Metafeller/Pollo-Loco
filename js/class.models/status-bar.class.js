@@ -1,3 +1,13 @@
+/**
+ * Generic status bar component used as base for:
+ * - Health bar
+ * - Bottle bar
+ * - Coin bar
+ *
+ * Extends DrawableObject and swaps between images based on percentage.
+ *
+ * @extends DrawableObject
+ */
 class StatusBar extends DrawableObject {
 
     IMAGES = [
@@ -6,13 +16,17 @@ class StatusBar extends DrawableObject {
         '/img/7_statusbars/1_statusbar/2_statusbar_health/orange/40.png',
         '/img/7_statusbars/1_statusbar/2_statusbar_health/blue/60.png',
         '/img/7_statusbars/1_statusbar/2_statusbar_health/blue/80.png',
-        '/img/7_statusbars/1_statusbar/2_statusbar_health/blue/100.png' // Bild Nr. 5
+        '/img/7_statusbars/1_statusbar/2_statusbar_health/blue/100.png' // index 5
     ];
 
+    /** @type {number} Current value in percent (0–100). */
     percentage = 100;
 
+    /**
+     * Creates the base status bar and sets it to 100%.
+     */
     constructor() {
-        super(); // von dem übergeordneten Objekt initialisieren...
+        super();
         this.loadImages(this.IMAGES);
         this.x = 40;
         this.y = 0;
@@ -21,29 +35,38 @@ class StatusBar extends DrawableObject {
         this.setPercentage(100);
     }
 
-    // setPercentage(50);
+    /**
+     * Updates the bar value and selects the correct sprite image.
+     *
+     * @param {number} percentage - New bar value in percent (0–100).
+     * @returns {void}
+     */
     setPercentage(percentage) {
-    let clamped = Math.max(0, Math.min(percentage, 100));
-    this.percentage = clamped;
+        const clamped = Math.max(0, Math.min(percentage, 100));
+        this.percentage = clamped;
 
-    let path = this.IMAGES[this.resolveImageIndex()];
-    this.img = this.imageCache[path];
+        const path = this.IMAGES[this.resolveImageIndex()];
+        this.img = this.imageCache[path];
     }
 
-        resolveImageIndex() {
-            if (this.percentage >= 100) {
-                return 5; // 100
-            } else if (this.percentage >= 80) {
-                return 4; // 80
-            } else if (this.percentage >= 60) {
-                return 3; // 60
-            } else if (this.percentage >= 40) {
-                return 2; // 40
-            } else if (this.percentage >= 20) {
-                return 1; // 20
-            } else {
-                return 0; // 0
-            }
+    /**
+     * Maps the current percentage value to a sprite index.
+     *
+     * @returns {number} Index within the IMAGES array.
+     */
+    resolveImageIndex() {
+        if (this.percentage >= 100) {
+            return 5; // 100
+        } else if (this.percentage >= 80) {
+            return 4; // 80
+        } else if (this.percentage >= 60) {
+            return 3; // 60
+        } else if (this.percentage >= 40) {
+            return 2; // 40
+        } else if (this.percentage >= 20) {
+            return 1; // 20
+        } else {
+            return 0; // 0
         }
-
+    }
 }

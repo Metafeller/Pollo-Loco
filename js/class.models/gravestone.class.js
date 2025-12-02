@@ -1,11 +1,19 @@
+/**
+ * Static gravestone sprite that appears at the player's death position.
+ * The width is adjusted once the image dimensions are known to avoid distortion.
+ *
+ * @extends DrawableObject
+ */
 class Gravestone extends DrawableObject {
     /**
-     * @param {number} x Left
-     * @param {number} y Top
-     * @param {number} w Width  (initial; wird nach Bild-Ladeevent durch Ratio ersetzt)
-     * @param {number} h Height (finale Zielhöhe)
+     * Creates a gravestone aligned to the given position.
+     *
+     * @param {number} x - Left world coordinate.
+     * @param {number} y - Top world coordinate.
+     * @param {number} [w=120] - Initial width (before aspect correction).
+     * @param {number} [h=160] - Target height (final height in pixels).
      */
-    constructor(x, y, w = 120, h = 160) { // vorher 120 x 160
+    constructor(x, y, w = 120, h = 160) {
         super();
         this.x = x;
         this.y = y;
@@ -15,8 +23,7 @@ class Gravestone extends DrawableObject {
         this.FRAME = '/img/objects/1_gravestone-pepe.png';
         this.loadImage(this.FRAME);
 
-        // Verzerrungen vermeiden: Breite nach natürlichem Ratio des Bildes setzen.
-        // Warten, bis Image Maße hat:
+        // Avoid distortion: dynamically adjust width once the natural aspect ratio is known.
         const fix = setInterval(() => {
             const img = this.img;
             if (img && img.naturalWidth && img.naturalHeight) {

@@ -16,23 +16,21 @@
     <script src="js/class.models/status-bar.class.js"></script>
     <script src="js/class.models/bottle-status-bar-class.js"></script>
 
-    <!-- NEU: Coin/Whiskey Klassen (müssen vor World geladen sein) -->
+    <!-- NEW: Coin/Whiskey classes (must be loaded before World) -->
     <script src="js/class.models/coin.class.js"></script>
-    <!-- <script src="js/class.models/coin-hud.class.js"></script> -->
     <script src="js/class.models/coin-status-bar.class.js"></script>
     <script src="js/class.models/whiskey-pickup.class.js"></script>
     <script src="js/class.models/whiskey-counter.class.js"></script>
-    <!-- ENDE NEU -->
+    <!-- END NEW -->
 
     <script src="js/class.models/heart-pickup.class.js"></script>
 
-    <!-- Fireball NEU -->
+    <!-- Fireball NEW -->
     <script src="js/class.models/fireball.class.js"></script>
 
     <script src="js/class.models/endboss-status-bar.class.js"></script>
     <script src="js/class.models/gravestone.class.js"></script>
     <script src="js/class.models/game-over-screen.class.js"></script>
-    <!-- <script src="js/class.models/world.class.js"></script> -->
 
     <script src="js/class.models/keyboard.class.js"></script>
     <script src="js/class.models/level.class.js"></script>
@@ -51,22 +49,20 @@
 
     <script src="js/levels/level1.js"></script>
 
-    <!-- World NACH allen Klassen -->
+    <!-- World AFTER all classes -->
     <script src="js/class.models/world.class.js"></script>
 
-    <!-- ... im <head> NACH world.class.js und VOR game.js einfügen: -->
+    <!-- In <head> AFTER world.class.js and BEFORE game.js -->
     <script src="js/class.models/start-screen.class.js"></script>
     <script src="js/controls.js"></script>
     <script src="js/ui-frame.js"></script>
 
-    <!-- BODY-Ende: nach deinen bestehenden Skripten -->
+    <!-- At the end of <body>: responsive & touch handling -->
     <script src="js/responsive.js" defer></script>
     <script src="js/touch-controls.js" defer></script>
 
-    <!-- Game zuletzt -->
+    <!-- Game bootstrap last -->
     <script src="js/game.js"></script>
-
-    
 </head>
 
 <body onload="bootApp()">
@@ -98,9 +94,9 @@
 
     <div class="game-container">
         <!-- <h1>El Pollo Loco</h1> -->
-        <h1 id="lbl-title">El Pollo Loco</h1> <!-- Fallback-Text, wird durch i18n überschrieben -->
+        <h1 id="lbl-title">El Pollo Loco</h1> <!-- Fallback title, will be overwritten by i18n -->
         <div id="ui-bar" class="ui-bar">
-            <!-- <h1 id="lbl-title">El Pollo Loco</h1> brauche ich nicht, habs nach oben verlegt -->
+            <!-- <h1 id="lbl-title">El Pollo Loco</h1> not needed here, moved to header -->
              <div class="btn-row">
                     <button id="btn-start" class="ui-btn">Start</button>
                     <button id="btn-pause" class="ui-btn">Pause</button>
@@ -108,7 +104,7 @@
                     <button id="btn-restart-now" class="ui-btn">Restart Now</button>
                 </div>
             <div class="ui-right">
-                <button id="btn-mute" class="ui-btn" aria-pressed="false" title="Sound an/aus">🔈</button>
+                <button id="btn-mute" class="ui-btn" aria-pressed="false" title="Sound on/off">🔈</button>
                 <div class="lang-switch">
                     <span id="lbl-language" class="lang-label">Sprache</span>
                     <button id="btn-lang-de" class="lang-btn active">DE</button>
@@ -119,10 +115,10 @@
 
         <!-- <canvas id="canvas" width="720" height="480"></canvas> -->
 
-        <!-- NEU: STAGE-WRAPPER -->
+        <!-- NEW: STAGE WRAPPER for canvas and overlays -->
         <div id="stage" class="stage">
           <canvas id="canvas" width="720" height="480"></canvas>
-          <!-- in #stage landen gleich: start-screen, pause-overlay, .canvas-ui -->
+          <!-- start-screen, pause-overlay and .canvas-ui are injected into #stage -->
         </div>
 
     </div>

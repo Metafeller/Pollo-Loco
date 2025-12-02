@@ -10,10 +10,16 @@ class ThrowableObject extends MovableObject {
   ];
 
   /**
-   * @param {number} x         Start-X (z.B. character.x + 100)
-   * @param {number} y         Start-Y (z.B. character.y + 80)
-   * @param {boolean} facingRight  true = Wurf nach rechts
-   * @param {World|null} worldRef  optionale World-Referenz (für Reuse-Feature)
+   * A throwable salsa bottle:
+   * - Has its own gravity and ground line
+   * - Moves horizontally (left/right) based on facing direction
+   * - Spins while flying
+   * - Can be reused by the world when it misses and hits the ground
+   *
+   * @param {number} x - Start X (e.g. character.x + offset).
+   * @param {number} y - Start Y (e.g. character.y + offset).
+   * @param {boolean} [facingRight=true] - True = throw to the right.
+   * @param {World|null} [worldRef=null] - Optional reference to the world for reuse.
    */
   constructor(x, y, facingRight = true, worldRef = null) {
     super().loadImage(this.IMAGES_SPIN[0]);
@@ -24,16 +30,16 @@ class ThrowableObject extends MovableObject {
     this.facingRight = !!facingRight;
     this.world = worldRef;
 
-    this.speedY = 6;          // Wurfhöhe // vorher 18
-    this.throwSpeedX = 10;    // horizontale Fluggeschwindigkeit // vorher 12
-    this.groundY = 360;       // <--- bei Bedarf optisch feinjustieren
-    this.hasHit = false;      // Kollision mit Gegner?
-    this.done = false;        // World benutzt das, um aufzuräumen
+    this.speedY = 6;          // Throw height (vertical velocity)
+    this.throwSpeedX = 10;    // Horizontal flight speed
+    this.groundY = 360;       // Visual ground line for the bottle
+    this.hasHit = false;      // True if it already collided with an enemy
+    this.done = false;        // World uses this flag to clean up finished bottles
 
-    // Kollision nur im sichtbaren Flaschenkörper
+    // Collision only in the visible bottle body (slightly tighter hitbox)
     this.offset = {
-        left:   10, // vorher 10
-        right:  10, // vorher 10
+        left:   10,
+        right:  10,
         top:    8,
         bottom: 8
     };
@@ -43,15 +49,24 @@ class ThrowableObject extends MovableObject {
     this.startSpin();
   }
 
-
-  /** Boden-Logik nur für Flaschen */
+  /**
+   * Ground logic for bottles:
+   * Uses the bottle's own groundY instead of Character's ground position.
+   *
+   * @returns {boolean} True while bottle is above its ground line.
+   */
   isAboveGround() {
     if (this.done) return false;
     return this.y < this.groundY;
   }
 
-
-  /** horizontale Flugbahn */
+  /**
+   * Starts the horizontal flight:
+   * - Moves left/right depending on facingRight
+   * - Stops once it reaches the ground or is marked as done/hasHit
+   *
+   * @returns {void}
+   */
   startThrow() {
     this._throwTimer = setInterval(() => {
       if (this.done || this.hasHit) {
@@ -62,15 +77,18 @@ class ThrowableObject extends MovableObject {
       const dir = this.facingRight ? 1 : -1;
       this.x += this.throwSpeedX * dir;
 
-      // Boden erreicht?
+      // Ground reached?
       if (!this.isAboveGround()) {
         this.onGroundHit();
       }
     }, 1000 / 60);
   }
 
-
-  /** Spin-Animation während des Flugs */
+  /**
+   * Starts the spinning animation while the bottle is in flight.
+   *
+   * @returns {void}
+   */
   startSpin() {
     this._spinTimer = setInterval(() => {
       if (this.done || this.hasHit) {
@@ -81,8 +99,14 @@ class ThrowableObject extends MovableObject {
     }, 50);
   }
 
-
-  /** Wird aufgerufen, wenn die Flasche den Boden erreicht */
+  /**
+   * Called when the bottle reaches the ground without a hit:
+   * - Marks it as done
+   * - Aligns it to groundY
+   * - Optionally hands it back to the world for a "reuse" mechanic
+   *
+   * @returns {void}
+   */
   onGroundHit() {
     if (this.done || this.hasHit) return;
 
@@ -90,14 +114,13 @@ class ThrowableObject extends MovableObject {
     this.speedY = 0;
     this.y = this.groundY;
 
-    
-    // Optional-Bonus: verfehlte Flasche wiederverwendbar machen
+    // Optional bonus: missed bottle can be reused by the player
     try {
       if (this.world && typeof this.world.reuseBottleFromThrow === 'function') {
         this.world.reuseBottleFromThrow(this);
       }
     } catch (e) {
-      // bewusst leer – keine harten Crashes
+      // Intentionally empty: do not crash the game on reuse failures
     }
   }
 }

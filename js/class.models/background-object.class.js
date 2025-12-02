@@ -1,28 +1,47 @@
 // js/class.models/background-object.class.js
+
+/**
+ * Background tile that fills the horizon behind the world.
+ * Uses a small horizontal overlap to hide seams between tiles.
+ *
+ * @extends MovableObject
+ */
 class BackgroundObject extends MovableObject {
-  width  = 720;
+  width = 720;
   height = 480;
 
+  /**
+   * Creates a new background object at a given X-position.
+   *
+   * @param {string} imagePath - Path to the background image.
+   * @param {number} x - X position where the tile starts.
+   */
   constructor(imagePath, x) {
     super().loadImage(imagePath);
     this.x = x;
     this.y = 480 - this.height;
-    this._pad = 1; // 1px Überlapp links/rechts gegen Seams
+    this._pad = 1; // 1px overlap left/right to hide seams
   }
 
-  // Nur für Backgrounds: leicht überlappend und pixelgenau zeichnen
+  /**
+   * Draws the background tile with a small horizontal overlap
+   * to avoid visible seams between adjacent tiles.
+   *
+   * @param {CanvasRenderingContext2D} ctx - Canvas 2D rendering context.
+   * @returns {void}
+   */
   draw(ctx) {
-    // Ziel-Rect (pixelgenau) + Überlapp
-    const dx = (this.x | 0) - this._pad;     // |0 = int
-    const dy = (this.y | 0);
-    const dw = this.width + this._pad * 2;   // links + rechts je 1px
-    const dh = this.height;
+    // Pixel-perfect destination rect with small horizontal overlap
+    let dx = (this.x | 0) - this._pad; // |0 = integer
+    let dy = (this.y | 0);
+    let dw = this.width + this._pad * 2; // 1px overlap on both sides
+    let dh = this.height;
 
     try {
-      // Quelle = ganzes Bild
+      // Source = full image
       ctx.drawImage(this.img, 0, 0, this.img.width, this.img.height, dx, dy, dw, dh);
     } catch (e) {
-      // Bild evtl. noch nicht geladen -> einfach auslassen
+      // Image might not be loaded yet → safely skip drawing
     }
   }
 }
