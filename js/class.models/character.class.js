@@ -30,6 +30,7 @@ class Character extends MovableObject {
     // === Jump animation state (once per jump) ===
     jumpInProgress = false;
     jumpFrameIndex = 0;
+    jumpAnimTick = 0;
 
     // === Idle frames ===
     IMAGES_IDLE = [
@@ -106,36 +107,70 @@ class Character extends MovableObject {
     constructor() {
         super().loadImage('/img/2_character_pepe/2_walk/W-21.png');
 
-        // Preload all animation frames
+        this.initAnimations();
+        this.initAudio();
+        this.initPhysics();
+        this.startLoops();
+    }
+
+    /**
+     * Preloads all animation frames for the character.
+     *
+     * @returns {void}
+     */
+    initAnimations() {
         this.loadImages(this.IMAGES_IDLE);
         this.loadImages(this.IMAGES_LONG_IDLE);
         this.loadImages(this.IMAGES_WALKING);
         this.loadImages(this.IMAGES_JUMPING);
         this.loadImages(this.IMAGES_HURT);
         this.loadImages(this.IMAGES_DEAD);
+    }
 
-        // Prepare audio
+    /**
+     * Configures snore and wake audio (loop, volume).
+     *
+     * @returns {void}
+     */
+    initAudio() {
         try {
             this.snoreAudio.loop = true;
             this.snoreAudio.volume = 0.55;
         } catch (e) {}
+
         try {
             this.wakeAudio.volume = 0.85;
         } catch (e) {}
+    }
 
+    /**
+     * Sets the ground position, hitbox offset and enables gravity.
+     *
+     * @returns {void}
+     */
+    initPhysics() {
         // Ground line: Pepe stands at y = 80
         this.groundPosition = 150;
 
         this.offset = {
-            left:  18,
+            left: 18,
             right: 18,
-            top:   64, // previously 50
+            top: 64,   // previously 50
             bottom: 12 // previously 10
         };
 
         this.applyGravity();
+    }
+
+    /**
+     * Starts the continuous movement and animation loops.
+     *
+     * @returns {void}
+     */
+    startLoops() {
         this.animate();
     }
+
 
     /**
      * Starts both the movement and animation loops.
@@ -454,6 +489,20 @@ class Character extends MovableObject {
     }
 
     /**
+     * Slows down jump animation frames:
+     * only every few ticks the jump frame is advanced.
+     *
+     * @returns {boolean} true if the jump frame should be advanced
+     */
+    shouldAdvanceJumpFrame() {
+        this.jumpAnimTick = (this.jumpAnimTick || 0) + 1;
+
+        // Change the divisor to fine-tune the speed:
+        // 2 = slightly slower, 3 = even slower.
+        return (this.jumpAnimTick % 2) === 0;
+    }
+
+    /**
      * Returns true if any relevant control key is currently active.
      * Includes movement, jump and throw inputs, but only if
      * bottles/whiskey are actually available for throws.
@@ -605,8 +654,8 @@ class Character extends MovableObject {
     }
 
     /**
-     * Plays the jump animation, advancing frames once per tick,
-     * and clamps the index at the last frame.
+     * Plays the jump animation, advancing frames in a slowed-down fashion
+     * and clamping the index at the last frame.
      *
      * @returns {void}
      */
@@ -617,15 +666,18 @@ class Character extends MovableObject {
         if (!this.jumpInProgress) {
             this.jumpInProgress = true;
             this.jumpFrameIndex = 0;
+            this.jumpAnimTick = 0;
         }
 
         const idx = Math.min(this.jumpFrameIndex, frames.length - 1);
         const path = frames[idx];
         const img = this.imageCache[path];
 
-        if (img) this.img = img;
+        if (img) {
+            this.img = img;
+        }
 
-        if (this.jumpFrameIndex < frames.length - 1) {
+        if (this.jumpFrameIndex < frames.length - 1 && this.shouldAdvanceJumpFrame()) {
             this.jumpFrameIndex++;
         }
     }
@@ -643,9 +695,7 @@ class Character extends MovableObject {
     }
 
     /**
-     * Applies damage, clamps HP between 0 and 100 and
-     * triggers the game over flow immediately at 0 HP.
-     * Also restores the classic hurt state (lastHit) so IMAGES_HURT works as before.
+     * Applies damage to the character and updates UI and game state.
      *
      * @param {number} [amount=5] - damage amount
      * @returns {void}
@@ -653,27 +703,80 @@ class Character extends MovableObject {
     hit(amount = 5) {
         if (this.world?.gameOver || this.world?.gameWon) return;
 
-        const dmg = (typeof amount === 'number' && amount > 0) ? amount : 5;
+        const damage = this.resolveDamageAmount(amount);
+        this.updateEnergyAfterHit(damage);
+        this.updateHurtStateAfterHit();
+        this.syncStatusBarAfterHit();
+        this.triggerDeathIfNeeded();
+    }
+
+        /**
+     * Normalises and validates the requested damage amount.
+     *
+     * @param {number} amount - raw damage amount
+     * @returns {number} sanitised damage value
+     */
+    resolveDamageAmount(amount) {
+        if (typeof amount === 'number' && amount > 0) {
+            return amount;
+        }
+        return 5;
+    }
+
+    /**
+     * Updates the energy value after taking damage
+     * and keeps it clamped between 0 and 100.
+     *
+     * @param {number} damage - damage to apply
+     * @returns {void}
+     */
+    updateEnergyAfterHit(damage) {
         const current = (typeof this.energy === 'number') ? this.energy : 100;
 
-        let next = current - dmg;
+        let next = current - damage;
         if (next < 0) next = 0;
         if (next > 100) next = 100;
+
         this.energy = next;
+    }
 
-        // Restore classic hurt flag (replaces super.hit())
-        if (this.energy > 0) {
-            this.lastHit = Date.now ? Date.now() : new Date().getTime();
-        }
+    /**
+     * Updates the internal hurt flag when the character
+     * is still alive so classic IMAGES_HURT stays functional.
+     *
+     * @returns {void}
+     */
+    updateHurtStateAfterHit() {
+        if (this.energy <= 0) return;
 
-        // Sync status bar
-        if (this.world?.statusBar && typeof this.world.statusBar.setPercentage === 'function') {
-            this.world.statusBar.setPercentage(this.energy);
-        }
+        this.lastHit = Date.now
+            ? Date.now()
+            : new Date().getTime();
+    }
 
-        // Immediately die when HP reaches 0
-        if (this.energy <= 0 && typeof this.world?.onPlayerDeath === 'function') {
-            this.world.onPlayerDeath();
+    /**
+     * Synchronises the main status bar with the current energy.
+     *
+     * @returns {void}
+     */
+    syncStatusBarAfterHit() {
+        const bar = this.world?.statusBar;
+        if (!bar || typeof bar.setPercentage !== 'function') return;
+
+        bar.setPercentage(this.energy);
+    }
+
+    /**
+     * Triggers the game over flow when the character reaches 0 HP.
+     *
+     * @returns {void}
+     */
+    triggerDeathIfNeeded() {
+        if (this.energy > 0) return;
+
+        const onPlayerDeath = this.world?.onPlayerDeath;
+        if (typeof onPlayerDeath === 'function') {
+            onPlayerDeath.call(this.world);
         }
     }
 
