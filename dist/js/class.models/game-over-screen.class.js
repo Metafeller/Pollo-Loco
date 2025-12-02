@@ -1,8 +1,12 @@
+/**
+ * DOM-based Game Over overlay:
+ * - Becomes visible several seconds after the player dies
+ * - Shows a "Try Again" button and a small credit line
+ * - Uses i18n labels if available
+ */
 class GameOverScreen {
     /**
-     * Canvas-Overlay für Game Over:
-     * - ab 6s nach Tod sichtbar
-     * - ab 10s "Try again"-Button
+     * Creates the Game Over UI controller (canvas overlay + DOM button).
      */
     constructor() {
         this.visible = false;
@@ -22,28 +26,44 @@ class GameOverScreen {
         this._onLangChange = () => this._applyI18n();
     }
 
+    /**
+     * Applies current translation strings to UI elements
+     * and re-syncs the layout if needed.
+     *
+     * @returns {void}
+     * @private
+     */
     _applyI18n() {
         if (!window.I18N) return;
         this._gameOverLabel = window.I18N.t('game.gameOver');
-        if (this._btn) this._btn.textContent = window.I18N.t('ui.tryAgain');
-        // Größe/Position evtl. neu berechnen (Fonts können variieren)
+        if (this._btn) {
+            this._btn.textContent = window.I18N.t('ui.tryAgain');
+        }
+        // Fonts and label lengths can change → recompute layout
         this._syncToCanvas && this._syncToCanvas();
     }
 
+    /**
+     * Creates and attaches the DOM overlay directly above the canvas area.
+     * A flex container is positioned to follow the canvas rectangle.
+     *
+     * @param {string} [containerSelector='.stage'] - Optional selector for the root container.
+     * @returns {void}
+     */
     attachDom(containerSelector = '.stage') {
         if (this._container) return;
 
         const canvas = document.querySelector('#canvas');
 
-        const root = 
-            document.querySelector(containerSelector) || 
+        const root =
+            document.querySelector(containerSelector) ||
             (canvas && (canvas.closest('.stage') || canvas.parentElement)) ||
             document.body;
 
         const wrap = document.createElement('div');
         wrap.id = 'go-overlay-ui';
 
-        // Absolute Position direkt über dem Canvas-Rechteck
+        // Absolute positioning directly above the canvas rectangle
         wrap.style.position = 'absolute';
         wrap.style.left = '0';
         wrap.style.top = '0';
@@ -52,18 +72,16 @@ class GameOverScreen {
         wrap.style.display = 'none';
         wrap.style.pointerEvents = 'none';
         wrap.style.alignItems = 'center';
-        wrap.style.justifyContent = 'flex-end';  // an unteren Rand
+        wrap.style.justifyContent = 'flex-end'; // bottom of the canvas
         wrap.style.flexDirection = 'column';
         wrap.style.gap = '12px';
-        // wrap.style.zIndex = '9999';
-        wrap.style.zIndex = '995'; 
+        wrap.style.zIndex = '995';
         wrap.style.paddingBottom = '48px';
 
         // Button (i18n)
         const btn = document.createElement('button');
         btn.id = 'btn-try-again';
         btn.textContent = (window.I18N ? window.I18N.t('ui.tryAgain') : 'Try Again');
-        // btn.style.marginBottom = '24px';
         btn.style.pointerEvents = 'auto';
         btn.style.padding = '14px 28px';
         btn.style.fontSize = '28px';
@@ -80,7 +98,7 @@ class GameOverScreen {
         btn.onmouseenter = () => btn.style.transform = 'translateY(-2px)';
         btn.onmouseleave = () => btn.style.transform = 'translateY(0)';
 
-        // Credit
+        // Credit label
         const credit = document.createElement('div');
         credit.id = 'go-credit';
         credit.textContent = 'Made By Taironman';
@@ -96,35 +114,37 @@ class GameOverScreen {
         wrap.appendChild(btn);
         wrap.appendChild(credit);
 
-        // Container relativ
+        // Ensure root is relatively positioned so the overlay can be absolute inside it
         if (getComputedStyle(root).position === 'static') {
             root.style.position = 'relative';
         }
         root.appendChild(wrap);
 
-        // Position/Größe auf Canvas syncen
+        /**
+         * Keeps the overlay aligned with the canvas rectangle.
+         * Called initially and on resize/scroll/fullscreen.
+         */
         const syncToCanvas = () => {
             const r = canvas.getBoundingClientRect();
             const gr = root.getBoundingClientRect();
             const left = r.left - gr.left + root.scrollLeft;
-            const top  = r.top  - gr.top  + root.scrollTop;
+            const top = r.top - gr.top + root.scrollTop;
             wrap.style.left = `${left}px`;
-            wrap.style.top  = `${top}px`;
-            wrap.style.width  = `${r.width}px`;
+            wrap.style.top = `${top}px`;
+            wrap.style.width = `${r.width}px`;
             wrap.style.height = `${r.height}px`;
             wrap.style.display = this._showButton ? 'flex' : 'none';
         };
         this._syncToCanvas = syncToCanvas;
 
-        // initial + on resize/scroll
+        // Initial sync + listeners
         syncToCanvas();
         window.addEventListener('resize', syncToCanvas);
         window.addEventListener('scroll', syncToCanvas, true);
         document.addEventListener('fullscreenchange', syncToCanvas);
 
-        // Sprachwechsel live mitnehmen
+        // Live i18n updates
         window.addEventListener('i18n:changed', this._onLangChange);
-        // Falls i18n schon geladen, einmal initial anwenden
         this._applyI18n();
 
         this._container = wrap;
@@ -132,6 +152,12 @@ class GameOverScreen {
         this._credit = credit;
     }
 
+    /**
+     * Registers a callback for the Try Again button.
+     *
+     * @param {Function} handler - Callback invoked when the button is clicked.
+     * @returns {void}
+     */
     onTryAgain(handler) {
         if (!this._btn) return;
         this._btn.onclick = (ev) => {
@@ -140,8 +166,21 @@ class GameOverScreen {
         };
     }
 
-    show() { this.visible = true; }
+    /**
+     * Marks the overlay as visible.
+     * The actual button visibility is controlled via showButton().
+     *
+     * @returns {void}
+     */
+    show() {
+        this.visible = true;
+    }
 
+    /**
+     * Shows the "Try again" button and ensures the overlay container is visible.
+     *
+     * @returns {void}
+     */
     showButton() {
         this._showButton = true;
         if (this._container) {
@@ -150,20 +189,32 @@ class GameOverScreen {
         }
     }
 
+    /**
+     * Hides the button and the overlay container.
+     *
+     * @returns {void}
+     */
     hideButton() {
         this._showButton = false;
-        if (this._container) this._container.style.display = 'none';
+        if (this._container) {
+            this._container.style.display = 'none';
+        }
     }
 
     /**
-     * Zeichnet den Overlay-Layer über das Canvas (mit weinender Frau).
+     * Draws the Game Over canvas overlay (background, dark film, title text).
+     * The DOM button itself is not drawn here – it is handled by attachDom().
+     *
+     * @param {CanvasRenderingContext2D} ctx - Canvas 2D rendering context.
+     * @param {HTMLCanvasElement} canvas - The game canvas.
+     * @returns {void}
      */
     drawOverlay(ctx, canvas) {
         if (!this.visible) return;
 
         const { width, height } = canvas;
 
-        // BG-Bild vollflächig (cover-fit)
+        // Background image full-screen (cover-fit)
         if (this.bgImg.complete && this.bgImg.naturalWidth > 0) {
             const imgW = this.bgImg.naturalWidth;
             const imgH = this.bgImg.naturalHeight;
@@ -192,6 +243,6 @@ class GameOverScreen {
         ctx.fillText(title.toUpperCase(), width / 2, Math.floor(height * 0.50));
         ctx.shadowBlur = 0;
 
-        // Button ist DOM – Canvas zeichnet nur den Rest
+        // Button is DOM – canvas only renders background and text.
     }
 }

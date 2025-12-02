@@ -1,10 +1,14 @@
 // js/game.js
-(function(){
-  // EIN gemeinsames Keyboard für die ganze App
+(function() {
+  // One shared Keyboard instance for the whole app
   const kb = window.KEYBOARD || new Keyboard();
   window.KEYBOARD = kb;
 
-  window.addEventListener("keydown", (e) => {
+  /**
+   * Keydown listener:
+   * Maps arrow keys, Space, D, F to Keyboard state.
+   */
+  window.addEventListener('keydown', (e) => {
     // console.log(e.keyCode);
     if (e.keyCode === 39) kb.RIGHT = true;
     if (e.keyCode === 37) kb.LEFT  = true;
@@ -15,7 +19,11 @@
     if (e.keyCode === 70) kb.F     = true; // F
   });
 
-  window.addEventListener("keyup", (e) => {
+  /**
+   * Keyup listener:
+   * Resets Keyboard state when keys are released.
+   */
+  window.addEventListener('keyup', (e) => {
     if (e.keyCode === 39) kb.RIGHT = false;
     if (e.keyCode === 37) kb.LEFT  = false;
     if (e.keyCode === 38) kb.UP    = false;

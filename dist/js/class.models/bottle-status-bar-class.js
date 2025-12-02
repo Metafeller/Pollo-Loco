@@ -1,4 +1,13 @@
+/**
+ * Status bar that visualises the number of collected bottles (0–100%).
+ *
+ * @extends StatusBar
+ */
 class BottleStatusBar extends StatusBar {
+    /**
+     * Sprite frames for bottle fill levels from 0 to 100 percent.
+     * @type {string[]}
+     */
     IMAGES = [
         '/img/7_statusbars/1_statusbar/3_statusbar_bottle/orange/0.png',
         '/img/7_statusbars/1_statusbar/3_statusbar_bottle/orange/20.png',
@@ -8,28 +17,34 @@ class BottleStatusBar extends StatusBar {
         '/img/7_statusbars/1_statusbar/3_statusbar_bottle/blue/100.png'
     ];
 
+    /**
+     * Creates a new bottle status bar at the fixed HUD position.
+     */
     constructor() {
         super();
         this.loadImages(this.IMAGES);
-        this.setPercentage(0); // Startet bei 0 gesammelten Flaschen
-        this.x = 40; // Position der StatusBar
-        this.y = 60; // y-Koordinate
+        this.setPercentage(0); // start at 0 collected bottles
+        this.x = 40;           // HUD x-position
+        this.y = 60;           // HUD y-position
     }
 
     /**
-     * Setzt den Prozentsatz der Flaschen in der StatusBar
-     * @param {number} percentage - Der aktuelle Prozentsatz der gesammelten Flaschen
+     * Updates the bottle fill percentage and selects the matching sprite.
+     *
+     * @param {number} percentage - Current fill percentage (0–100).
+     * @returns {void}
      */
     setPercentage(percentage) {
-        this.percentage = percentage;  // Speichere den aktuellen Prozentsatz
-        let index = this.resolveImageIndex();  // Bestimme den Bildindex basierend auf dem Prozentsatz
-        let path = this.IMAGES[index];  // Wähle das Bild aus
-        this.img = this.imageCache[path];  // Setze das Bild für die StatusBar
+        this.percentage = percentage;
+        let index = this.resolveImageIndex();
+        let path = this.IMAGES[index];
+        this.img = this.imageCache[path];
     }
 
     /**
-     * Bestimmt das passende Bild basierend auf dem Prozentsatz
-     * @returns {number} Der Index des Bildes im IMAGES-Array
+     * Resolves the sprite index for the current percentage.
+     *
+     * @returns {number} Index of the selected image inside IMAGES.
      */
     resolveImageIndex() {
         if (this.percentage >= 100) {
@@ -43,8 +58,7 @@ class BottleStatusBar extends StatusBar {
         } else if (this.percentage >= 20) {
             return 1;
         } else {
-            return 0; // Zeige das Bild für 0% an
+            return 0; // show the "empty" sprite at 0%
         }
     }
 }
-

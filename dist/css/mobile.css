@@ -1,40 +1,40 @@
-/* ============ Mobile UI (≤ 1023 px) – Canvas Overlays & Header-Burger ============ */
+/* ============ Mobile UI (≤ 1023 px) – Canvas overlays & header burger ============ */
 
-/* ---------- Utility Root Vars ---------- */
+/* ---------- Utility root vars ---------- */
 :root{
   --mc-gap: 12px;
   --mc-btn: 68px;
   --mc-safe: 12px;
 
-    /* Canvas-UI Z unter Startscreen (Startscreen = z-index:1000) */
+  /* Canvas-UI z-index under start-screen (start-screen uses z-index:1000) */
   --mc-z: 900;
 }
 
-/* Adaptive Größen für Mobile-Landscape */
+/* Adaptive sizes for mobile landscape */
 body.is-mobile-ui.is-landscape{
-  /* Buttons schrumpfen bei geringer Höhe automatisch */
+  /* Buttons automatically shrink for low heights */
   --mc-btn: clamp(44px, 10vh, 68px);
   --mc-gap: clamp(6px, 1.2vh, 12px);
   --mc-safe: max(8px, env(safe-area-inset-bottom));
 }
 
-/* Portrait: Buttons werden eh ausgeblendet – Defaults ok */
+/* Portrait: buttons are hidden anyway – defaults are fine */
 
-/* ---------- Desktop sichtbar, Mobile per Klasse ------------- */
+/* ---------- Desktop visible, mobile via class ---------- */
 body.is-desktop-ui #ui-bar { display:flex; }
 
-/* Verstecke die UI-Bar nur an ihrem ORIGINAL-Ort (im game-container) */
+/* Hide the UI bar only at its ORIGINAL location (inside .game-container) */
 body.is-mobile-ui .game-container > #ui-bar { display: none; }
 
-/* Zeige sie im Drop-Right-Panel wieder an */
+/* Show it again inside the slide-out mobile panel */
 body.is-mobile-ui .mc-panel-body #ui-bar { display: flex !important; }
 
-/* ---------- Foot-Mid ausblenden < 1369 --------- */
+/* ---------- Hide foot-mid < 1369 px ---------- */
 @media (max-width: 1368px){
   .foot-mid{ display:none; }
 }
 
-/* ---------- Header/Footer Textgrößen --------- */
+/* ---------- Header/Footer font sizes ---------- */
 @media (max-width: 590px){
   .footer-bar, .header-bar { font-size: 18px; }
 }
@@ -42,29 +42,27 @@ body.is-mobile-ui .mc-panel-body #ui-bar { display: flex !important; }
   .footer-bar, .header-bar { font-size: 12px; }
 }
 
-/* ---------- Fullscreen: Fokus nur Canvas --------- */
+/* ---------- Fullscreen: focus on canvas only ---------- */
 body.fs-active .header-bar,
 body.fs-active .footer-bar,
 body.fs-active h1#lbl-title { display: none !important; }
 
-/* ---------- Canvas Overlay Host ---------- */
+/* ---------- Canvas overlay host ---------- */
 .canvas-ui {
-  position: absolute;   /* exakte Canvas-Position per JS */
+  position: absolute;   /* exact canvas position synced via JS */
   inset: 0;
-  /* left: 0; 
-  top: 0; */
   width: 100%; 
   height: 100%;
-  pointer-events: none;           /* nur Kinder klickbar */
-  z-index: var(--mc-z);           /* < 1000, damit Startscreen drüber liegt */
+  pointer-events: none;           /* only children can receive clicks */
+  z-index: var(--mc-z);           /* below start-screen (z=1000) */
   contain: layout paint;
 }
 
-/* Host auf Mobile immer sichtbar (Portrait braucht Overlay!) */
+/* On mobile the canvas UI host is always visible (portrait needs rotate-overlay) */
 body.is-mobile-ui .canvas-ui { display:block; }
 body.is-desktop-ui .canvas-ui { display:none; }
 
-/* Controls in Portrait vollständig ausblenden (Rotate-Overlay darf drüber liegen) */
+/* Controls in portrait are fully hidden (rotate overlay stays visible) */
 body.is-mobile-ui.is-portrait .canvas-ui .mc-dpad,
 body.is-mobile-ui.is-portrait .canvas-ui .mc-actions,
 body.is-mobile-ui.is-portrait .canvas-ui .mc-burger,
@@ -73,13 +71,13 @@ body.is-mobile-ui.is-portrait .canvas-ui .mc-panel {
   display: none !important;
 }
 
-/* ---------- Buttons allgemein ---------- */
+/* ---------- Buttons (shared styles) ---------- */
 .mc-btn {
   pointer-events: auto;
   -webkit-tap-highlight-color: transparent;
   user-select: none;
   touch-action: none;
-  -webkit-touch-callout: none; /* 🧱 Longpress-Kontextmenü auf iOS/Android minimieren */
+  -webkit-touch-callout: none; /* reduce long-press context menu on iOS/Android */
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -95,16 +93,16 @@ body.is-mobile-ui.is-portrait .canvas-ui .mc-panel {
 }
 .mc-btn:active { transform: translateY(-1px) scale(0.98); }
 
-/* Aktiver Zustand (per data-active vom JS) */
+/* Active state (set via data-active from JS) */
 .mc-btn[data-active="1"]{
   transform: translateY(-2px) scale(1.02);
   background: rgba(0,0,0,0.55);
 }
 
-/* ---------- Burger (unten links) ---------- */
+/* ---------- Burger (bottom-left) ---------- */
 .mc-burger { position: absolute; left: var(--mc-safe); bottom: calc(var(--mc-safe) + env(safe-area-inset-bottom)); }
 
-/* ---------- Fullscreen (unten rechts) ---------- */
+/* ---------- Fullscreen (bottom-right) ---------- */
 .mc-fs { position: absolute; right: var(--mc-safe); bottom: calc(var(--mc-safe) + env(safe-area-inset-bottom)); }
 
 /* ---------- D-Pad ---------- */
@@ -132,13 +130,13 @@ body.is-mobile-ui.is-portrait .canvas-ui .mc-panel {
   :root{ --mc-btn: 62px; }
 }
 
-/* ---------- Panel (Drop-Right) ---------- */
+/* ---------- Slide-out control panel (drop-right) ---------- */
 .mc-panel {
   position: absolute;
   left: calc(var(--mc-safe) + var(--mc-btn) + 10px);
   bottom: calc(var(--mc-safe) + var(--mc-btn) + 10px);
 
-  /* BREITER + HOCH, damit Mute/Language reinpassen */
+  /* Wide and tall enough to fit mute + language + game controls */
   max-width: clamp(340px, 72vw, 560px);
   max-height: min(70vh, 380px);
 
@@ -148,7 +146,7 @@ body.is-mobile-ui.is-portrait .canvas-ui .mc-panel {
   color: #eaeaea;
   box-shadow: 0 10px 26px rgba(0,0,0,.55);
 
-  /* Scrollen statt Abschneiden */
+  /* Scroll instead of cutting content */
   overflow: auto;
 
   transform-origin: left bottom;
@@ -162,7 +160,7 @@ body.is-mobile-ui.is-portrait .canvas-ui .mc-panel {
 .mc-panel-head { padding: 10px 12px; border-bottom: 1px solid rgba(242,212,162,0.2); font-size: 18px; letter-spacing: 1px; }
 .mc-panel-body { padding: 10px; }
 
-/* UI-Bar im Panel – sauber stapeln */
+/* UI bar inside the panel – stack nicely */
 .mc-panel-body .ui-bar{
   max-width: none;
   width: 100%;
@@ -172,12 +170,12 @@ body.is-mobile-ui.is-portrait .canvas-ui .mc-panel {
   background: transparent;
 
   display: flex;
-  flex-direction: column;      /* stapeln */
+  flex-direction: column;
   align-items: stretch;
   gap: 10px;
 }
 
-/* Mute + Language oben, in einer Reihe */
+/* Mute + language row on top */
 .mc-panel-body .ui-bar .ui-right{
   order: 1;
   display: flex;
@@ -187,7 +185,7 @@ body.is-mobile-ui.is-portrait .canvas-ui .mc-panel {
   padding-right: 0;
 }
 
-/* Language-Gruppe kompakt, ohne Umbruch */
+/* Language switch is compact and without wrapping */
 .mc-panel-body .ui-bar .lang-switch{
   display: flex;
   align-items: center;
@@ -196,7 +194,7 @@ body.is-mobile-ui.is-portrait .canvas-ui .mc-panel {
   padding-right: 0;
 }
 
-/* Button-Reihe darunter, darf umbrechen */
+/* Button row below, allowed to wrap */
 .mc-panel-body .ui-bar .btn-row{
   order: 2;
   display: flex;
@@ -205,14 +203,14 @@ body.is-mobile-ui.is-portrait .canvas-ui .mc-panel {
   padding-left: 0;
 }
 
-/* Buttons im Panel etwas kompakter */
+/* Buttons inside the panel are slightly more compact */
 .mc-panel-body .ui-bar .ui-btn,
 .mc-panel-body .ui-bar .lang-btn{
   padding: 6px 22px;
   font-size: 16px;
 }
 
-/* kleine Breiten */
+/* Smaller widths */
 @media (max-width: 720px){
   .mc-panel { 
     max-width: min(92vw, 560px); 
@@ -220,7 +218,7 @@ body.is-mobile-ui.is-portrait .canvas-ui .mc-panel {
   }
 }
 
-/* sehr kleine Breiten */
+/* Very small widths */
 @media (max-width: 480px){
   .mc-panel { 
     max-width: min(92vw, 560px); 
@@ -231,7 +229,7 @@ body.is-mobile-ui.is-portrait .canvas-ui .mc-panel {
 /* ---------- Inline SVGs ---------- */
 .mc-btn svg { width: 28px; height: 28px; }
 
-/* ---------- Rotate Overlay (nur über Canvas) ---------- */
+/* ---------- Rotate overlay (only above canvas) ---------- */
 .canvas-ui #rotate-overlay {
   position: absolute;
   inset: 0;
@@ -254,7 +252,7 @@ body.is-mobile-ui.is-portrait .canvas-ui .mc-panel {
   box-shadow: 0 10px 30px rgba(0,0,0,.6);
 }
 
-/* Kein Seiten-Scroll ≤ 1368 (Overlays haben eigene Scrolls) */
+/* No global page scroll ≤ 1368px (overlays have their own scrollbars) */
 @media (max-width: 1368px){
   html, body { overflow: hidden; }
 }

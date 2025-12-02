@@ -1,4 +1,16 @@
+/**
+ * Collectable coin inside the level.
+ * Uses a slightly reduced hitbox so it is only collected on visible contact.
+ *
+ * @extends DrawableObject
+ */
 class Coin extends DrawableObject {
+    /**
+     * Creates a new coin at the given world position.
+     *
+     * @param {number} x - X-position in the world.
+     * @param {number} y - Y-position in the world.
+     */
     constructor(x, y) {
         super();
         this.x = x;
@@ -7,15 +19,20 @@ class Coin extends DrawableObject {
         this.height = 60;
         this.loadImage('/img/7_statusbars/3_icons/icon_coin.png');
 
-        // Runde Coin-Hitbox leicht verkleinern → Einsammeln nur bei sichtbarem Kontakt.
-        this.offset = { 
-            left: 20, // vorher 8
-            right: 20, // vorher 8             
+        // Round coin hitbox slightly reduced → collect only on visible contact.
+        this.offset = {
+            left: 20,   // previously 8
+            right: 20,  // previously 8
             top: 8,
-            bottom: 50  // vorher 8
+            bottom: 50  // previously 8
         };
     }
 
+    /**
+     * Returns the current bounding box of the coin, including offsets.
+     *
+     * @returns {{left:number, top:number, right:number, bottom:number}} Coin bounds.
+     */
     getBounds() {
         const off = this.offset || { left: 0, right: 0, top: 0, bottom: 0 };
         return {

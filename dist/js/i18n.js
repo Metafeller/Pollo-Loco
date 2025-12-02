@@ -3,6 +3,7 @@
   const DEFAULT_LANG = localStorage.getItem('lang') || 'de';
   const SUPPORTED = { de: 'i18n/de.json', en: 'i18n/en.json' };
 
+  // Static ID → i18n key mapping
   const I18N_MAP = {
     'lbl-title': 'app.title',
     'lbl-language': 'ui.language',
@@ -30,61 +31,109 @@
 
   const getEl = (id) => document.getElementById(id);
 
-  // async function loadLang(lang){
-  //   if (cache[lang]) return cache[lang];
-  //   const res = await fetch(SUPPORTED[lang]);
-  //   if (!res.ok) throw new Error('Failed to load i18n: ' + lang);
-  //   const data = await res.json();
-  //   cache[lang] = data;
-  //   return data;
-  // }
-
-  async function loadLang(lang){
+  /**
+   * Loads a language JSON file (with cache-busting and timeout).
+   * Falls back to a minimal inline dictionary on failure.
+   *
+   * @param {string} lang - Language code.
+   * @returns {Promise<object>} i18n dictionary.
+   */
+  async function loadLang(lang) {
     if (cache[lang]) return cache[lang];
 
-    const url = `${SUPPORTED[lang]}?v=${Date.now()}`; // Cache-Buster
-    const withTimeout = (p, ms=3500) => new Promise((res, rej)=>{
-      const t = setTimeout(()=>rej(new Error('i18n timeout')), ms);
-      p.then(v=>{clearTimeout(t);res(v);}, e=>{clearTimeout(t);rej(e);});
+    const url = `${SUPPORTED[lang]}?v=${Date.now()}`; // cache-buster
+
+    const withTimeout = (p, ms = 3500) => new Promise((res, rej) => {
+      const t = setTimeout(() => rej(new Error('i18n timeout')), ms);
+      p.then(
+        v => { clearTimeout(t); res(v); },
+        e => { clearTimeout(t); rej(e); }
+      );
     });
 
     try {
-      const res = await withTimeout(fetch(url, {cache:'no-store'}), 3500);
-      if (!res.ok) throw new Error('HTTP '+res.status);
+      const res = await withTimeout(fetch(url, { cache: 'no-store' }), 3500);
+      if (!res.ok) throw new Error('HTTP ' + res.status);
       const data = await res.json();
       cache[lang] = data;
       return data;
     } catch (e) {
-      console.warn('[i18n] Fallback aktiviert für', lang, e);
-      // Minimal-Fallbacks – nur Keys, die dein UI wirklich braucht
+      console.warn('[i18n] Fallback activated for', lang, e);
+      // Minimal fallback dictionaries – only keys that are really needed by your UI
       const FALLBACKS = {
-        de:{ app:{title:'Das verrückte Huhn'}, ui:{language:'Sprache',start:'Starten',pause:'Pause',restart:'Neu starten',backToStart:'Zurück zum Startbildschirm',lang_de:'DE',lang_en:'EN',toTop:'Nach oben'} },
-        en:{ app:{title:'El Pollo Loco'},     ui:{language:'Language',start:'Start', pause:'Pause',restart:'Restart',      backToStart:'Back to Start Screen',lang_de:'DE',lang_en:'EN',toTop:'Back to top'} }
+        de: {
+          app: { title: 'Das verrückte Huhn' },
+          ui: {
+            language: 'Sprache',
+            start: 'Starten',
+            pause: 'Pause',
+            restart: 'Neu starten',
+            backToStart: 'Zurück zum Startbildschirm',
+            lang_de: 'DE',
+            lang_en: 'EN',
+            toTop: 'Nach oben'
+          }
+        },
+        en: {
+          app: { title: 'El Pollo Loco' },
+          ui: {
+            language: 'Language',
+            start: 'Start',
+            pause: 'Pause',
+            restart: 'Restart',
+            backToStart: 'Back to Start Screen',
+            lang_de: 'DE',
+            lang_en: 'EN',
+            toTop: 'Back to top'
+          }
+        }
       };
       cache[lang] = FALLBACKS[lang] || {};
       return cache[lang];
     }
   }
 
-  function t(obj, key){
+  /**
+   * Resolves a dotted i18n key (e.g. "ui.start") into a value.
+   *
+   * @param {object} obj - Dictionary object.
+   * @param {string} key - Dotted key path.
+   * @returns {string} Translation or key itself as fallback.
+   */
+  function t(obj, key) {
     const d = obj || dict;
-    return key.split('.').reduce((acc, k) => (acc && acc[k] != null ? acc[k] : null), d) ?? key;
+    return key
+      .split('.')
+      .reduce((acc, k) => (acc && acc[k] != null ? acc[k] : null), d) ?? key;
   }
 
-  // Minimaler Rich-Renderer: html ODER body-Array
-  function renderRich(container, spec){
+  /**
+   * Minimal "rich" renderer:
+   * - If `spec.html` exists → innerHTML
+   * - If `spec.body` is an array → wrap each entry in <p>
+   *
+   * @param {HTMLElement|null} container
+   * @param {any} spec - i18n content (html/body).
+   */
+  function renderRich(container, spec) {
     if (!container || !spec) return;
-    if (typeof spec.html === 'string'){
+    if (typeof spec.html === 'string') {
       container.innerHTML = spec.html;
       return;
     }
-    if (Array.isArray(spec.body)){
+    if (Array.isArray(spec.body)) {
       container.innerHTML = spec.body.map(p => `<p>${p}</p>`).join('');
     }
   }
 
-  function applyTranslations(){
-    // Statische IDs
+  /**
+   * Applies translations to:
+   * - Static ID map
+   * - Dynamic buttons
+   * - Overlay bodies (rules / imprint / privacy)
+   */
+  function applyTranslations() {
+    // Static ID → key mapping
     Object.keys(I18N_MAP).forEach((id) => {
       const el = getEl(id);
       if (!el) return;
@@ -97,7 +146,7 @@
       }
     });
 
-    // Dynamische Buttons
+    // Dynamic buttons
     const startGameBtn = getEl('btn-startgame');
     if (startGameBtn) startGameBtn.textContent = t(dict, 'ui.startGame');
 
@@ -130,38 +179,64 @@
     const uiRestartNow = getEl('btn-restart-now');
     if (uiRestartNow) uiRestartNow.textContent = t(dict, 'ui.restart');
 
-    // Overlays (Bodies)
+    // Overlay bodies
     renderRich(getEl('rules-body'),   dict.rules);
     renderRich(getEl('imprint-body'), dict.legal?.imprint);
     renderRich(getEl('privacy-body'), dict.legal?.privacy);
   }
 
-  function updateActiveButtons(){
+  /**
+   * Updates "active" visual state on language toggle buttons.
+   */
+  function updateActiveButtons() {
     const deBtn = getEl('btn-lang-de');
     const enBtn = getEl('btn-lang-en');
-    if (deBtn && enBtn){
+    if (deBtn && enBtn) {
       deBtn.classList.toggle('active', current === 'de');
       enBtn.classList.toggle('active', current === 'en');
     }
   }
 
-  async function setLanguage(lang){
+  /**
+   * Sets the current language:
+   * - Loads dictionary
+   * - Applies translations
+   * - Updates toggle buttons
+   * - Emits an "i18n:changed" event with {lang, dict}
+   *
+   * @param {string} lang - Language code.
+   */
+  async function setLanguage(lang) {
     if (!SUPPORTED[lang]) lang = 'de';
     current = lang;
     localStorage.setItem('lang', lang);
     dict = await loadLang(lang);
     applyTranslations();
     updateActiveButtons();
-    window.dispatchEvent(new CustomEvent('i18n:changed', { detail: { lang: current, dict } }));
+    window.dispatchEvent(
+      new CustomEvent('i18n:changed', { detail: { lang: current, dict } })
+    );
   }
 
-  function wireEvents(){
+  /**
+   * Wires up basic UI events such as:
+   * - Start / Pause / Restart (legacy wiring for header buttons)
+   * - Language switch buttons (DE/EN)
+   */
+  function wireEvents() {
     const startBtn = getEl('btn-start');
     const pauseBtn = getEl('btn-pause');
     const restartBtn = getEl('btn-restart');
-    if (startBtn && typeof window.startGame === 'function') startBtn.addEventListener('click', () => window.startGame());
-    if (pauseBtn && typeof window.pauseGame === 'function') pauseBtn.addEventListener('click', () => window.pauseGame());
-    if (restartBtn && typeof window.restartGame === 'function') restartBtn.addEventListener('click', () => window.restartGame());
+
+    if (startBtn && typeof window.startGame === 'function') {
+      startBtn.addEventListener('click', () => window.startGame());
+    }
+    if (pauseBtn && typeof window.pauseGame === 'function') {
+      pauseBtn.addEventListener('click', () => window.pauseGame());
+    }
+    if (restartBtn && typeof window.restartGame === 'function') {
+      restartBtn.addEventListener('click', () => window.restartGame());
+    }
 
     const deBtn = getEl('btn-lang-de');
     const enBtn = getEl('btn-lang-en');
@@ -169,6 +244,7 @@
     if (enBtn) enBtn.addEventListener('click', () => setLanguage('en'));
   }
 
+  // Public i18n API on window
   window.I18N = {
     t: (key) => t(dict, key),
     setLanguage,
@@ -177,12 +253,14 @@
     onChange: (cb) => window.addEventListener('i18n:changed', (e) => cb?.(e.detail))
   };
 
+  // Initial bootstrap: wire events and set default language
   document.addEventListener('DOMContentLoaded', async () => {
     wireEvents();
     await setLanguage(DEFAULT_LANG);
   });
 })();
 
-window.addEventListener('unhandledrejection', e=>{
+// Basic logging for unhandled Promise rejections
+window.addEventListener('unhandledrejection', e => {
   console.error('[Unhandled promise]', e.reason);
 });

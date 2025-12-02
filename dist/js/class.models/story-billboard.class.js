@@ -1,10 +1,13 @@
 class StoryBillboard extends DrawableObject {
     /**
-     * @param {number} x
-     * @param {number} y
-     * @param {number} w
-     * @param {number} h
-     * @param {HutGate|null} anchorGate
+     * Story billboard that shows a short dialogue sequence near the hut gate.
+     * Follows the gate position and plays a frame-based slideshow with audio.
+     *
+     * @param {number} x - Initial X position (world coordinates).
+     * @param {number} y - Initial Y position (top).
+     * @param {number} w - Initial width (will be adjusted by aspect ratio).
+     * @param {number} h - Target height (aspect ratio will adjust width).
+     * @param {HutGate|null} anchorGate - Optional gate to follow.
      */
     constructor(x = 5400, y = 120, w = 360, h = 180, anchorGate = null) {
         super();
@@ -13,19 +16,18 @@ class StoryBillboard extends DrawableObject {
         this.width = w;
         this.height = h;
 
+        /** @type {HutGate|null} Gate this billboard is anchored to. */
         this.anchorGate = anchorGate;
 
-        // Manuelle Offsets relativ zum Gate (Default-Nudge leicht nach links)
-        this.offsetX = -24; // + rechts, - links
-        this.offsetY = 72;  // Abstand über Bodenlinie (passt bei dir)
+        // Manual offsets relative to the gate (default: slightly left)
+        this.offsetX = -24; // + moves to the right, - to the left
+        this.offsetY = 72;  // vertical distance above the gate's ground line
 
-        // <<< NEU: manuelle Offsets relativ zum Gate >>>
-        // this.offsetX = 0;   // + nach rechts, - nach links
-        // this.offsetY = 72;  // + nach oben (Abstand vom Gate-Bottom) // vorher -72;
-
+        // Visibility / aspect state
         this.visible = false;
         this._aspectFixed = false;
 
+        // Story frames
         this.FRAMES = [
             '/img/objects/story/talk_closed_f1.png',
             '/img/objects/story/talk_closed_f1.png',
@@ -38,6 +40,11 @@ class StoryBillboard extends DrawableObject {
         this.loadImages(this.FRAMES);
         this.img = this.imageCache[this.FRAMES[0]];
 
+        /**
+         * Map from frame index to one-shot audio.
+         * Keys are frame indexes in the animation sequence.
+         * @type {Record<number, HTMLAudioElement>}
+         */
         this.audioMap = {
             1: new Audio('/audio/buttface.mp3'),
             2: new Audio('/audio/help-help.mp3'),
@@ -48,22 +55,30 @@ class StoryBillboard extends DrawableObject {
             7: new Audio('/audio/muffled-cry.mp3')
         };
 
+        // Background atmosphere loop while the billboard is active
         this.atmo = new Audio('/audio/crying-4.mp3');
         this.atmo.loop = true;
         this.atmo.volume = 0.25;
 
         this._idx = 0;
         this._timer = null;
-        this._delayMs = 1500; // langsamer
+        this._delayMs = 1500; // slower frame switching
         this._lastPlayedFrameIndex = -1;
 
+        // Automatically deactivate when gate has finished opening
         window.addEventListener('gate:opened', () => this.deactivate());
 
-        // Wir sorgen dafür das bei Pause (was in world-class.js definiert ist) auch die Story-Billboard Audio Frames stoppen!
+        // Tracks world pause state so story audio can be paused too
         this._worldPaused = false;
-
     }
 
+    /**
+     * Fixes the aspect ratio once the image has valid dimensions.
+     * Ensures the billboard is not stretched.
+     *
+     * @private
+     * @returns {void}
+     */
     _applyAspectOnce() {
         if (this._aspectFixed) return;
         const img = this.img;
@@ -74,34 +89,39 @@ class StoryBillboard extends DrawableObject {
         }
     }
 
-    // _followGate() {
-    //     if (!this.anchorGate) return;
-    //     const g = this.anchorGate;
-    //     // mittig am Gate ausrichten + Offsets
-    //     this.x = g.x + Math.floor((g.width - this.width) / 2) + this.offsetX;
-    //     // unteres Drittel des Gates (sichtbar über dem Boden) + offsetY nach oben
-    //     this.y = g.y + g.height - this.height - this.offsetY;
-    // }
-
+    /**
+     * Follows the anchor gate position, including manual XY offsets.
+     * Keeps the billboard horizontally centered on the gate and
+     * vertically aligned above the gate's ground line.
+     *
+     * @private
+     * @returns {void}
+     */
     _followGate() {
         if (!this.anchorGate) return;
         const g = this.anchorGate;
 
-        // horizontal mittig am Gate
+        // Horizontally centered relative to the gate
         this.x = g.x + Math.floor((g.width - this.width) / 2) + this.offsetX;
 
-        // vertikal stabil relativ zur Bodenlinie des Gates:
-        // (groundY ist fix → kein “Springen”, wenn Sprites laden)
+        // Vertically stable relative to the gate's ground line (no jumping on load)
         this.y = g.groundY - this.height - this.offsetY;
     }
 
-
-    /** Wird von World aufgerufen, wenn das Spiel pausiert / fortgesetzt wird. */
+    /**
+     * Called by World whenever the game is paused or resumed.
+     * While paused:
+     * - Frame animation is frozen
+     * - Story and atmosphere audio are paused
+     *
+     * @param {boolean} flag - True if world is paused.
+     * @returns {void}
+     */
     setWorldPaused(flag) {
         this._worldPaused = !!flag;
 
         if (this._worldPaused) {
-            // laufende Story-Audios pausieren
+            // Pause running audio sources
             try {
                 if (this.atmo) this.atmo.pause();
             } catch (e) {}
@@ -112,37 +132,22 @@ class StoryBillboard extends DrawableObject {
                 });
             } catch (e) {}
         }
-        // Beim Entpausieren nichts automatisch starten – das übernimmt der nächste Timer-Tick
+        // On resume, we do not auto-restart audio – next timer tick will continue visuals.
     }
 
-
-    // activate() {
-    //     if (this.visible) return;
-    //     this.visible = true;
-    //     try { if (this.atmo.paused) { this.atmo.currentTime = 0; this.atmo.play(); } } catch(e) {}
-    //     this._idx = 0;
-    //     this._aspectFixed = false;
-    //     this._applyAspectOnce();
-    //     this._timer = setInterval(() => {
-    //         this._idx = (this._idx + 1) % this.FRAMES.length;
-    //         this.img = this.imageCache[this.FRAMES[this._idx]];
-    //         this._aspectFixed = false;
-    //         this._applyAspectOnce();
-
-    //         const oneShot = this.audioMap[this._idx];
-    //         if (oneShot && this._lastPlayedFrameIndex !== this._idx) {
-    //             try { oneShot.currentTime = 0; oneShot.play(); } catch(e) {}
-    //             this._lastPlayedFrameIndex = this._idx;
-    //         }
-    //     }, this._delayMs);
-    // }
-
-
+    /**
+     * Activates the story billboard:
+     * - Makes it visible
+     * - Starts the atmosphere loop (if world is not paused)
+     * - Resets frames and starts the frame/audio loop
+     *
+     * @returns {void}
+     */
     activate() {
         if (this.visible) return;
         this.visible = true;
 
-        // Atmo nur starten, wenn World nicht pausiert ist
+        // Only start atmosphere loop if world is not paused
         try {
             if (!this._worldPaused && this.atmo && this.atmo.paused) {
                 this.atmo.currentTime = 0;
@@ -154,14 +159,14 @@ class StoryBillboard extends DrawableObject {
         this._aspectFixed = false;
         this._applyAspectOnce();
 
-        // Falls schon ein alter Timer lief, vorsichtshalber stoppen
+        // Stop any previous timer just in case
         if (this._timer) {
             clearInterval(this._timer);
             this._timer = null;
         }
 
         this._timer = setInterval(() => {
-            // Während der Pause: keine Frames weiterschalten, keine Audio-OneShots
+            // While paused: do not advance frames or play audio one-shots
             if (this._worldPaused) return;
 
             this._idx = (this._idx + 1) % this.FRAMES.length;
@@ -180,17 +185,42 @@ class StoryBillboard extends DrawableObject {
         }, this._delayMs);
     }
 
-
+    /**
+     * Deactivates the billboard:
+     * - Hides it
+     * - Stops frame timer
+     * - Stops and resets atmosphere audio
+     *
+     * @returns {void}
+     */
     deactivate() {
         if (!this.visible) return;
         this.visible = false;
-        if (this._timer) { clearInterval(this._timer); this._timer = null; }
-        try { if (!this.atmo.paused) { this.atmo.pause(); this.atmo.currentTime = 0; } } catch(e) {}
+
+        if (this._timer) {
+            clearInterval(this._timer);
+            this._timer = null;
+        }
+
+        try {
+            if (!this.atmo.paused) {
+                this.atmo.pause();
+                this.atmo.currentTime = 0;
+            }
+        } catch (e) {}
     }
 
+    /**
+     * Updates the billboard each frame:
+     * - Fix aspect ratio once images are available
+     * - Follow the gate position if anchored
+     *
+     * Typically called from World.update().
+     *
+     * @returns {void}
+     */
     update() {
         this._applyAspectOnce();
         this._followGate();
     }
-
 }
