@@ -159,10 +159,14 @@ class CharacterState extends CharacterMovement {
         if (this.idlePhase === 'snore') return;
         this.idlePhase = 'snore';
         this.currentImage = 0;
+        
         try {
             if (this.snoreAudio) {
                 this.snoreAudio.currentTime = 0;
-                this.snoreAudio.play();
+                const p = this.snoreAudio.play();
+                if (p && typeof p.catch === 'function') {
+                    p.catch(() => {});
+                }
             }
         } catch (e) {}
     }
@@ -193,7 +197,10 @@ class CharacterState extends CharacterMovement {
             if (this.wakeAudio) {
                 this.wakeAudio.pause();
                 this.wakeAudio.currentTime = 0;
-                this.wakeAudio.play();
+                const p = this.wakeAudio.play();
+                if (p && typeof p.catch === 'function') {
+                    p.catch(() => {});
+                }
             }
         } catch (e) {}
     }

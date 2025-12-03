@@ -261,6 +261,13 @@
 })();
 
 // Basic logging for unhandled Promise rejections
-window.addEventListener('unhandledrejection', e => {
-  console.error('[Unhandled promise]', e.reason);
+window.addEventListener('unhandledrejection', (e) => {
+  e.preventDefault();
+
+  const reason = e.reason;
+  if (reason && reason.name === 'AbortError') {
+    return;
+  }
+
+  console.warn('[Unhandled promise]', reason);
 });

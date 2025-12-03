@@ -126,6 +126,31 @@ class World {
     // Story billboard should stay visible after first sight until boss is dead
     storyLatched = false;
 
+    /**
+     * Safely plays an audio element and swallows AbortError /
+     * autoplay rejections so they don't show up as console errors.
+     *
+     * Respects a global mute flag window.IS_MUTED (optional).
+     *
+     * @param {HTMLAudioElement|null|undefined} audio
+     * @returns {void}
+     */
+    playAudioSafe(audio) {
+        if (!audio || typeof audio.play !== 'function') return;
+
+        try {
+            // Global Mute Support (optional, wenn du window.IS_MUTED verwendest)
+            if (typeof window !== 'undefined' && typeof window.IS_MUTED !== 'undefined') {
+                audio.muted = !!window.IS_MUTED;
+            }
+
+            const p = audio.play();
+            if (p && typeof p.catch === 'function') {
+                p.catch(() => {});
+            }
+        } catch (e) {}
+    }
+
     // ===== Ambience control =====
 
     /**
@@ -141,7 +166,8 @@ class World {
                 this.dramaticAudio.volume = 0.5;
                 if (this.dramaticAudio.paused) {
                     this.dramaticAudio.currentTime = 0;
-                    this.dramaticAudio.play();
+                    // this.dramaticAudio.play();
+                    this.playAudioSafe(this.dramaticAudio);
                 }
             }
         } catch (e) {}
@@ -203,7 +229,8 @@ class World {
             this.bgMusic.muted = !!window.IS_MUTED;
             if (this.bgMusic.paused) {
                 this.bgMusic.currentTime = 0;
-                this.bgMusic.play();
+                // this.bgMusic.play();
+                this.playAudioSafe(this.bgMusic);
             }
         } catch (e) {}
     }
@@ -230,7 +257,8 @@ class World {
         try {
             if (!this.bgMusic) return;
             if (this.bgMusic.paused && !this.gameOver && !this.gameWon && !this.endbossInSight) {
-                this.bgMusic.play();
+                // this.bgMusic.play();
+                this.playAudioSafe(this.bgMusic);
             }
         } catch (e) {}
     }
@@ -313,7 +341,8 @@ class World {
      * @returns {void}
      */
     playEnemyDeathSound() {
-        this.enemyDeathAudio.play();
+        // this.enemyDeathAudio.play();
+        this.playAudioSafe(this.enemyDeathAudio);
     }
 
     /**
@@ -348,7 +377,8 @@ class World {
         if (picked) {
             try {
                 this.bottlePickupAudio.currentTime = 0;
-                this.bottlePickupAudio.play();
+                // this.bottlePickupAudio.play();
+                this.playAudioSafe(this.bottlePickupAudio);
             } catch (e) {}
         }
     }
@@ -529,7 +559,8 @@ class World {
             this.whiskeyCounter.setCount(this.whiskeyCount);
             try {
                 this.supernovaAudio.currentTime = 0;
-                this.supernovaAudio.play();
+                // this.supernovaAudio.play();
+                this.playAudioSafe(this.supernovaAudio);
             } catch (e) {}
         }
 
@@ -797,7 +828,8 @@ class World {
         if (pickedAny) {
             try {
                 this.coinAudio.currentTime = 0;
-                this.coinAudio.play();
+                // this.coinAudio.play();
+                this.playAudioSafe(this.coinAudio);
             } catch (e) {}
             const pct = this.totalCoins > 0 ? (this.coinsCollected / this.totalCoins) * 100 : 100;
             this.coinStatusBar.setPercentage(pct);
@@ -830,7 +862,8 @@ class World {
             this.whiskeyCounter.setCount(this.whiskeyCount);
             try {
                 this.whiskeyPickupAudio.currentTime = 0;
-                this.whiskeyPickupAudio.play();
+                // this.whiskeyPickupAudio.play();
+                this.playAudioSafe(this.whiskeyPickupAudio);
             } catch (e) {}
         }
 
@@ -860,7 +893,8 @@ class World {
             this.statusBar.setPercentage(this.character.energy);
             try {
                 this.heartPickupAudio.currentTime = 0;
-                this.heartPickupAudio.play();
+                // this.heartPickupAudio.play();
+                this.playAudioSafe(this.heartPickupAudio);
             } catch (e) {}
         }
 
@@ -878,7 +912,8 @@ class World {
         try {
             if (this.painAudio) {
                 this.painAudio.currentTime = 0;
-                this.painAudio.play();
+                // this.painAudio.play();
+                this.playAudioSafe(this.painAudio);
             }
         } catch (e) {}
         setTimeout(() => {
@@ -898,7 +933,8 @@ class World {
             this.portalTimerAudio.currentTime = 0;
             this.portalTimerAudio.volume = 0.9;
             this.portalTimerAudio.muted = !!window.IS_MUTED;
-            this.portalTimerAudio.play();
+            // this.portalTimerAudio.play();
+            this.playAudioSafe(this.portalTimerAudio);
         } catch (e) {}
     }
 
@@ -1068,7 +1104,8 @@ class World {
                 this.playerDeathAudio.pause();
                 this.playerDeathAudio.currentTime = 0;
                 this.playerDeathAudio.volume = 0.85;
-                this.playerDeathAudio.play();
+                // this.playerDeathAudio.play();
+                this.playAudioSafe(this.playerDeathAudio);
             }
         } catch (e) {}
 
@@ -1078,7 +1115,8 @@ class World {
                 this.deathSong.pause();
                 this.deathSong.currentTime = 0;
                 this.deathSong.volume = 0.75;
-                this.deathSong.play();
+                // this.deathSong.play();
+                this.playAudioSafe(this.deathSong);
             }
         } catch (e) {}
     }
@@ -1220,13 +1258,15 @@ class World {
                 this.goCryLoop.loop = true;
                 this.goCryLoop.volume = 0.7;
                 this.goCryLoop.currentTime = 0;
-                this.goCryLoop.play();
+                // this.goCryLoop.play();
+                this.playAudioSafe(this.goCryLoop);
             }
             if (this.goRainLoop) {
                 this.goRainLoop.loop = true;
                 this.goRainLoop.volume = 0.5;
                 this.goRainLoop.currentTime = 0;
-                this.goRainLoop.play();
+                // this.goRainLoop.play();
+                this.playAudioSafe(this.goRainLoop);
             }
         } catch (e) {}
     }
@@ -1727,7 +1767,8 @@ class World {
         try {
             if (this.hitAudio) {
                 this.hitAudio.currentTime = 0;
-                this.hitAudio.play();
+                // this.hitAudio.play();
+                this.playAudioSafe(this.hitAudio);
             }
         } catch (e) {}
     }
@@ -2169,7 +2210,8 @@ class World {
         try {
             if (this.bossDeathAudio) {
                 this.bossDeathAudio.currentTime = 0;
-                this.bossDeathAudio.play();
+                // this.bossDeathAudio.play();
+                this.playAudioSafe(this.bossDeathAudio);
             }
         } catch (e) {}
 
@@ -2345,7 +2387,8 @@ class World {
                     !this.gameWon &&
                     this.bgMusic &&
                     !this.bgMusic.muted) {
-                    this.bgMusic.play();
+                    // this.bgMusic.play();
+                    this.playAudioSafe(this.bgMusic);
                 }
             } catch (e) {}
 
@@ -2357,7 +2400,8 @@ class World {
                     this.portalTimerAudio.paused &&
                     !this.portalTimerAudio.muted) {
 
-                    this.portalTimerAudio.play();
+                    // this.portalTimerAudio.play();
+                    this.playAudioSafe(this.portalTimerAudio);
                 }
             } catch (e) {}
         }
