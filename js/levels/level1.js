@@ -179,8 +179,8 @@ function buildLevel1() {
     ];
 
     level.whiskeys = [
-        new WhiskeyPickup(3200, 340),
-        new WhiskeyPickup(5250, 400)
+        // new WhiskeyPickup(3200, 340),
+        new WhiskeyPickup(4250, 400)
     ];
 
     level.hearts = [

@@ -1,4 +1,6 @@
 // js/controls.js
+// Generall überholt durch js/controls-core.js und js/controls-ui.js -> Ich behalte es als Back-Up in meinen Dokumenten!
+
 let world = null;
 let keyboard = null;
 let startScreen = null;
