@@ -36,9 +36,11 @@ class GameOverScreen {
     _applyI18n() {
         if (!window.I18N) return;
         this._gameOverLabel = window.I18N.t('game.gameOver');
+
         if (this._btn) {
             this._btn.textContent = window.I18N.t('ui.tryAgain');
         }
+
         // Fonts and label lengths can change → recompute layout
         this._syncToCanvas && this._syncToCanvas();
     }
@@ -54,12 +56,55 @@ class GameOverScreen {
         if (this._container) return;
 
         const canvas = document.querySelector('#canvas');
+        if (!canvas) return;
 
-        const root =
-            document.querySelector(containerSelector) ||
-            (canvas && (canvas.closest('.stage') || canvas.parentElement)) ||
-            document.body;
+        const root = this._resolveRoot(containerSelector, canvas);
+        const wrap = this._createOverlayWrapper();
+        const btn = this._createTryAgainButton();
+        const credit = this._createCreditLabel();
 
+        wrap.appendChild(btn);
+        wrap.appendChild(credit);
+
+        this._ensureRootPositioned(root);
+        root.appendChild(wrap);
+
+        const syncToCanvas = this._createSyncToCanvasFn(canvas, root, wrap);
+        this._syncToCanvas = syncToCanvas;
+
+        this._initSyncListeners(syncToCanvas);
+        this._registerI18n();
+
+        this._container = wrap;
+        this._btn = btn;
+        this._credit = credit;
+    }
+
+    /**
+     * Resolves the root element that will contain the overlay.
+     *
+     * @param {string} containerSelector - CSS selector for preferred container.
+     * @param {HTMLCanvasElement} canvas - The game canvas.
+     * @returns {HTMLElement}
+     * @private
+     */
+    _resolveRoot(containerSelector, canvas) {
+        const direct = document.querySelector(containerSelector);
+        if (direct) return direct;
+
+        const stageParent = canvas.closest('.stage') || canvas.parentElement;
+        if (stageParent) return stageParent;
+
+        return document.body;
+    }
+
+    /**
+     * Creates the overlay wrapper element for the Game Over UI.
+     *
+     * @returns {HTMLDivElement}
+     * @private
+     */
+    _createOverlayWrapper() {
         const wrap = document.createElement('div');
         wrap.id = 'go-overlay-ui';
 
@@ -78,10 +123,20 @@ class GameOverScreen {
         wrap.style.zIndex = '995';
         wrap.style.paddingBottom = '48px';
 
-        // Button (i18n)
+        return wrap;
+    }
+
+    /**
+     * Creates the "Try again" button element with inline styling.
+     *
+     * @returns {HTMLButtonElement}
+     * @private
+     */
+    _createTryAgainButton() {
         const btn = document.createElement('button');
         btn.id = 'btn-try-again';
         btn.textContent = (window.I18N ? window.I18N.t('ui.tryAgain') : 'Try Again');
+
         btn.style.pointerEvents = 'auto';
         btn.style.padding = '14px 28px';
         btn.style.fontSize = '28px';
@@ -95,13 +150,28 @@ class GameOverScreen {
         btn.style.letterSpacing = '0.5px';
         btn.style.backdropFilter = 'blur(2px)';
         btn.style.transform = 'translateY(0)';
-        btn.onmouseenter = () => btn.style.transform = 'translateY(-2px)';
-        btn.onmouseleave = () => btn.style.transform = 'translateY(0)';
 
-        // Credit label
+        btn.onmouseenter = () => {
+            btn.style.transform = 'translateY(-2px)';
+        };
+        btn.onmouseleave = () => {
+            btn.style.transform = 'translateY(0)';
+        };
+
+        return btn;
+    }
+
+    /**
+     * Creates the small credit label below the button.
+     *
+     * @returns {HTMLDivElement}
+     * @private
+     */
+    _createCreditLabel() {
         const credit = document.createElement('div');
         credit.id = 'go-credit';
         credit.textContent = 'Made By Taironman';
+
         credit.style.marginBottom = '80px';
         credit.style.marginTop = '8px';
         credit.style.fontSize = '13px';
@@ -111,45 +181,74 @@ class GameOverScreen {
         credit.style.textShadow = '0 1px 2px rgba(0,0,0,0.6)';
         credit.style.pointerEvents = 'none';
 
-        wrap.appendChild(btn);
-        wrap.appendChild(credit);
+        return credit;
+    }
 
-        // Ensure root is relatively positioned so the overlay can be absolute inside it
-        if (getComputedStyle(root).position === 'static') {
+    /**
+     * Ensures the root element is relatively positioned so
+     * the overlay can be absolutely positioned inside it.
+     *
+     * @param {HTMLElement} root
+     * @returns {void}
+     * @private
+     */
+    _ensureRootPositioned(root) {
+        const style = getComputedStyle(root);
+        if (style.position === 'static') {
             root.style.position = 'relative';
         }
-        root.appendChild(wrap);
+    }
 
-        /**
-         * Keeps the overlay aligned with the canvas rectangle.
-         * Called initially and on resize/scroll/fullscreen.
-         */
-        const syncToCanvas = () => {
+    /**
+     * Creates a function that keeps the overlay aligned with the canvas rectangle.
+     * Called initially and on resize/scroll/fullscreen.
+     *
+     * @param {HTMLCanvasElement} canvas
+     * @param {HTMLElement} root
+     * @param {HTMLDivElement} wrap
+     * @returns {Function}
+     * @private
+     */
+    _createSyncToCanvasFn(canvas, root, wrap) {
+        return () => {
             const r = canvas.getBoundingClientRect();
             const gr = root.getBoundingClientRect();
+
             const left = r.left - gr.left + root.scrollLeft;
             const top = r.top - gr.top + root.scrollTop;
+
             wrap.style.left = `${left}px`;
             wrap.style.top = `${top}px`;
             wrap.style.width = `${r.width}px`;
             wrap.style.height = `${r.height}px`;
             wrap.style.display = this._showButton ? 'flex' : 'none';
         };
-        this._syncToCanvas = syncToCanvas;
+    }
 
-        // Initial sync + listeners
+    /**
+     * Performs initial sync and registers global listeners
+     * for resize/scroll/fullscreen to keep the overlay aligned.
+     *
+     * @param {Function} syncToCanvas
+     * @returns {void}
+     * @private
+     */
+    _initSyncListeners(syncToCanvas) {
         syncToCanvas();
         window.addEventListener('resize', syncToCanvas);
         window.addEventListener('scroll', syncToCanvas, true);
         document.addEventListener('fullscreenchange', syncToCanvas);
+    }
 
-        // Live i18n updates
+    /**
+     * Registers i18n listeners and applies the current translations.
+     *
+     * @returns {void}
+     * @private
+     */
+    _registerI18n() {
         window.addEventListener('i18n:changed', this._onLangChange);
         this._applyI18n();
-
-        this._container = wrap;
-        this._btn = btn;
-        this._credit = credit;
     }
 
     /**
@@ -160,9 +259,12 @@ class GameOverScreen {
      */
     onTryAgain(handler) {
         if (!this._btn) return;
+
         this._btn.onclick = (ev) => {
             ev?.preventDefault?.();
-            try { handler?.(); } catch (e) {}
+            try {
+                handler?.();
+            } catch (e) {}
         };
     }
 
