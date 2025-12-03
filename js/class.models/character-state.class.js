@@ -4,20 +4,18 @@
  */
 class CharacterState extends CharacterMovement {
 
-    // === Idle / Snore state ===
     idlePhase = 'active'; // 'active' | 'idle' | 'snore'
     lastActiveAt = (typeof performance !== 'undefined' ? performance.now() : Date.now());
 
     // Idle / sleep timings (inactivity based)
-    IDLE_DELAY_MS  = 300;   // ~6–7s until soft idle / pre-sleep
-    SNORE_DELAY_MS = 9500;  // ~9–10s until snore / sleep phase
-
+    IDLE_DELAY_MS  = 300;
+    SNORE_DELAY_MS = 9500;
+    
     // Counter to slow down idle / sleep frames
     idleAnimTick = 0;
 
-    // Invulnerability state
     invulnerable = false;
-    invulnerabilityDuration = 900;  // invulnerability duration in ms (previously 1500)
+    invulnerabilityDuration = 900;
 
     /**
      * Returns true if animation should be skipped
@@ -418,5 +416,5 @@ class CharacterState extends CharacterMovement {
     checkIfJumpedOnEnemy(enemy) {
         return this.isAboveGround() && this.speedY < 0 && this.isColliding(enemy);
     }
-
+    
 }

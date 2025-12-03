@@ -9,30 +9,27 @@ class Endboss extends MovableObject {
     y = 60;
     height = 400;
     width = 300;
-    speed = 0.5; // previously 0.3
+    speed = 0.5;
 
-    // AI state
     aiState = 'IDLE'; // IDLE | CHASE | RETURN
     isInSight = false;
 
-    startPosition = 5140; // starting position in front of the hut (gate ~5400)
+    startPosition = 5140;
     returning = false;
-    leashRadius = 500;    // how far he can chase to the left before switching to RETURN (previously 360)
-    sightRange = 520;     // how early he sees the player and starts CHASE (previously 400)
+    leashRadius = 500;
+    sightRange = 520;
     energy = 150;
 
-    // === Retreat fine-tuning ===
-    useRetreatOffset = true;   // true = do not return all the way to startPosition
-    retreatOffset    = 200;    // how many pixels LEFT of startPosition he should stop
-    // Example: startPosition = 6400 → return target = 6200
+    useRetreatOffset = true;
+    retreatOffset    = 200;
 
     minX = 0;
 
     inAggroMode = false;
-    baseSpeed = 0.5;          // base speed when not in combat
-    aggroSpeed = 3.0;         // aggro speed: clearly faster than Pepe
-    permanentChase = true;    // true = boss keeps chasing, no automatic RETURN
-    targetX = null;           // last known X-position of the player
+    baseSpeed = 0.5;
+    aggroSpeed = 3.0;
+    permanentChase = true;
+    targetX = null;
     isDying = false;
 
     IMAGES_WALKING = [
@@ -78,14 +75,13 @@ class Endboss extends MovableObject {
      *
      * @param {number} [startX=5140] - initial X-position (in front of the hut gate)
      */
-    constructor(startX = 5140 /* in front of the gate */) {
+    constructor(startX = 5140) {
         super().loadImage(this.IMAGES_WALKING[0]);
         this.loadImages(this.IMAGES_WALKING);
         this.loadImages(this.IMAGES_ALERT);
         this.loadImages(this.IMAGES_DEAD);
         this.loadImages(this.IMAGES_HURT);
 
-        // Set exact start position and remember it for return behaviour
         this.startPosition = startX;
         this.x = startX;
         this.minX = 0;
@@ -193,7 +189,6 @@ class Endboss extends MovableObject {
         if (!this.permanentChase) {
             this.applyLeash();
         }
-
         // Used by the HUD to show or hide the boss status bar
         this.isInSight = (this.aiState === 'CHASE');
     }
@@ -379,10 +374,10 @@ class Endboss extends MovableObject {
                 if (absDx > 5) {
                     if (dx < 0) {
                         this.moveLeft();
-                        this.otherDirection = false; // looking left
+                        this.otherDirection = false;
                     } else {
                         this.moveRight();
-                        this.otherDirection = true;  // looking right
+                        this.otherDirection = true;
                     }
                 }
 

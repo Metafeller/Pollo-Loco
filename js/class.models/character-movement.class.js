@@ -8,7 +8,6 @@ class CharacterMovement extends MovableObject {
     y = 80;
     speed = 3; // previously 5 → calmer pace fitting the walk sound
 
-    // Jump animation state
     jumpInProgress = false;
     jumpFrameIndex = 0;
     jumpAnimTick = 0;
@@ -38,8 +37,8 @@ class CharacterMovement extends MovableObject {
         this.offset = {
             left: 18,
             right: 18,
-            top: 64,   // previously 50
-            bottom: 12 // previously 10
+            top: 64,
+            bottom: 12
         };
 
         this.applyGravity();
@@ -145,7 +144,6 @@ class CharacterMovement extends MovableObject {
             this.otherDirection = false;
             this.walking_sound.play();
         } else if (this.x >= world.level.level_end_x) {
-            // Character stops at the end of the level
             this.x = world.level.level_end_x;
         }
     }

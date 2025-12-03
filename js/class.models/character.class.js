@@ -4,7 +4,6 @@
  */
 class Character extends CharacterState {
 
-    // === Idle frames ===
     IMAGES_IDLE = [
         '/img/2_character_pepe/1_idle/idle/I-1.png',
         '/img/2_character_pepe/1_idle/idle/I-2.png',
@@ -18,7 +17,6 @@ class Character extends CharacterState {
         '/img/2_character_pepe/1_idle/idle/I-10.png'
     ];
 
-    // === Long idle (snore) frames ===
     IMAGES_LONG_IDLE = [
         '/img/2_character_pepe/1_idle/long_idle/I-11.png',
         '/img/2_character_pepe/1_idle/long_idle/I-12.png',
@@ -79,13 +77,8 @@ class Character extends CharacterState {
     constructor() {
         super();
 
-        // Default sprite
         this.loadImage('/img/2_character_pepe/2_walk/W-21.png');
-
-        // Preload all animation frames
         this.initAnimations();
-
-        // Configure audio (loop + volume)
         this.initAudio();
     }
 
