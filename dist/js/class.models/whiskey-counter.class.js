@@ -12,11 +12,9 @@ class WhiskeyCounter extends DrawableObject {
 
         /** @type {number} Current whiskey count. */
         this.count = 0;
-
-        // Left side, directly below the coin bar
         this.x = 38;
-        this.y = 184;
-        this.width = 48;   // Icons are large → draw slightly smaller
+        this.y = 176;
+        this.width = 48;
         this.height = 48;
     }
 

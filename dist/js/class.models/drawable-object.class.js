@@ -66,7 +66,6 @@ class DrawableObject {
     draw(ctx) {
         const img = this.img;
 
-        // Guard: skip drawing until we have a real, decoded image
         if (!img || !(img instanceof Image) || !img.complete || img.naturalWidth === 0) {
             return;
         }
@@ -74,7 +73,7 @@ class DrawableObject {
         try {
             ctx.drawImage(img, this.x, this.y, this.width, this.height);
         } catch (e) {
-            // Skip this frame if the browser cannot draw the image yet.
+
         }
     }
 

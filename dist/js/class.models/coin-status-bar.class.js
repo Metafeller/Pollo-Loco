@@ -25,7 +25,7 @@ class CoinStatusBar extends StatusBar {
         this.loadImages(this.IMAGES);
         this.setPercentage(0);
         this.x = 40;
-        this.y = 120; // below the bottle bar
+        this.y = 112;
         this.width = 200;
         this.height = 60;
     }

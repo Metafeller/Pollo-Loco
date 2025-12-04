@@ -11,7 +11,7 @@ class Endboss extends MovableObject {
     width = 300;
     speed = 0.5;
 
-    aiState = 'IDLE'; // IDLE | CHASE | RETURN
+    aiState = 'IDLE';
     isInSight = false;
 
     startPosition = 5140;
@@ -86,7 +86,6 @@ class Endboss extends MovableObject {
         this.x = startX;
         this.minX = 0;
 
-        // Hitbox slightly smaller than the sprite to avoid "air damage"
         this.offset = {
             left:   50,
             right:  50,
@@ -104,7 +103,6 @@ class Endboss extends MovableObject {
      * @returns {void}
      */
     clampX() {
-        // Failsafe: if x is not a finite number (e.g. due to a bug), snap to return target
         if (!Number.isFinite(this.x)) {
             this.x = this.getReturnTargetX();
         }
@@ -183,13 +181,12 @@ class Endboss extends MovableObject {
         const inSight = (characterX > this.x - this.sightRange);
         if (this.aiState === 'IDLE' && inSight) {
             this.aiState = 'CHASE';
-            this.enterAggro(); // immediately switch to aggro speed
+            this.enterAggro();
         }
 
         if (!this.permanentChase) {
             this.applyLeash();
         }
-        // Used by the HUD to show or hide the boss status bar
         this.isInSight = (this.aiState === 'CHASE');
     }
 
@@ -343,15 +340,15 @@ class Endboss extends MovableObject {
         this.aiState = 'RETURN';
 
         const target = this.getReturnTargetX();
-        const EPSILON = this.speed * 1.5; // distance tolerance for snapping
+        const EPSILON = this.speed * 1.5;
 
         if (this.x < target - EPSILON) {
-            this.moveRight(); // move right until reaching the target
+            this.moveRight();
         } else {
-            this.snapToStart(); // snap to target and switch back to IDLE
+            this.snapToStart();
         }
 
-        this.otherDirection = true; // looks to the right while returning
+        this.otherDirection = true;
         this.playAnimation(this.IMAGES_WALKING);
     }
 
@@ -370,7 +367,6 @@ class Endboss extends MovableObject {
                 const dx = target - this.x;
                 const absDx = Math.abs(dx);
 
-                // Only move if there is still some distance (prevents jitter at minimal distance)
                 if (absDx > 5) {
                     if (dx < 0) {
                         this.moveLeft();

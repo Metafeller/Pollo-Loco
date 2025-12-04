@@ -24,8 +24,8 @@ class EndbossStatusBar extends StatusBar {
     constructor() {
         super();
         this.loadImages(this.IMAGES);
-        this.setPercentage(100); // Endboss starts at full health
-        this.x = 500;            // place near the top-right corner
+        this.setPercentage(100); 
+        this.x = 500;
         this.y = 5;
     }
 

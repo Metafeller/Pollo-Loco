@@ -44,11 +44,9 @@ class Chicken extends MovableObject {
         this.loadImages(this.IMAGES_WALKING);
         this.loadImages(this.IMAGES_DEAD);
 
-        // Injected x, otherwise random fallback in a fixed range
         this.x = (typeof x === 'number') ? x : (4200 + Math.random() * 700);
         this.speed = 0.15 + Math.random() * 0.5;
 
-        // Hitbox slightly smaller than the sprite to avoid "air damage".
         this.offset = {
             left:   12,
             right:  12,
@@ -75,8 +73,8 @@ class Chicken extends MovableObject {
      * @returns {void}
      */
     die() {
-        this.dead = true; // block animations & collisions
-        this.speed = 0;   // stop any further movement
+        this.dead = true;
+        this.speed = 0;
         this.loadImage(this.IMAGES_DEAD[0]);
     }
 

@@ -4,14 +4,12 @@
  */
 class CharacterState extends CharacterMovement {
 
-    idlePhase = 'active'; // 'active' | 'idle' | 'snore'
+    idlePhase = 'active';
     lastActiveAt = (typeof performance !== 'undefined' ? performance.now() : Date.now());
 
-    // Idle / sleep timings (inactivity based)
     IDLE_DELAY_MS  = 300;
     SNORE_DELAY_MS = 9500;
     
-    // Counter to slow down idle / sleep frames
     idleAnimTick = 0;
 
     invulnerable = false;
@@ -212,37 +210,87 @@ class CharacterState extends CharacterMovement {
      * @returns {void}
      */
     updateIdleState(nowMs) {
-        // If the game is out of play → stop everything
-        if (this.world?.gameOver || this.world?.gameWon) {
-            this.stopSnore();
-            this.idlePhase = 'idle'; // neutral rest
+        if (this.resetIdleWhenWorldFinished()) {
             return;
         }
 
-        const control = this.isControlActive();
-
-        if (control || this.isAboveGround() || this.isHurt()) {
-            // Active → reset timer
-            if (this.idlePhase === 'snore') this.onWakeFromSnore();
-            this.idlePhase = 'active';
-            this.lastActiveAt = nowMs;
+        if (this.handleIdleWhileControlActive(nowMs)) {
             return;
         }
 
-        // No input → calculate inactivity duration
-        const idleFor = nowMs - (this.lastActiveAt || nowMs);
+        const idleFor = this.computeIdleDuration(nowMs);
+        this.updateIdlePhaseByDuration(idleFor);
+    }
 
+        /**
+     * Resets idle/snore when world is finished (game over / won).
+     *
+     * @returns {boolean} true if the state was reset
+     */
+    resetIdleWhenWorldFinished() {
+        const world = this.world;
+        if (!world) return false;
+        if (!world.gameOver && !world.gameWon) return false;
+
+        this.stopSnore();
+        this.idlePhase = 'idle';
+        return true;
+    }
+
+    /**
+     * Handles idle logic while the player is actively controlling Pepe
+     * or while he's airborne/hurt.
+     *
+     * @param {number} nowMs - current timestamp in ms
+     * @returns {boolean} true if the active-control branch handled the state
+     */
+    handleIdleWhileControlActive(nowMs) {
+        const controlActive = this.isControlActive();
+
+        if (!controlActive && !this.isAboveGround() && !this.isHurt()) {
+            return false;
+        }
+
+        if (this.idlePhase === 'snore') {
+            this.onWakeFromSnore();
+        }
+
+        this.idlePhase = 'active';
+        this.lastActiveAt = nowMs;
+        return true;
+    }
+
+    /**
+     * Computes idle duration in milliseconds.
+     *
+     * @param {number} nowMs - current timestamp in ms
+     * @returns {number} idle duration
+     */
+    computeIdleDuration(nowMs) {
+        return nowMs - (this.lastActiveAt || nowMs);
+    }
+
+    /**
+     * Updates idle/sleep state based on how long Pepe has been idle.
+     *
+     * @param {number} idleFor - idle duration in ms
+     * @returns {void}
+     */
+    updateIdlePhaseByDuration(idleFor) {
         if (idleFor >= this.SNORE_DELAY_MS) {
-            // Sleep / snore after ~9–10s
             this.enterSnore();
-        } else if (idleFor >= this.IDLE_DELAY_MS) {
-            // Soft idle after ~6–7s of inactivity
-            this.enterIdle();
-        } else {
-            // Still in the "active" range
-            if (this.idlePhase === 'snore') this.stopSnore();
-            this.idlePhase = 'active';
+            return;
         }
+
+        if (idleFor >= this.IDLE_DELAY_MS) {
+            this.enterIdle();
+            return;
+        }
+
+        if (this.idlePhase === 'snore') {
+            this.stopSnore();
+        }
+        this.idlePhase = 'active';
     }
 
     /**

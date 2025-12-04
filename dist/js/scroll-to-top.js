@@ -1,6 +1,5 @@
-// js/scroll-to-top.js
 (() => {
-  const THRESHOLD = 300; // Show button after 300px scroll depth
+  const THRESHOLD = 300;
 
   const getEl = (id) => document.getElementById(id);
 
@@ -42,11 +41,9 @@
     const btn = getEl('btn-to-top');
     if (!btn) return;
 
-    // Click + keyboard activation
     btn.addEventListener('click', onClick);
     btn.addEventListener('keydown', onKeyDown);
 
-    // Performant scroll handling via rAF throttle
     let ticking = false;
     window.addEventListener('scroll', () => {
       if (!ticking) {
@@ -59,11 +56,9 @@
       }
     });
 
-    // Initial state on load
     const y0 = window.scrollY || document.documentElement.scrollTop;
     if (y0 > THRESHOLD) show(btn); else hide(btn);
   }
 
-  // Boot on DOM ready
   document.addEventListener('DOMContentLoaded', init);
 })();

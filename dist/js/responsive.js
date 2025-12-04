@@ -1,4 +1,3 @@
-// js/responsive.js
 (() => {
   const $ = (sel, root = document) => root.querySelector(sel);
 
@@ -21,7 +20,7 @@
     if (!host) {
       host = document.createElement('div');
       host.className = 'canvas-ui';
-      root.appendChild(host); // attaches to #stage (or body as fallback)
+      root.appendChild(host);
     }
     return host;
   }
@@ -122,10 +121,8 @@
     const show = isMobile && isPortrait();
     const wasShown = ov.classList.contains('show');
 
-    // Toggle visibility class
     ov.classList.toggle('show', show);
 
-    // If state did not change → nothing to do
     if (show === wasShown) return;
 
     const g = window;
@@ -134,12 +131,9 @@
     const hasWorld = (typeof world !== 'undefined') && !!world;
 
     if (show) {
-      // Overlay just became visible → pause game if needed
-      // Remember whether the game was already paused before
       g.__ROTATE_PREV_WAS_PAUSED__ = hasWorld && !!world.paused;
 
       if (hasWorld && !world.paused) {
-        // Use global pauseGame if available, otherwise direct world.setPaused()
         if (typeof g.pauseGame === 'function') {
           g.pauseGame();
         } else if (typeof world.setPaused === 'function') {
@@ -147,11 +141,9 @@
         }
       }
     } else {
-      // Overlay just disappeared
       const wasPausedBefore = !!g.__ROTATE_PREV_WAS_PAUSED__;
       g.__ROTATE_PREV_WAS_PAUSED__ = null;
 
-      // Only auto-resume if the game was NOT paused before the rotate overlay appeared
       if (hasWorld && world.paused && !wasPausedBefore) {
         if (typeof g.resumeGame === 'function') {
           g.resumeGame();
@@ -232,7 +224,6 @@
         menu.style.borderRadius = '12px';
         menu.style.padding = '10px';
         menu.style.boxShadow = '0 10px 26px rgba(0,0,0,.55)';
-        // DO NOT set menu.style.display = 'none' here – class handles visibility
         menu.style.zIndex = '8';
         menu.classList.add('mini-dd');
 
@@ -246,7 +237,6 @@
           </div>`;
         header.appendChild(menu);
 
-        // "Rules" entry in dropdown triggers the existing header Rules button
         $('#hdr-rules-dd')?.addEventListener('click', () => {
           document.getElementById('btn-rules')?.click();
         });
@@ -263,7 +253,6 @@
         header.insertBefore(hb, right);
       }
 
-      // Idempotent click handler
       if (!hb.__wired) {
         hb.__wired = true;
         hb.addEventListener('click', (ev) => {
@@ -272,7 +261,6 @@
           if (!mm) return;
           const willOpen = !mm.classList.contains('open');
           mm.classList.toggle('open', willOpen);
-          // Inline display as extra safety if other styles interfere
           mm.style.display = willOpen ? 'block' : 'none';
           hb.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
           try {
@@ -284,7 +272,6 @@
           } catch (_) {}
         });
 
-        // Outside-click closes the menu (only active on mobile)
         document.addEventListener('click', (e) => {
           const mm = document.getElementById('header-mobile-menu');
           const bt = document.getElementById('header-burger');
@@ -300,7 +287,6 @@
       right.style.display = 'none';
       hb.style.display = 'inline-flex';
     } else {
-      // Desktop cleanup: remove burger & dropdown, restore header-right
       if (menu) { menu.remove(); }
       if (hb) { hb.remove(); }
       right.style.display = '';
@@ -339,7 +325,6 @@
       ov.querySelector('p').textContent = t('mobile.rotateBody', 'Rotate your device to play.');
     });
 
-    // IMPORTANT: When the mobile dock is created later (touch-controls builds it)
     window.addEventListener('mc:dock-ready', dockUiBar);
   }
 
@@ -386,15 +371,13 @@
     syncCanvasOverlayBox();
   }
 
-  // Initial responsive setup on window load
   window.addEventListener('load', onResizeOrient);
 
-  // Initial bootstrap once DOM is ready
   document.addEventListener('DOMContentLoaded', () => {
     ensureCanvasOverlay();
     installFullscreenWatch();
     installPositionSync();
-    installTouchContextGuard(); // shields mobile buttons and stage from context menus
+    installTouchContextGuard();
     onResizeOrient();
     setTimeout(syncCanvasOverlayBox, 50);
     setTimeout(syncCanvasOverlayBox, 250);
@@ -407,7 +390,6 @@
     }
   });
 
-  // When tab becomes visible again, re-sync overlay box
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
       setTimeout(syncCanvasOverlayBox, 50);

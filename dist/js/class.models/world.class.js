@@ -9,50 +9,40 @@ class World {
     ctx;
     keyboard;
     camera_x = 0;
-    destroyed = false; // set to true on restart/backToStart to stop the render loop
+    destroyed = false;
 
-    paused = false;   // is the game paused?
+    paused = false;
+    START_GRACE_MS = 3000;
+    gameStartedAt = 0;
 
-    // Short grace period after game start so Pepe is not overrun immediately
-    START_GRACE_MS = 3000; // duration in ms (3 seconds)
-    gameStartedAt = 0;     // timestamp of game start
-
-    // Debug toggle for collision frames
-    DEBUG_FRAMES = false; // set true for testing, keep false in production
+    DEBUG_FRAMES = false;
 
     statusBar = new StatusBar();
     bottleStatusBar = new BottleStatusBar();
     endbossStatusBar = new EndbossStatusBar();
     endbossInSight = false;
-    bossDefeated = false;   // Endboss has been defeated permanently
+    bossDefeated = false;
 
-    // Endgame timer mechanic (Endboss fight time limit)
     endbossTimerId = null;
     endbossTimerActive = false;
     endbossTimerSeconds = 0;
     ENDBOSS_TIMEOUT_SECONDS = 30;
 
-    // Portal countdown after boss death (time window to reach the gate)
     portalTimerId = null;
     portalTimerActive = false;
     portalTimerSeconds = 0;
     PORTAL_TIMEOUT_SECONDS = 11;
 
-    // Background music (low volume ambience)
     bgMusic = new Audio('/audio/pixel-adventure.mp3');
 
-    // Mini-chicken swarm (Endboss fight)
     MINI_SWARM_INTERVAL_MS = 3000;
     MINI_SWARM_GROUP_SIZE  = 5;
     MINI_SWARM_MAX_COUNT   = 8;
 
     miniSwarmTimerId = null;
     miniSwarmActive  = false;
-
-    // Fixed spawn origin for boss minis (stable swarm region)
     miniSwarmOriginX = null;
 
-    // Coins & superpower
     coinStatusBar = new CoinStatusBar();
     coinsCollected = 0;
     totalCoins = 0;
@@ -60,48 +50,39 @@ class World {
     heartPickupAudio = new Audio('/audio/level-up-03.mp3');
 
     whiskeyCounter = new WhiskeyCounter();
-    whiskeyCount = 0; // number of collected whiskey bottles
+    whiskeyCount = 0;
 
-    // Throw / pickup sounds
-    supernovaAudio = new Audio('/audio/supernova.mp3');            // F-fireball
-    bottlePickupAudio = new Audio('/audio/bottle.mp3');            // normal bottle pickup
-    whiskeyPickupAudio = new Audio('/audio/man-says-amazing.mp3'); // whiskey pickup
+    supernovaAudio = new Audio('/audio/supernova.mp3');
+    bottlePickupAudio = new Audio('/audio/bottle.mp3');
+    whiskeyPickupAudio = new Audio('/audio/man-says-amazing.mp3');
 
-    // Game over / audio / overlays
     gameOver = false;
     gravestone = null;
 
-    // Game over splash (single fixed image, no filter)
-    goSplashImg = null;           // actual image object
-    goSplashActive = false;       // currently visible?
+    goSplashImg = null;
+    goSplashActive = false;
     goSplashPath = '/img/9_intro_outro_screens/game_over/1_game-over.png';
 
-    // Game over overlay object
     gameOverScreen = null;
 
-    // Sequencer timings (frame-driven, no setTimeout races)
-    goT0 = 0;               // performance.now() at player death
-    SPLASH_DELAY_MS = 3000; // splash starts after 3s
-    SPLASH_MS = 3000;       // splash visible duration
-    OVERLAY_AT_MS = 7000;   // overlay shown after ~7s
-    BUTTON_AT_MS  = 12000;  // Try again button visible after ~12s
+    goT0 = 0;
+    SPLASH_DELAY_MS = 3000;
+    SPLASH_MS = 3000;
+    OVERLAY_AT_MS = 7000;
+    BUTTON_AT_MS  = 12000;
 
-    goOverlayShown = false; // overlay already activated?
-    goButtonShown = false;  // button already activated?
-    goLoopsStarted = false; // audio loops already started?
-    goSplashShown   = false; // splash already started at least once?
+    goOverlayShown = false;
+    goButtonShown = false;
+    goLoopsStarted = false;
+    goSplashShown   = false;
 
-    // One-shot pain sound (anti spam)
     painAudio = new Audio('/audio/genervt.mp3');
     _painLock = false;
 
-    // Player death sound (single scream at death)
     playerDeathAudio = new Audio('/audio/man-screaming.mp3');
 
-    // Death song (plays at 0s in the GO sequence)
     deathSong = new Audio('/audio/spiel-mir-das-lied-vom-tod.mp3');
 
-    // Game over ambience loops (rain and crying)
     goCryLoop = new Audio('/audio/woman-cry-loop.mp3');
     goRainLoop = new Audio('/audio/raindrops.mp3');
 
@@ -109,7 +90,6 @@ class World {
     bossDeathAudio = new Audio('/audio/cry-dead.mp3');
     hitAudio = new Audio('/audio/punch-3.mp3');
 
-    // One-shot sound for portal countdown (about 11s)
     portalTimerAudio = new Audio('/audio/10sec-countdown.mp3');
 
     throwableObjects = [];
@@ -117,13 +97,10 @@ class World {
     bottlesCollected = 0;
     maxBottles = 5;
 
-    // Hut / gate / story / winner screen (EPL-20)
     hutGate = null;
     hutStory = null;
     winnerScreen = null;
     gameWon = false;
-
-    // Story billboard should stay visible after first sight until boss is dead
     storyLatched = false;
 
     /**
@@ -139,7 +116,6 @@ class World {
         if (!audio || typeof audio.play !== 'function') return;
 
         try {
-            // Global Mute Support (optional, wenn du window.IS_MUTED verwendest)
             if (typeof window !== 'undefined' && typeof window.IS_MUTED !== 'undefined') {
                 audio.muted = !!window.IS_MUTED;
             }
@@ -150,8 +126,6 @@ class World {
             }
         } catch (e) {}
     }
-
-    // ===== Ambience control =====
 
     /**
      * Starts the dramatic ambience loop during boss phases.
@@ -166,7 +140,6 @@ class World {
                 this.dramaticAudio.volume = 0.5;
                 if (this.dramaticAudio.paused) {
                     this.dramaticAudio.currentTime = 0;
-                    // this.dramaticAudio.play();
                     this.playAudioSafe(this.dramaticAudio);
                 }
             }
@@ -229,7 +202,6 @@ class World {
             this.bgMusic.muted = !!window.IS_MUTED;
             if (this.bgMusic.paused) {
                 this.bgMusic.currentTime = 0;
-                // this.bgMusic.play();
                 this.playAudioSafe(this.bgMusic);
             }
         } catch (e) {}
@@ -257,7 +229,6 @@ class World {
         try {
             if (!this.bgMusic) return;
             if (this.bgMusic.paused && !this.gameOver && !this.gameWon && !this.endbossInSight) {
-                // this.bgMusic.play();
                 this.playAudioSafe(this.bgMusic);
             }
         } catch (e) {}
@@ -290,29 +261,20 @@ class World {
         this.keyboard = keyboard;
         this.enemyDeathAudio = new Audio('/audio/chicken-wing.mp3');
 
-        // Remember game start timestamp for start grace logic
         this.gameStartedAt = performance.now();
-
-        // Reference level objects
         this.hutGate = this.level.hutGate || null;
         this.hutStory = this.level.storyBillboard || null;
         if (this.hutStory && !this.hutStory.anchorGate && this.hutGate) {
             this.hutStory.anchorGate = this.hutGate;
         }
 
-        // Get total coins from the level
         this.totalCoins = Array.isArray(this.level.coins) ? this.level.coins.length : 0;
-
-        // Initial UI values
         this.coinStatusBar.setPercentage(this.totalCoins > 0 ? 0 : 100);
         this.whiskeyCounter.setCount(0);
-
-        // Preload the single game over splash image
         this.preloadGoSplash();
 
         this.winnerScreen = new WinnerScreen();
 
-        // Start low volume background music
         this.startBgMusic();
 
         this.draw();
@@ -341,7 +303,6 @@ class World {
      * @returns {void}
      */
     playEnemyDeathSound() {
-        // this.enemyDeathAudio.play();
         this.playAudioSafe(this.enemyDeathAudio);
     }
 
@@ -377,7 +338,6 @@ class World {
         if (picked) {
             try {
                 this.bottlePickupAudio.currentTime = 0;
-                // this.bottlePickupAudio.play();
                 this.playAudioSafe(this.bottlePickupAudio);
             } catch (e) {}
         }
@@ -532,7 +492,6 @@ class World {
      * @returns {void}
      */
     checkThrowObjects() {
-        // Normal bottle (D)
         if (this.keyboard.D && this.bottlesCollected > 0) {
             const facingRight = true;
 
@@ -540,7 +499,7 @@ class World {
                 this.character.x + 100,
                 this.character.y + 80,
                 facingRight,
-                this // world reference
+                this
             );
 
             this.throwableObjects.push(bottle);
@@ -550,7 +509,6 @@ class World {
             this.bottleStatusBar.setPercentage(pct);
         }
 
-        // Supernova (F) – only if whiskey is available
         if (this.keyboard.F && this.whiskeyCount > 0) {
             const facingRight = true;
             const fire = new Fireball(this.character.x + 110, this.character.y + 70, facingRight);
@@ -559,12 +517,10 @@ class World {
             this.whiskeyCounter.setCount(this.whiskeyCount);
             try {
                 this.supernovaAudio.currentTime = 0;
-                // this.supernovaAudio.play();
                 this.playAudioSafe(this.supernovaAudio);
             } catch (e) {}
         }
 
-        // Cleanup: remove finished projectiles
         this.throwableObjects = this.throwableObjects.filter(p => !p.done);
     }
 
@@ -636,7 +592,6 @@ class World {
             this.onEndbossDeath(enemy);
         }
 
-        // Fireball is consumed after a valid hit
         proj.done = true;
     }
 
@@ -652,9 +607,9 @@ class World {
             if (enemy.hit.length >= 1) {
                 enemy.hit(dmg);
             } else {
-                enemy.hit(); // classic 20%
+                enemy.hit();
                 if (typeof enemy.energy === 'number') {
-                    enemy.energy = Math.max(0, enemy.energy - 20); // top up to 40% total
+                    enemy.energy = Math.max(0, enemy.energy - 20);
                 }
             }
         } catch (e) {
@@ -684,7 +639,6 @@ class World {
             this.handleBottleHitEndboss(enemy);
         }
 
-        // Bottle disappears on first collision (unchanged behaviour)
         this.throwableObjects.splice(idx, 1);
     }
 
@@ -760,17 +714,15 @@ class World {
      * @returns {void}
      */
     checkCollisions() {
-        // During the start grace period, ignore enemy collisions
         if (this.isInStartGrace()) return;
 
         this.level.enemies.forEach((enemy) => {
             if (!enemy || enemy.dead === true) return;
 
             const bodyHit  = this.character.isColliding(enemy);
-            const stompHit = this.didStompEnemy(enemy); // precise foot sensor
+            const stompHit = this.didStompEnemy(enemy);
 
             if (stompHit) {
-                // Stomp from above
                 if (enemy instanceof Chicken || enemy instanceof MiniChicken) {
                     enemy.die();
                     this.playEnemyDeathSound();
@@ -779,26 +731,21 @@ class World {
                         this.level.enemies = this.level.enemies.filter(e => e !== victim);
                     }, 500);
 
-                    // Bounce upwards + short invulnerability
                     this.character.speedY = 15;
                     this.character.makeInvulnerable();
 
                 } else if (enemy instanceof Endboss) {
-                    // Boss only gets pushed off
                     this.character.speedY = 18;
                     this.character.makeInvulnerable();
                 }
 
             } else if (bodyHit && !this.character.invulnerable) {
 
-                // Side/bottom collision → player takes damage
                 this.character.hit(20);
                 this.playPainOnce();
 
-                // Short invulnerability (global cooldown)
                 this.character.makeInvulnerable();
 
-                // Small push up so Pepe does not "stick" to the enemy
                 this.character.speedY = Math.max(this.character.speedY, 8);
             }
         });
@@ -824,18 +771,15 @@ class World {
             }
         }
 
-        // UI & sound after the loop (no HUD updates inside the loop)
         if (pickedAny) {
             try {
                 this.coinAudio.currentTime = 0;
-                // this.coinAudio.play();
                 this.playAudioSafe(this.coinAudio);
             } catch (e) {}
             const pct = this.totalCoins > 0 ? (this.coinsCollected / this.totalCoins) * 100 : 100;
             this.coinStatusBar.setPercentage(pct);
         }
 
-        // Always update the coins array
         this.level.coins = remaining;
     }
 
@@ -862,7 +806,6 @@ class World {
             this.whiskeyCounter.setCount(this.whiskeyCount);
             try {
                 this.whiskeyPickupAudio.currentTime = 0;
-                // this.whiskeyPickupAudio.play();
                 this.playAudioSafe(this.whiskeyPickupAudio);
             } catch (e) {}
         }
@@ -880,7 +823,7 @@ class World {
 
         const remaining = [];
         let picked = 0;
-        const HEAL_PER_HEART = 40; // heal amount per heart in %
+        const HEAL_PER_HEART = 40;
 
         for (const h of this.level.hearts) {
             if (this.character.isColliding(h)) picked++;
@@ -893,7 +836,6 @@ class World {
             this.statusBar.setPercentage(this.character.energy);
             try {
                 this.heartPickupAudio.currentTime = 0;
-                // this.heartPickupAudio.play();
                 this.playAudioSafe(this.heartPickupAudio);
             } catch (e) {}
         }
@@ -912,7 +854,6 @@ class World {
         try {
             if (this.painAudio) {
                 this.painAudio.currentTime = 0;
-                // this.painAudio.play();
                 this.playAudioSafe(this.painAudio);
             }
         } catch (e) {}
@@ -933,7 +874,6 @@ class World {
             this.portalTimerAudio.currentTime = 0;
             this.portalTimerAudio.volume = 0.9;
             this.portalTimerAudio.muted = !!window.IS_MUTED;
-            // this.portalTimerAudio.play();
             this.playAudioSafe(this.portalTimerAudio);
         } catch (e) {}
     }
@@ -965,7 +905,6 @@ class World {
         this.portalTimerActive = false;
         this.portalTimerSeconds = 0;
 
-        // Also stop the associated countdown sound
         this.stopPortalTimerSound();
     }
 
@@ -1090,7 +1029,6 @@ class World {
      * @returns {void}
      */
     playDeathAudioSequence() {
-        // stop pain so the death sound does not overlap
         try {
             if (this.painAudio) {
                 this.painAudio.pause();
@@ -1098,24 +1036,20 @@ class World {
             }
         } catch (e) {}
 
-        // one-shot death scream
         try {
             if (this.playerDeathAudio) {
                 this.playerDeathAudio.pause();
                 this.playerDeathAudio.currentTime = 0;
                 this.playerDeathAudio.volume = 0.85;
-                // this.playerDeathAudio.play();
                 this.playAudioSafe(this.playerDeathAudio);
             }
         } catch (e) {}
 
-        // Death song
         try {
             if (this.deathSong) {
                 this.deathSong.pause();
                 this.deathSong.currentTime = 0;
                 this.deathSong.volume = 0.75;
-                // this.deathSong.play();
                 this.playAudioSafe(this.deathSong);
             }
         } catch (e) {}
@@ -1160,7 +1094,6 @@ class World {
         this.goSplashShown  = false;
         this.goSplashActive = false;
 
-        // decode splash in advance for clean rendering
         try {
             if (this.goSplashImg && typeof this.goSplashImg.decode === 'function') {
                 this.goSplashImg.decode().catch(() => {});
@@ -1183,7 +1116,6 @@ class World {
         if (!this.gameOver) return;
         const elapsed = now - this.goT0;
 
-        // Start splash with delay (3s), stop after configured duration
         if (!this.goSplashShown && elapsed >= this.SPLASH_DELAY_MS) {
             this.goSplashActive = true;
             this.goSplashShown  = true;
@@ -1192,13 +1124,11 @@ class World {
             this.goSplashActive = false;
         }
 
-        // Overlay after splash window
         if (!this.goOverlayShown && elapsed >= this.OVERLAY_AT_MS) {
             this.startGameOverOverlay();
             this.goOverlayShown = true;
         }
 
-        // Try again button later
         if (!this.goButtonShown && elapsed >= this.BUTTON_AT_MS) {
             this.revealTryAgainButton();
             this.goButtonShown = true;
@@ -1218,7 +1148,6 @@ class World {
         const { width, height } = canvas;
         const img = this.goSplashImg;
 
-        // draw only the image, full canvas, no tint or text
         if (img.complete && (img.naturalWidth || 0) > 0) {
             const iw = img.naturalWidth;
             const ih = img.naturalHeight;
@@ -1235,7 +1164,6 @@ class World {
             ctx.drawImage(img, dx, dy, drawW, drawH);
             ctx.restore();
         }
-        // If the image is not ready yet, draw nothing.
     }
 
     /**
@@ -1246,10 +1174,8 @@ class World {
     startGameOverOverlay() {
         if (!this.gameOverScreen) return;
 
-        // show overlay
         this.gameOverScreen.show();
 
-        // start loops only once
         if (this.goLoopsStarted) return;
         this.goLoopsStarted = true;
 
@@ -1258,14 +1184,12 @@ class World {
                 this.goCryLoop.loop = true;
                 this.goCryLoop.volume = 0.7;
                 this.goCryLoop.currentTime = 0;
-                // this.goCryLoop.play();
                 this.playAudioSafe(this.goCryLoop);
             }
             if (this.goRainLoop) {
                 this.goRainLoop.loop = true;
                 this.goRainLoop.volume = 0.5;
                 this.goRainLoop.currentTime = 0;
-                // this.goRainLoop.play();
                 this.playAudioSafe(this.goRainLoop);
             }
         } catch (e) {}
@@ -1303,7 +1227,7 @@ class World {
      * @returns {string} CSS color string
      */
     getPortalTimerColor(now, seconds) {
-        if (seconds > 5) return '#7CFC00'; // light green
+        if (seconds > 5) return '#7CFC00';
 
         const blinkOn = (Math.floor(now / 250) % 2) === 0;
         return blinkOn ? '#ffcc33' : '#ff3333';
@@ -1377,19 +1301,15 @@ class World {
         const canvas = this.canvas;
         if (!canvas) return;
 
-        // Blink: on/off every ~200ms
         const blinkOn = (Math.floor(now / 200) % 2) === 0;
         if (!blinkOn) return;
 
-        // Timer position like in drawEndbossTimer()
         const cx = canvas.width / 2;
         const timerCy = 40;
         const timerH = 48;
 
-        // Arrow center slightly below the timer box
         const arrowCy = timerCy + (timerH / 2) + 32;
 
-        // Pulsating size
         const t = now / 220;
         const scale = 1 + 0.2 * Math.sin(t);
 
@@ -1603,7 +1523,6 @@ class World {
     didStompEnemy(enemy) {
         if (!enemy) return false;
 
-        // Must be falling (slightly negative speedY is enough)
         const vy = this.character.speedY || 0;
         if (vy > -0.2) return false;
 
@@ -1618,7 +1537,7 @@ class World {
             };
 
         const charH   = Math.max(1, ca.bottom - ca.top);
-        const footH   = Math.max(32, Math.floor(charH * 0.52)); // generous foot zone
+        const footH   = Math.max(32, Math.floor(charH * 0.52));
         const marginX = 6;
 
         const footL   = ca.left + marginX;
@@ -1663,7 +1582,6 @@ class World {
         if (mo.otherDirection) this.flipImageBack(mo);
 
         if (this.DEBUG_FRAMES && typeof mo.drawFrame === 'function') {
-            // Only debug gameplay-related objects (no backgrounds/clouds)
             const show =
                 (mo === this.character) ||
                 (mo instanceof Chicken) ||
@@ -1685,7 +1603,7 @@ class World {
         if (this.DEBUG_FRAMES && mo === this.character) {
             const ca = this.character.getBounds();
             const charH   = Math.max(1, ca.bottom - ca.top);
-            const footH   = Math.max(32, Math.floor(charH * 0.52)); // same as in didStompEnemy
+            const footH   = Math.max(32, Math.floor(charH * 0.52));
             const marginX = 6;
 
             const footRect = {
@@ -1767,7 +1685,6 @@ class World {
         try {
             if (this.hitAudio) {
                 this.hitAudio.currentTime = 0;
-                // this.hitAudio.play();
                 this.playAudioSafe(this.hitAudio);
             }
         } catch (e) {}
@@ -1829,13 +1746,11 @@ class World {
      * @returns {void}
      */
     startMiniChickenSwarm() {
-        // If the boss is already dead, never start the swarm again
         if (this.miniSwarmActive || this.bossDefeated) return;
 
         const boss = this.getCurrentEndboss();
         if (!boss) return;
 
-        // Set the origin once when the fight starts
         if (this.miniSwarmOriginX == null) {
             this.miniSwarmOriginX =
                 boss.startX || boss.spawnX || boss.homeX || boss.x;
@@ -1956,7 +1871,6 @@ class World {
     tickEndbossTimer() {
         if (!this.endbossTimerActive) return;
 
-        // Do not progress timer while paused
         if (this.paused) return;
 
         if (this.gameOver || this.gameWon) {
@@ -2007,8 +1921,6 @@ class World {
         this.onPlayerDeath();
     }
 
-    // ===== Portal timeout (after boss death, gate is open) =====
-
     /**
      * Starts the portal countdown once the Endboss is defeated
      * and the gate is open. The player has limited time to enter.
@@ -2016,7 +1928,6 @@ class World {
      * @returns {void}
      */
     startPortalTimer() {
-        // Always start with a clean state (old timer + sound cleared)
         this.stopPortalTimer();
 
         if (!this.hutGate) return;
@@ -2025,7 +1936,6 @@ class World {
         this.portalTimerActive  = true;
         this.portalTimerSeconds = this.PORTAL_TIMEOUT_SECONDS;
 
-        // One-shot alarm at timer start
         this.playPortalTimerStartSound();
 
         this.portalTimerId = setInterval(() => {
@@ -2041,7 +1951,6 @@ class World {
     tickPortalTimer() {
         if (!this.portalTimerActive) return;
 
-        // Do not progress timer while paused
         if (this.paused) return;
 
         if (this.gameOver || this.gameWon) {
@@ -2049,8 +1958,6 @@ class World {
             return;
         }
 
-        // If for any reason a portal timer runs while the boss is still alive
-        // and not marked as defeated, abort the timer.
         const bossAlive = (this.level?.enemies || [])
             .some(e => e instanceof Endboss && !e.dead);
 
@@ -2139,7 +2046,7 @@ class World {
      */
     showWinnerScreen() {
         this.gameWon = true;
-        this.stopPortalTimer(); // safety for edge cases
+        this.stopPortalTimer();
 
         try {
             this.stopAmbienceLoop();
@@ -2178,7 +2085,6 @@ class World {
      * @returns {void}
      */
     onEndbossDeath(endboss) {
-        // Only run once even if multiple hits are registered
         if (this.bossDefeated) return;
         this.bossDefeated = true;
 
@@ -2190,8 +2096,6 @@ class World {
             endboss.returning   = false;
             endboss.aiState     = 'IDLE';
 
-            // Safety: if hit() did not start the death animation,
-            // enforce it exactly once here.
             if (typeof endboss.die === 'function' &&
                 !endboss.dead &&
                 !endboss.isDying) {
@@ -2210,7 +2114,6 @@ class World {
         try {
             if (this.bossDeathAudio) {
                 this.bossDeathAudio.currentTime = 0;
-                // this.bossDeathAudio.play();
                 this.playAudioSafe(this.bossDeathAudio);
             }
         } catch (e) {}
@@ -2225,12 +2128,10 @@ class World {
 
         this.storyLatched = false;
 
-        // Boss dead → stop drama, resume calm background music
         try {
             this.resumeBgMusic();
         } catch (e) {}
 
-        // Boss dead → start portal countdown (player cannot wait forever)
         this.startPortalTimer();
     }
 
@@ -2291,7 +2192,6 @@ class World {
         const bag = new Set();
         this.getAllAudios().forEach(a => bag.add(a));
 
-        // Character
         try {
             if (this.character) {
                 this._collectAudiosShallow(this.character, bag);
@@ -2306,12 +2206,10 @@ class World {
             }
         } catch (e) {}
 
-        // Enemies
         try {
             (this.level?.enemies || []).forEach(e => this._collectAudiosShallow(e, bag));
         } catch (e) {}
 
-        // Story billboard: ambience + one-shots
         try {
             if (this.hutStory) {
                 if (this.hutStory.atmo) bag.add(this.hutStory.atmo);
@@ -2321,7 +2219,6 @@ class World {
             }
         } catch (e) {}
 
-        // Winner screen: win one-shot
         try {
             if (this.winnerScreen?.winAudio) bag.add(this.winnerScreen.winAudio);
         } catch (e) {}
@@ -2358,7 +2255,6 @@ class World {
         if (flag === this.paused) return;
         this.paused = !!flag;
 
-        // Inform story billboard (for dialog and ambience audio)
         try {
             if (this.hutStory && typeof this.hutStory.setWorldPaused === 'function') {
                 this.hutStory.setWorldPaused(this.paused);
@@ -2367,8 +2263,6 @@ class World {
 
         if (this.paused) {
             this.freezeWorld();
-
-            // pause currently playing audio (no reset of currentTime)
             try {
                 this.getAllAudiosDeep().forEach(a => {
                     try {
@@ -2379,28 +2273,22 @@ class World {
 
         } else {
             this.unfreezeWorld();
-
-            // resume background music if allowed
             try {
                 if (!this.endbossInSight &&
                     !this.gameOver &&
                     !this.gameWon &&
                     this.bgMusic &&
                     !this.bgMusic.muted) {
-                    // this.bgMusic.play();
                     this.playAudioSafe(this.bgMusic);
                 }
             } catch (e) {}
 
-            // resume portal countdown sound if timer is still active
             try {
                 if (this.portalTimerActive &&
                     this.portalTimerSeconds > 0 &&
                     this.portalTimerAudio &&
                     this.portalTimerAudio.paused &&
                     !this.portalTimerAudio.muted) {
-
-                    // this.portalTimerAudio.play();
                     this.playAudioSafe(this.portalTimerAudio);
                 }
             } catch (e) {}
@@ -2418,7 +2306,6 @@ class World {
             if (!o || o.__frozen) return;
             o.__frozen = true;
 
-            // Store and zero out speeds
             if (typeof o.speed === 'number') {
                 o.__prevSpeed = o.speed;
                 o.speed = 0;
@@ -2428,7 +2315,6 @@ class World {
                 o.baseSpeed = 0;
             }
 
-            // Patch movement and AI methods to no-op
             ['moveLeft', 'moveRight', 'updateAI', 'animate'].forEach(fn => {
                 if (typeof o[fn] === 'function' && !o[`__orig_${fn}`]) {
                     o[`__orig_${fn}`] = o[fn];
@@ -2443,8 +2329,6 @@ class World {
         (this.throwableObjects || []).forEach(patchOne);
         (this.effects || []).forEach(patchOne);
 
-        // Character is already controlled by world.paused in character.animate(),
-        // but we still apply the same patch for safety.
         patchOne(this.character);
     }
 

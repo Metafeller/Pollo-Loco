@@ -18,24 +18,19 @@ class HutGate extends DrawableObject {
         super();
         this.x = x;
 
-        // --- Sizing & ground alignment ---
-        this.groundY = groundY; // bottom line
-        this.height = targetH;  // target height (width follows from aspect)
+        this.groundY = groundY;
+        this.height = targetH;
 
-        // Fixed gate aspect ratio for all sprites (1248×832 → 1.5)
         this.ASPECT = 1248 / 832;
 
         this.width = Math.round(this.height * this.ASPECT);
-        this.y = this.groundY - this.height; // top so that bottom = groundY
+        this.y = this.groundY - this.height;
 
-        // --- State flags ---
         this.isOpening = false;
         this.isOpen = false;
 
-        // --- Aspect fix (prevents distortions) ---
         this._aspectFixed = false;
 
-        // --- Frames ---
         this.FRAME_CLOSED = '/img/objects/gate_closed_1.png';
         this.FRAMES_OPENING = [
             '/img/objects/gate_open_2.png',
@@ -51,20 +46,15 @@ class HutGate extends DrawableObject {
         this.loadImage(this.FRAME_CLOSED);
         this.loadImages([this.FRAME_CLOSED, ...this.FRAMES_OPENING]);
 
-        // --- Opening animation (smooth) ---
         this._openIdx = 0;
         this._openTimer = null;
         this._openStepMs = 160;
 
-        // --- Portal zone (recalculated after aspect fix) ---
         this.portalInsetX = 70;
         this.portalWidth = Math.max(60, this.width - this.portalInsetX * 2);
         this.portalHeight = Math.floor(this.height * 0.62);
 
-        // === Trigger fine-tuning ===
-        // Player must be at least this many pixels inside the portal
-        this.triggerDepthPx = 64; // typical range: 48–96
-        // Use the "feet" instead of head/shoulder for more natural triggering
+        this.triggerDepthPx = 64;
         this.footMarginPx = 14;
     }
 
@@ -77,7 +67,6 @@ class HutGate extends DrawableObject {
      */
     _applyAspectOnce() {
         if (this._aspectFixed) return;
-        // Do not change width/height here – only recompute portal width
         this.portalWidth = Math.max(60, this.width - this.portalInsetX * 2);
         this._aspectFixed = true;
     }
@@ -122,7 +111,6 @@ class HutGate extends DrawableObject {
      * @returns {void}
      */
     update() {
-        // If the image was loaded later → correct aspect & ground alignment
         this._applyAspectOnce();
     }
 
@@ -132,7 +120,6 @@ class HutGate extends DrawableObject {
      * @returns {{x:number, y:number, width:number, height:number}} Portal hitbox.
      */
     getPortalRect() {
-        // Place the portal onto the ground: bottom = groundY
         return {
             x: this.x + this.portalInsetX,
             y: this.groundY - this.portalHeight,
@@ -152,15 +139,11 @@ class HutGate extends DrawableObject {
         if (!this.isOpen || !character) return false;
 
         const r = this.getPortalRect();
+        const cx = character.x + character.width * 0.5;
+        const feetY = character.y + character.height - (this.footMarginPx || 12);
 
-        // Player measurement points
-        const cx = character.x + character.width * 0.5; // center X
-        const feetY = character.y + character.height - (this.footMarginPx || 12); // "feet"
-
-        // Vertical: feet must be within the portal height
         const insideY = feetY >= r.y && feetY <= (r.y + r.height);
 
-        // Horizontal: center must be in the portal AND exceed the depth threshold
         const leftThreshold = r.x + (this.triggerDepthPx || 0);
         const insideX = cx >= leftThreshold && cx <= (r.x + r.width);
 

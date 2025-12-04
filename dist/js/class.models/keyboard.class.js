@@ -19,8 +19,8 @@ class Keyboard {
     SPACE = false;
 
     /** @type {boolean} D key (throw bottle) */
-    D = false; // Throw = bottle
+    D = false;
 
     /** @type {boolean} F key (special attack / supernova) */
-    F = false; // Supernova
+    F = false;
 }

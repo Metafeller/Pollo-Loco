@@ -18,10 +18,9 @@ class Bottle extends MovableObject {
         this.width = 70;
         this.height = 60;
 
-        // Pickup hitbox slightly tighter so the bottle is not collected "from the air".
         this.offset = {
-            left:   40, // previously 10
-            right:  40, // previously 10
+            left:   40,
+            right:  40,
             top:    8,
             bottom: 6
         };

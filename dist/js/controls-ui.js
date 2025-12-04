@@ -1,5 +1,3 @@
-// js/controls-ui.js
-
 /**
  * Returns true if the mobile UI is in portrait mode and the rotate-overlay
  * is active. In that case the game must not start or resume yet.
@@ -78,28 +76,21 @@ function pokeMobileUiLayout() {
  * @returns {void}
  */
 function bootApp() {
-  // Single shared keyboard for the whole app
   keyboard = window.KEYBOARD || new Keyboard();
   window.KEYBOARD = keyboard;
-
-  // List of UI-related audio objects managed globally
   window.__UI_AUDIOS = window.__UI_AUDIOS || [];
 
-  // Restore mute state from localStorage
   isMuted = loadMutedFromStorage();
 
-  // Expose game control functions globally so i18n.js etc. can wire them
   window.startGame = startGame;
   window.pauseGame = pauseGame;
   window.resumeGame = resumeGame;
-
-  window.restartGame = backToStart; // "Back to start screen"
-  window.restartNow = restartNow;   // Direct restart
+  window.restartGame = backToStart;
+  window.restartNow = restartNow;
   window.backToStart = backToStart;
 
   wireUiControls();
 
-  // Prevent Space from triggering UI buttons while the game is running
   document.addEventListener(
     'keydown',
     (e) => {
@@ -123,7 +114,6 @@ function bootApp() {
     }
   })();
 
-  // Start screen
   startScreen = new StartScreen('/img/9_intro_outro_screens/start/startscreen_3.png');
   startScreen.attachDom('#stage');
   startScreen.onStart(() => {
@@ -135,7 +125,6 @@ function bootApp() {
   });
   startScreen.show();
 
-  // Menu background music
   menuAudio = new Audio('audio/background-audio.mp3');
   try {
     menuAudio.loop = true;
@@ -147,10 +136,8 @@ function bootApp() {
     }
   } catch (e) {}
 
-  // Apply mute state to UI, menu audio and global audios
   setMuted(isMuted);
 
-  // Run autostart now (without initial menu music)
   if (pendingAutostart) {
     try {
       localStorage.removeItem('autostart');
@@ -158,15 +145,11 @@ function bootApp() {
     startGame();
   }
 
-  // Create pause overlay
   pauseOverlay = createPauseOverlay();
 
-  // Initial labels + react to language changes
   applyI18nLabels();
   window.addEventListener('i18n:changed', applyI18nLabels);
 
-  // If we switch from portrait → landscape and no world is running yet,
-  // ensure start screen is visible again.
   const ensureStartScreenVisible = () => {
     if (!world && startScreen && !isPortraitBlocked()) {
       try {

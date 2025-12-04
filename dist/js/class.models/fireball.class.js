@@ -16,18 +16,17 @@ class Fireball extends MovableObject {
     constructor(x, y, facingRight = true) {
         super();
 
-        // Robust sprite loading
         this.loadImage('/img/objects/fireball.png');
 
         this.x = x;
-        this.y = y + 14; // small offset from Pepe's hand
+        this.y = y + 14;
         this.width = 64;
         this.height = 64;
 
         this.facingRight = !!facingRight;
-        this.speedX = 10; // slower (was 18)
+        this.speedX = 10;
         this.spawnX = x;
-        this.maxDistance = 540; // ~¾ of the screen width
+        this.maxDistance = 540;
         this.done = false;
 
         this._interval = null;
@@ -54,7 +53,6 @@ class Fireball extends MovableObject {
             return;
         }
 
-        // 🔥 Fallback: visible "energy ball" while the sprite is still loading
         ctx.save();
         ctx.fillStyle = 'rgba(255, 180, 0, 0.9)';
         const cx = this.x + this.width / 2;
@@ -82,7 +80,6 @@ class Fireball extends MovableObject {
 
             this.x += this.facingRight ? this.speedX : -this.speedX;
 
-            // Limit lifetime / travel distance
             if (Math.abs(this.x - this.spawnX) > this.maxDistance) {
                 this.done = true;
                 clearInterval(this._interval);

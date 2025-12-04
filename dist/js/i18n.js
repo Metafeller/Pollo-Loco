@@ -1,9 +1,7 @@
-// js/i18n.js
 (() => {
   const DEFAULT_LANG = localStorage.getItem('lang') || 'de';
   const SUPPORTED = { de: 'i18n/de.json', en: 'i18n/en.json' };
 
-  // Static ID → i18n key mapping
   const I18N_MAP = {
     'lbl-title': 'app.title',
     'lbl-language': 'ui.language',
@@ -41,7 +39,7 @@
   async function loadLang(lang) {
     if (cache[lang]) return cache[lang];
 
-    const url = `${SUPPORTED[lang]}?v=${Date.now()}`; // cache-buster
+    const url = `${SUPPORTED[lang]}?v=${Date.now()}`;
 
     const withTimeout = (p, ms = 3500) => new Promise((res, rej) => {
       const t = setTimeout(() => rej(new Error('i18n timeout')), ms);
@@ -59,7 +57,6 @@
       return data;
     } catch (e) {
       console.warn('[i18n] Fallback activated for', lang, e);
-      // Minimal fallback dictionaries – only keys that are really needed by your UI
       const FALLBACKS = {
         de: {
           app: { title: 'Das verrückte Huhn' },
@@ -133,7 +130,6 @@
    * - Overlay bodies (rules / imprint / privacy)
    */
   function applyTranslations() {
-    // Static ID → key mapping
     Object.keys(I18N_MAP).forEach((id) => {
       const el = getEl(id);
       if (!el) return;
@@ -146,7 +142,6 @@
       }
     });
 
-    // Dynamic buttons
     const startGameBtn = getEl('btn-startgame');
     if (startGameBtn) startGameBtn.textContent = t(dict, 'ui.startGame');
 
@@ -179,7 +174,6 @@
     const uiRestartNow = getEl('btn-restart-now');
     if (uiRestartNow) uiRestartNow.textContent = t(dict, 'ui.restart');
 
-    // Overlay bodies
     renderRich(getEl('rules-body'),   dict.rules);
     renderRich(getEl('imprint-body'), dict.legal?.imprint);
     renderRich(getEl('privacy-body'), dict.legal?.privacy);
@@ -244,7 +238,6 @@
     if (enBtn) enBtn.addEventListener('click', () => setLanguage('en'));
   }
 
-  // Public i18n API on window
   window.I18N = {
     t: (key) => t(dict, key),
     setLanguage,
@@ -253,14 +246,12 @@
     onChange: (cb) => window.addEventListener('i18n:changed', (e) => cb?.(e.detail))
   };
 
-  // Initial bootstrap: wire events and set default language
   document.addEventListener('DOMContentLoaded', async () => {
     wireEvents();
     await setLanguage(DEFAULT_LANG);
   });
 })();
 
-// Basic logging for unhandled Promise rejections
 window.addEventListener('unhandledrejection', (e) => {
   e.preventDefault();
 

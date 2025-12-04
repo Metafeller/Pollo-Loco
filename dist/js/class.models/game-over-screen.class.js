@@ -21,7 +21,6 @@ class GameOverScreen {
         this._credit = null;
         this._syncToCanvas = null;
 
-        // i18n
         this._gameOverLabel = (window.I18N ? window.I18N.t('game.gameOver') : 'GAME OVER');
         this._onLangChange = () => this._applyI18n();
     }
@@ -41,7 +40,6 @@ class GameOverScreen {
             this._btn.textContent = window.I18N.t('ui.tryAgain');
         }
 
-        // Fonts and label lengths can change → recompute layout
         this._syncToCanvas && this._syncToCanvas();
     }
 
@@ -107,8 +105,6 @@ class GameOverScreen {
     _createOverlayWrapper() {
         const wrap = document.createElement('div');
         wrap.id = 'go-overlay-ui';
-
-        // Absolute positioning directly above the canvas rectangle
         wrap.style.position = 'absolute';
         wrap.style.left = '0';
         wrap.style.top = '0';
@@ -117,7 +113,7 @@ class GameOverScreen {
         wrap.style.display = 'none';
         wrap.style.pointerEvents = 'none';
         wrap.style.alignItems = 'center';
-        wrap.style.justifyContent = 'flex-end'; // bottom of the canvas
+        wrap.style.justifyContent = 'flex-end';
         wrap.style.flexDirection = 'column';
         wrap.style.gap = '12px';
         wrap.style.zIndex = '995';
@@ -316,7 +312,6 @@ class GameOverScreen {
 
         const { width, height } = canvas;
 
-        // Background image full-screen (cover-fit)
         if (this.bgImg.complete && this.bgImg.naturalWidth > 0) {
             const imgW = this.bgImg.naturalWidth;
             const imgH = this.bgImg.naturalHeight;
@@ -331,11 +326,9 @@ class GameOverScreen {
             ctx.fillRect(0, 0, width, height);
         }
 
-        // Dark film
         ctx.fillStyle = 'rgba(0,0,0,0.55)';
         ctx.fillRect(0, 0, width, height);
 
-        // GAME OVER (i18n)
         const title = this._gameOverLabel || 'GAME OVER';
         ctx.fillStyle = 'rgba(255, 255, 255, 1)';
         ctx.font = "bold 64px 'zabars', Arial, Helvetica, sans-serif";
@@ -344,7 +337,5 @@ class GameOverScreen {
         ctx.shadowBlur = 12;
         ctx.fillText(title.toUpperCase(), width / 2, Math.floor(height * 0.50));
         ctx.shadowBlur = 0;
-
-        // Button is DOM – canvas only renders background and text.
     }
 }
