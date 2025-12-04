@@ -1,5 +1,3 @@
-// js/class.models/winner-screen.class.js
-
 /**
  * Winner overlay screen:
  * - Drawn on top of the game canvas
@@ -26,27 +24,19 @@ class WinnerScreen extends DrawableObject {
 
     /** @type {boolean} True while the winner overlay is visible. */
     this.visible = false;
-
     this._idx = 0;
     this._timer = null;
     this._delayMs = 300;
-
-    // One-shot animation (Frames run through once, then stop)
     this._oneShot = true;
     this._played = false;
     this.winAudio = new Audio('/audio/winning.mp3');
-
-    // Canvas darkening overlay color
     this.overlayRGBA = 'rgba(0, 0, 0, 0.45)';
-
-    // DOM overlay (buttons)
     this._ui = null;
     this._btnRestartNow = null;
     this._btnBackStart = null;
     this._syncToCanvas = null;
   }
 
-  // External callbacks
   onRestartNow(cb) { this._onRestartNow = cb; }
   onBackToStart(cb) { this._onBackToStart = cb; }
 
@@ -63,12 +53,8 @@ class WinnerScreen extends DrawableObject {
     this.visible = true;
     this._played = false;
     this._idx = 0;
-
-    // Hide buttons until frames finished
     this.ensureDom();
     this.toggleButtons(false);
-
-    // Play frames as one-shot animation
     this._timer && clearInterval(this._timer);
     this._timer = setInterval(() => {
       this._idx++;
@@ -77,9 +63,9 @@ class WinnerScreen extends DrawableObject {
         if (this._oneShot) {
           clearInterval(this._timer);
           this._timer = null;
-          this._idx = lastIdx;      // stay on last frame
+          this._idx = lastIdx;
           this._played = true;
-          this.toggleButtons(true); // only now show buttons
+          this.toggleButtons(true);
         } else {
           this._idx = 0;
         }
@@ -87,7 +73,6 @@ class WinnerScreen extends DrawableObject {
       this.img = this.imageCache[this.FRAMES[Math.min(this._idx, lastIdx)]];
     }, this._delayMs);
 
-    // Play win sound once
     try {
       this.winAudio.pause();
       this.winAudio.currentTime = 0;
@@ -123,22 +108,17 @@ class WinnerScreen extends DrawableObject {
   drawOverlay(ctx, canvas) {
     if (!this.visible) return;
     try {
-      // 1) Dark overlay
       ctx.save();
       ctx.fillStyle = this.overlayRGBA;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.restore();
 
-      // 2) Current win frame full-screen
       const img = this.imageCache[this.FRAMES[Math.max(0, Math.min(this._idx, this.FRAMES.length - 1))]];
       if (img) ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-      // 3) Align DOM overlay to canvas rect
       this._syncToCanvas && this._syncToCanvas();
     } catch (e) {}
   }
-
-  // ===== DOM overlay (buttons) =====
 
   /**
    * Ensures the DOM overlay for the winner buttons exists.
@@ -200,8 +180,6 @@ class WinnerScreen extends DrawableObject {
 
     const btnBackStart = mkBtn('btn-win-backstart');
     btnBackStart.textContent = (window.I18N ? window.I18N.t('ui.backToStart') : 'Back to Start Screen');
-
-    // Styling tweaks for secondary button
     btnBackStart.style.background = '#f2d5a280';
     btnBackStart.style.color = '#1a1a1a';
     btnBackStart.style.border = '1px solid #F2D4A2';
@@ -220,13 +198,11 @@ class WinnerScreen extends DrawableObject {
     ui.appendChild(btnRestartNow);
     ui.appendChild(btnBackStart);
 
-    // Ensure container is positioned relatively
     if (getComputedStyle(root).position === 'static') {
       root.style.position = 'relative';
     }
     root.appendChild(ui);
 
-    // Sync overlay to canvas rect
     const syncToCanvas = () => {
       const r = canvas.getBoundingClientRect();
       const gr = root.getBoundingClientRect();
@@ -242,8 +218,6 @@ class WinnerScreen extends DrawableObject {
     syncToCanvas();
     window.addEventListener('resize', syncToCanvas);
     window.addEventListener('scroll', syncToCanvas, true);
-
-    // Live i18n updates for button labels
     window.addEventListener('i18n:changed', () => {
       if (window.I18N) {
         btnRestartNow.textContent = window.I18N.t('ui.restart');

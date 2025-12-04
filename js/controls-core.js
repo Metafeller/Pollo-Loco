@@ -1,4 +1,3 @@
-// js/controls-core.js
 let world = null;
 let keyboard = null;
 let startScreen = null;
@@ -23,9 +22,7 @@ function safeCall(fn, label) {
       if (typeof window !== 'undefined' && window.__DEBUG_SAFE_CALL__) {
         console.warn('[safeCall]', label || 'unnamed', e);
       }
-    } catch (logError) {
-      // Never throw from safeCall
-    }
+    } catch (logError) {}
   }
 }
 
@@ -57,6 +54,94 @@ function stopMenuAudio() {
 }
 
 /**
+ * Updates the mute button label and aria state.
+ *
+ * @param {boolean} muted - current mute state
+ * @returns {void}
+ */
+function updateMuteButtonUI(muted) {
+  const btn = document.getElementById('btn-mute');
+  if (!btn) return;
+
+  btn.textContent = muted ? '🔇' : '🔈';
+  btn.setAttribute('aria-pressed', String(muted));
+}
+
+/**
+ * Applies the mute state to the menu audio instance.
+ *
+ * @param {boolean} muted - current mute state
+ * @returns {void}
+ */
+function applyMutedToMenuAudio(muted) {
+  if (!menuAudio) return;
+  menuAudio.muted = muted;
+}
+
+/**
+ * Applies the mute state to all world-related audio objects.
+ *
+ * @param {boolean} muted - current mute state
+ * @returns {void}
+ */
+function applyMutedToWorldAudios(muted) {
+  if (!world || typeof world.getAllAudiosDeep !== 'function') return;
+
+  safeCall(() => {
+    const auds = world.getAllAudiosDeep();
+    if (!Array.isArray(auds)) return;
+
+    auds.forEach((a) => {
+      if (!a) return;
+      safeCall(() => {
+        a.muted = muted;
+      }, 'mute-world-audio');
+    });
+  }, 'mute-world-audios');
+}
+
+/**
+ * Applies the mute state to UI audio elements registered in window.__UI_AUDIOS.
+ *
+ * @param {boolean} muted - current mute state
+ * @returns {void}
+ */
+function applyMutedToUiAudios(muted) {
+  if (!window.__UI_AUDIOS || !Array.isArray(window.__UI_AUDIOS)) return;
+
+  safeCall(() => {
+    window.__UI_AUDIOS.forEach((a) => {
+      if (!a) return;
+      safeCall(() => {
+        a.muted = muted;
+      }, 'mute-ui-audio');
+    });
+  }, 'mute-ui-audios');
+}
+
+/**
+ * Stores the mute state on the global window object.
+ *
+ * @param {boolean} muted - current mute state
+ * @returns {void}
+ */
+function setGlobalMuteFlag(muted) {
+  window.IS_MUTED = muted;
+}
+
+/**
+ * Persists the mute state into localStorage.
+ *
+ * @param {boolean} muted - current mute state
+ * @returns {void}
+ */
+function persistMutedFlag(muted) {
+  safeCall(() => {
+    localStorage.setItem('soundMuted', muted ? '1' : '0');
+  }, 'persist-muted-flag');
+}
+
+/**
  * Applies the mute state to:
  * - UI mute button
  * - Menu music
@@ -69,45 +154,12 @@ function stopMenuAudio() {
 function setMuted(flag) {
   isMuted = !!flag;
 
-  const btn = document.getElementById('btn-mute');
-  if (btn) {
-    btn.textContent = isMuted ? '🔇' : '🔈';
-    btn.setAttribute('aria-pressed', String(isMuted));
-  }
-
-  if (menuAudio) {
-    menuAudio.muted = isMuted;
-  }
-
-  if (world && typeof world.getAllAudiosDeep === 'function') {
-    safeCall(() => {
-      const auds = world.getAllAudiosDeep();
-      if (!Array.isArray(auds)) return;
-      auds.forEach((a) => {
-        if (!a) return;
-        safeCall(() => {
-          a.muted = isMuted;
-        }, 'mute-world-audio');
-      });
-    }, 'mute-world-audios');
-  }
-
-  if (window.__UI_AUDIOS && Array.isArray(window.__UI_AUDIOS)) {
-    safeCall(() => {
-      window.__UI_AUDIOS.forEach((a) => {
-        if (!a) return;
-        safeCall(() => {
-          a.muted = isMuted;
-        }, 'mute-ui-audio');
-      });
-    }, 'mute-ui-audios');
-  }
-
-  window.IS_MUTED = isMuted;
-
-  safeCall(() => {
-    localStorage.setItem('soundMuted', isMuted ? '1' : '0');
-  }, 'persist-muted-flag');
+  updateMuteButtonUI(isMuted);
+  applyMutedToMenuAudio(isMuted);
+  applyMutedToWorldAudios(isMuted);
+  applyMutedToUiAudios(isMuted);
+  setGlobalMuteFlag(isMuted);
+  persistMutedFlag(isMuted);
 }
 
 /**
@@ -126,6 +178,7 @@ function toggleMute() {
  */
 function pauseWorldForShutdown() {
   if (!world) return;
+
   safeCall(() => {
     if (typeof world.setPaused === 'function') {
       world.setPaused(true);
@@ -215,12 +268,7 @@ function resetWorldOverlayState() {
 }
 
 /**
- * Shuts down the current world instance without reloading the page:
- * - Pauses the game logic
- * - Deactivates story billboard and ambience
- * - Stops all world-related audio
- * - Resets Game Over and Winner overlays
- * - Marks the world as destroyed to stop its draw loop
+ * Shuts down the current world instance without reloading the page.
  *
  * @returns {void}
  */
@@ -236,90 +284,123 @@ function shutdownWorld() {
 }
 
 /**
- * "Restart now" flow:
- * - Mark autostart for next boot
- * - Shutdown current world
- * - Reset level
- * - Either go back to start screen (portrait) or restart game immediately (landscape)
+ * Marks the next boot to auto-start the game.
  *
  * @returns {void}
  */
-function restartNow() {
+function markAutostartForNextBoot() {
   safeCall(() => {
     localStorage.setItem('autostart', '1');
   }, 'set-autostart-flag');
-
-  shutdownWorld();
-
-  safeCall(() => {
-    if (typeof resetLevel1 === 'function') {
-      resetLevel1();
-    }
-  }, 'reset-level1');
-
-  world = null;
-  if (typeof window !== 'undefined') {
-    window.world = null;
-  }
-  isStarting = false;
-
-  // In portrait do NOT start immediately – go back to start screen
-  if (typeof isPortraitBlocked === 'function' && isPortraitBlocked()) {
-    if (startScreen && typeof startScreen.show === 'function') {
-      startScreen.show();
-    }
-    return;
-  }
-
-  if (startScreen && typeof startScreen.hide === 'function') {
-    startScreen.hide();
-  }
-
-  startGame();
 }
 
 /**
- * Back to start screen flow:
- * - Clear autostart flag
- * - Shutdown current world
- * - Reset level
- * - Hide pause overlay and show start screen
- * - Reset labels
- * - Restart menu music (honoring mute state)
+ * Clears the autostart flag from localStorage.
  *
  * @returns {void}
  */
-function backToStart() {
+function clearAutostartFlag() {
   safeCall(() => {
     localStorage.removeItem('autostart');
   }, 'clear-autostart-flag');
+}
 
-  shutdownWorld();
-
+/**
+ * Resets level 1 safely if the reset function exists.
+ *
+ * @returns {void}
+ */
+function resetLevelSafely() {
   safeCall(() => {
     if (typeof resetLevel1 === 'function') {
       resetLevel1();
     }
   }, 'reset-level1');
+}
 
+/**
+ * Clears world references and restart flags.
+ *
+ * @returns {void}
+ */
+function resetWorldRefsAfterRestart() {
   world = null;
   if (typeof window !== 'undefined') {
     window.world = null;
   }
   isStarting = false;
+}
 
-  if (typeof showPauseOverlay === 'function') {
-    safeCall(() => showPauseOverlay(false), 'hide-pause-overlay');
+/**
+ * Handles the portrait-blocked case on restart.
+ *
+ * @returns {boolean} true if portrait mode is blocked and handled
+ */
+function restartToStartScreenIfPortraitBlocked() {
+  if (typeof isPortraitBlocked !== 'function' || !isPortraitBlocked()) {
+    return false;
   }
 
   if (startScreen && typeof startScreen.show === 'function') {
     startScreen.show();
   }
 
-  if (typeof applyI18nLabels === 'function') {
-    safeCall(() => applyI18nLabels(), 'apply-i18n-labels');
-  }
+  return true;
+}
 
+/**
+ * Hides the start screen if a hide() method exists.
+ *
+ * @returns {void}
+ */
+function hideStartScreenIfPossible() {
+  if (startScreen && typeof startScreen.hide === 'function') {
+    startScreen.hide();
+  }
+}
+
+/**
+ * Hides the pause overlay if the helper is available.
+ *
+ * @returns {void}
+ */
+function hidePauseOverlayIfPossible() {
+  if (typeof showPauseOverlay !== 'function') return;
+
+  safeCall(() => {
+    showPauseOverlay(false);
+  }, 'hide-pause-overlay');
+}
+
+/**
+ * Shows the start screen if possible.
+ *
+ * @returns {void}
+ */
+function showStartScreenIfPossible() {
+  if (!startScreen || typeof startScreen.show !== 'function') return;
+  startScreen.show();
+}
+
+/**
+ * Applies i18n labels safely if the helper exists.
+ *
+ * @returns {void}
+ */
+function applyI18nLabelsSafely() {
+  if (typeof applyI18nLabels !== 'function') return;
+
+  safeCall(() => {
+    applyI18nLabels();
+  }, 'apply-i18n-labels');
+}
+
+/**
+ * Restarts the menu audio while honoring the mute state.
+ *
+ * @returns {void}
+ */
+function restartMenuAudioSafely() {
   safeCall(() => {
     if (!menuAudio) return;
     menuAudio.muted = !!isMuted;
@@ -329,63 +410,163 @@ function backToStart() {
 }
 
 /**
- * Starts the game:
- * - Blocks start in portrait mode (rotate overlay instead)
- * - Creates a new World instance
- * - Applies mute state
- * - Updates start button label to "Resume"
- * - Focuses canvas so Space no longer triggers UI buttons
- * - Forces touch-controls layout recalculation
+ * "Restart now" flow.
  *
  * @returns {void}
  */
-function startGame() {
+function restartNow() {
+  markAutostartForNextBoot();
+  shutdownWorld();
+  resetLevelSafely();
+  resetWorldRefsAfterRestart();
+
+  if (restartToStartScreenIfPortraitBlocked()) {
+    return;
+  }
+
+  hideStartScreenIfPossible();
+  startGame();
+}
+
+/**
+ * Back to start screen flow.
+ *
+ * @returns {void}
+ */
+function backToStart() {
+  clearAutostartFlag();
+  shutdownWorld();
+  resetLevelSafely();
+  resetWorldRefsAfterRestart();
+  hidePauseOverlayIfPossible();
+  showStartScreenIfPossible();
+  applyI18nLabelsSafely();
+  restartMenuAudioSafely();
+}
+
+/**
+ * Handles the portrait-blocked start case.
+ *
+ * @returns {boolean} true if start was blocked due to portrait mode
+ */
+function handlePortraitBlockedOnStart() {
   if (typeof isPortraitBlocked === 'function' && isPortraitBlocked()) {
     if (typeof pokeMobileUiLayout === 'function') {
       pokeMobileUiLayout();
     }
-    return;
+    return true;
   }
+  return false;
+}
 
-  if (isStarting || world) {
-    if (startScreen && typeof startScreen.hide === 'function') {
-      startScreen.hide();
-    }
-    return;
-  }
-
-  isStarting = true;
-  stopMenuAudio();
-
-  const canvas = document.getElementById('canvas');
-  if (!canvas) {
-    isStarting = false;
-    return;
-  }
-
-  world = new World(canvas, keyboard);
-  if (typeof window !== 'undefined') {
-    window.world = world;
-  }
-
-  setMuted(isMuted);
-
-  const btnStart = document.getElementById('btn-start');
-  if (btnStart) {
-    const label = window.I18N ? window.I18N.t('ui.resume') : 'Resume';
-    btnStart.textContent = label;
+/**
+ * Handles the case where a game is already starting or running.
+ *
+ * @returns {boolean} true if start should be aborted
+ */
+function handleStartWhenAlreadyRunning() {
+  if (!isStarting && !world) {
+    return false;
   }
 
   if (startScreen && typeof startScreen.hide === 'function') {
     startScreen.hide();
   }
 
+  return true;
+}
+
+/**
+ * Marks the beginning of the game startup sequence.
+ *
+ * @returns {void}
+ */
+function beginGameStartup() {
+  isStarting = true;
+  stopMenuAudio();
+}
+
+/**
+ * Returns the canvas element or aborts the start when not found.
+ *
+ * @returns {HTMLCanvasElement|null} canvas or null if unavailable
+ */
+function getGameCanvasOrAbort() {
+  const canvas = document.getElementById('canvas');
+  if (!canvas) {
+    isStarting = false;
+    return null;
+  }
+  return canvas;
+}
+
+/**
+ * Creates a new World instance for the given canvas and exposes it globally.
+ *
+ * @param {HTMLCanvasElement} canvas - game canvas
+ * @returns {void}
+ */
+function createWorldForCanvas(canvas) {
+  world = new World(canvas, keyboard);
+  if (typeof window !== 'undefined') {
+    window.world = world;
+  }
+}
+
+/**
+ * Updates the start button label to the resume text.
+ *
+ * @returns {void}
+ */
+function updateStartButtonLabel() {
+  const btnStart = document.getElementById('btn-start');
+  if (!btnStart) return;
+
+  const label = window.I18N ? window.I18N.t('ui.resume') : 'Resume';
+  btnStart.textContent = label;
+}
+
+/**
+ * Focuses the canvas and triggers mobile UI layout recalculation.
+ *
+ * @param {HTMLCanvasElement} canvas - game canvas
+ * @returns {void}
+ */
+function focusCanvasAndUpdateLayout(canvas) {
   canvas.setAttribute('tabindex', '0');
   canvas.focus();
 
   if (typeof pokeMobileUiLayout === 'function') {
     pokeMobileUiLayout();
   }
+}
+
+/**
+ * Starts the game.
+ *
+ * @returns {void}
+ */
+function startGame() {
+  if (handlePortraitBlockedOnStart()) {
+    return;
+  }
+
+  if (handleStartWhenAlreadyRunning()) {
+    return;
+  }
+
+  beginGameStartup();
+
+  const canvas = getGameCanvasOrAbort();
+  if (!canvas) {
+    return;
+  }
+
+  createWorldForCanvas(canvas);
+  setMuted(isMuted);
+  updateStartButtonLabel();
+  hideStartScreenIfPossible();
+  focusCanvasAndUpdateLayout(canvas);
 }
 
 /**
@@ -410,11 +591,7 @@ function pauseGame() {
 }
 
 /**
- * Resumes the game:
- * - Only resumes in landscape (blocks while rotate-overlay is active)
- * - Hides pause overlay
- * - Resumes world
- * - Refocuses canvas and updates start button label
+ * Resumes the game.
  *
  * @returns {void}
  */

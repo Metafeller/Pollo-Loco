@@ -23,9 +23,9 @@ class BottleStatusBar extends StatusBar {
     constructor() {
         super();
         this.loadImages(this.IMAGES);
-        this.setPercentage(0); // start at 0 collected bottles
-        this.x = 40;           // HUD x-position
-        this.y = 60;           // HUD y-position
+        this.setPercentage(0);
+        this.x = 40;
+        this.y = 56;
     }
 
     /**
@@ -58,7 +58,7 @@ class BottleStatusBar extends StatusBar {
         } else if (this.percentage >= 20) {
             return 1;
         } else {
-            return 0; // show the "empty" sprite at 0%
+            return 0;
         }
     }
 }

@@ -11,11 +11,9 @@ class WhiskeyPickup extends DrawableObject {
         super();
         this.x = x;
         this.y = y;
-        this.width = 40;   // Rendered slightly smaller than original art
+        this.width = 40;
         this.height = 52;
         this.loadImage('/img/objects/whiskey_bottle_on_ground.png');
-
-        // Slightly tighter hitbox so pickup happens on visible contact only
         this.offset = {
             left: 8,
             right: 8,

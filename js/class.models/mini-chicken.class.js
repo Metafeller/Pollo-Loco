@@ -6,9 +6,9 @@
  * @extends MovableObject
  */
 class MiniChicken extends MovableObject {
-    y = 340;
-    height = 80;
-    width = 80;
+    y = 360;
+    height = 60;
+    width = 60;
 
     /** @type {number} Hit points of the mini chicken. */
     energy = 10;
@@ -38,16 +38,12 @@ class MiniChicken extends MovableObject {
         this.loadImages(this.IMAGES_WALKING);
         this.loadImages(this.IMAGES_DEAD);
 
-        // Mark minis that are spawned by the Endboss
         this.spawnedByBoss = !!fromBoss;
 
-        // Injected X or fallback (in case normal minis are used elsewhere)
         this.x = (typeof x === 'number') ? x : (3000 + Math.random() * 500);
 
-        // Faster than regular chickens
         this.speed = 1.15 + Math.random() * 0.5;
 
-        // Slightly smaller hitbox than the visual sprite
         this.offset = {
             left:   20,
             right:  20,

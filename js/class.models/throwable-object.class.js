@@ -30,13 +30,12 @@ class ThrowableObject extends MovableObject {
     this.facingRight = !!facingRight;
     this.world = worldRef;
 
-    this.speedY = 6;          // Throw height (vertical velocity)
-    this.throwSpeedX = 10;    // Horizontal flight speed
-    this.groundY = 360;       // Visual ground line for the bottle
-    this.hasHit = false;      // True if it already collided with an enemy
-    this.done = false;        // World uses this flag to clean up finished bottles
+    this.speedY = 6;
+    this.throwSpeedX = 10;
+    this.groundY = 360;
+    this.hasHit = false;
+    this.done = false;
 
-    // Collision only in the visible bottle body (slightly tighter hitbox)
     this.offset = {
         left:   10,
         right:  10,
@@ -77,7 +76,6 @@ class ThrowableObject extends MovableObject {
       const dir = this.facingRight ? 1 : -1;
       this.x += this.throwSpeedX * dir;
 
-      // Ground reached?
       if (!this.isAboveGround()) {
         this.onGroundHit();
       }
@@ -114,13 +112,12 @@ class ThrowableObject extends MovableObject {
     this.speedY = 0;
     this.y = this.groundY;
 
-    // Optional bonus: missed bottle can be reused by the player
-    try {
-      if (this.world && typeof this.world.reuseBottleFromThrow === 'function') {
-        this.world.reuseBottleFromThrow(this);
-      }
-    } catch (e) {
-      // Intentionally empty: do not crash the game on reuse failures
+      try {
+        if (this.world && typeof this.world.reuseBottleFromThrow === 'function') {
+          this.world.reuseBottleFromThrow(this);
+        }
+      } catch (e) {
+
     }
   }
 }

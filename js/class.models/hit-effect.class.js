@@ -17,14 +17,14 @@ class HitEffect extends DrawableObject {
     super();
     this.x = x;
     this.y = y;
-    this.width = 90;  // tune if needed
-    this.height = 90; // tune if needed
+    this.width = 90;
+    this.height = 90;
 
     this.frames = frames;
     this.frameIndex = 0;
     this.done = false;
 
-    // Preload all frames
+    
     this.loadImages(this.frames);
 
     /**
@@ -35,7 +35,6 @@ class HitEffect extends DrawableObject {
         const frameCount = Math.max(1, this.frames.length);
         const frameDelay = Math.max(16, Math.floor(totalDurationMs / Math.max(1, frameCount)));
 
-        // Set initial image (safe)
         if (this.frames.length > 0) {
             const firstPath = this.frames[0];
             this.img = this.imageCache[firstPath];
@@ -58,14 +57,12 @@ class HitEffect extends DrawableObject {
         }, frameDelay);
     };
 
-    // If there are no frames, finish immediately
     if (!Array.isArray(this.frames) || this.frames.length === 0) {
         this.done = true;
     } else {
         const firstPath = this.frames[0];
         const firstImg = this.imageCache[firstPath];
 
-        // Start when the first image is ready (or immediately if cached)
         if (firstImg && firstImg.complete && firstImg.naturalWidth > 0) {
             startAnimation();
         } else if (firstImg) {

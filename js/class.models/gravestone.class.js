@@ -23,7 +23,6 @@ class Gravestone extends DrawableObject {
         this.FRAME = '/img/objects/1_gravestone-pepe.png';
         this.loadImage(this.FRAME);
 
-        // Avoid distortion: dynamically adjust width once the natural aspect ratio is known.
         const fix = setInterval(() => {
             const img = this.img;
             if (img && img.naturalWidth && img.naturalHeight) {

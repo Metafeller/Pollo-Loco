@@ -6,7 +6,7 @@ class CharacterMovement extends MovableObject {
 
     height = 280;
     y = 80;
-    speed = 3; // previously 5 → calmer pace fitting the walk sound
+    speed = 3;
 
     jumpInProgress = false;
     jumpFrameIndex = 0;
@@ -31,7 +31,6 @@ class CharacterMovement extends MovableObject {
      * @returns {void}
      */
     initPhysics() {
-        // Ground line: Pepe stands at y = 80
         this.groundPosition = 150;
 
         this.offset = {
@@ -84,7 +83,6 @@ class CharacterMovement extends MovableObject {
     tickMovement(now) {
         if (this.handlePauseAndEndStates()) return;
 
-        // Idle / snore logic is implemented in CharacterState
         if (typeof this.updateIdleState === 'function') {
             this.updateIdleState(now);
         }
@@ -231,7 +229,6 @@ class CharacterMovement extends MovableObject {
      * @returns {void}
      */
     jump() {
-        // Safety: no double jump in mid-air
         if (this.isAboveGround()) return;
 
         this.speedY = 25;
@@ -258,8 +255,6 @@ class CharacterMovement extends MovableObject {
     shouldAdvanceJumpFrame() {
         this.jumpAnimTick = (this.jumpAnimTick || 0) + 1;
 
-        // Change the divisor to fine-tune the speed:
-        // 2 = slightly slower, 3 = even slower.
         return (this.jumpAnimTick % 2) === 0;
     }
 

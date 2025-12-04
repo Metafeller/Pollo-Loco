@@ -41,20 +41,17 @@ class Cloud extends MovableObject {
      * @returns {void}
      */
     animate() {
-        // Safety: ensure we only have one timer
         if (this._timer) {
             clearInterval(this._timer);
         }
 
         this._timer = setInterval(() => {
-            // Constant left movement
+
             this.x -= this.speed;
 
-            // Re-loop far to the right (level width ~5600 → extra buffer)
             if (this.x + this.width < -600) {
-                this.x += 7000 + Math.random() * 2000; // teleport 7–9k to the right
-                // Slight vertical variance for a more natural sky
-                const ny = 40 + Math.random() * 70; // 40–110
+                this.x += 7000 + Math.random() * 2000;
+                const ny = 40 + Math.random() * 70;
                 this.y = Math.round(ny);
             }
         }, 1000 / 60);

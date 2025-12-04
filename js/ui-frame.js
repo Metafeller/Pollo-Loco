@@ -1,16 +1,12 @@
-// js/ui-frame.js
 (function() {
   const $  = (id) => document.getElementById(id);
   const on = (el, ev, fn) => el && el.addEventListener(ev, fn, { passive: false });
-
-  // One-shot UI SFX (default / CTA / rules / logo)
   const sfxDefault = new Audio('/audio/bottle.mp3');
   const sfxCTA     = new Audio('/audio/lets-go.mp3');
   const sfxRules   = new Audio('/audio/rooster-cry.mp3');
   const sfxLogo    = new Audio('/audio/chicken-noise.mp3');
   [sfxDefault, sfxCTA, sfxRules, sfxLogo].forEach(a => { try { a.volume = 0.8; } catch (e) {} });
 
-  // Register UI audios for deep-mute via setMuted()
   window.__UI_AUDIOS = window.__UI_AUDIOS || [];
   window.__UI_AUDIOS.push(sfxDefault, sfxCTA, sfxRules, sfxLogo);
 
@@ -39,7 +35,6 @@
     } catch (e) {}
   }
 
-  // Canvas coordinates (viewport-relative)
   function canvasRect() {
     const c = document.querySelector('#canvas');
     if (!c) return null;
@@ -243,22 +238,18 @@
    * - Click-on-mask to close (Imprint/Privacy only; Rules stays modal)
    */
   function wireHeaderFooter() {
-    // Header buttons + one-shot sounds
     on($('btn-rules'),   'click', (e) => { e.preventDefault(); play('rules'); open('rules-overlay'); });
     on($('btn-contact'), 'click', () => play('cta'));
     on($('lnk-github'),  'click', () => play());
     on($('lnk-linkedin'),'click', () => play());
     on($('lnk-instagram'),'click', () => play());
 
-    // Brand logo sound
     const logo = document.querySelector('.brand-logo');
     on(logo, 'click', () => play('logo'));
 
-    // Footer popups
     on($('btn-imprint'), 'click', () => { play(); open('imprint-overlay'); });
     on($('btn-privacy'), 'click', () => { play(); open('privacy-overlay'); });
 
-    // Close buttons (X)
     document.querySelectorAll('[data-close]').forEach(btn => {
       btn.addEventListener('click', () => {
         const ov = btn.closest('.overlay');
@@ -266,14 +257,11 @@
       });
     });
 
-    // Mask click closes Imprint & Privacy (Rules stays strict modal)
     document
       .querySelectorAll('#imprint-overlay .overlay-mask, #privacy-overlay .overlay-mask')
       .forEach(mask => mask.addEventListener('click', () => {
         const ov = mask.closest('.overlay'); if (ov) close(ov.id);
       }));
-
-    // Scroll-to-top inside overlays was intentionally removed
   }
 
   /**
@@ -326,7 +314,6 @@
     if (!c || typeof ResizeObserver === 'undefined') return;
     const ro = new ResizeObserver(() => {
       placeStartScreen();
-      // responsive.js listens to "resize" and will also reposition canvas-UI
       window.requestAnimationFrame(() => window.dispatchEvent(new Event('resize')));
     });
     ro.observe(c);
@@ -337,8 +324,6 @@
     hoverSwapIcons();
     keepSynced();
     wireGlobalEsc();
-
-    // Robust initial and follow-up sync of the start screen
     placeStartScreen();
     requestAnimationFrame(placeStartScreen);
     setTimeout(placeStartScreen, 60);

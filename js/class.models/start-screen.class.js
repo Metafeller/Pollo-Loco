@@ -1,5 +1,3 @@
-// js/class.models/start-screen.class.js
-
 /**
  * Start screen overlay in front of the game:
  * - Shows a background image
@@ -18,7 +16,6 @@ class StartScreen {
     this.root = null;
     this._cb = null;
 
-    // Bind the language-change handler early (if defined)
     this._onLang = this._onLang?.bind?.(this);
   }
 
@@ -40,7 +37,6 @@ class StartScreen {
     const btn = document.createElement('button');
     btn.id = 'btn-startgame';
 
-    // Reuse .go-btn if present, otherwise fall back to .game-primary-btn
     btn.className = (document.querySelector('.go-btn'))
       ? 'go-btn'
       : 'game-primary-btn';
@@ -58,7 +54,6 @@ class StartScreen {
     host.appendChild(div);
     this.root = div;
 
-    // Update start button text when language changes
     window.addEventListener('i18n:changed', this._onLang);
   }
 

@@ -19,14 +19,12 @@ class Level {
     /** @type {number} X-position where the level ends */
     level_end_x = 6400;
 
-    // New: collectibles
     /** @type {Coin[]} */
     coins = [];
 
     /** @type {Whiskey[]} */
     whiskeys = [];
 
-    // Optional level objects (Gate & Story)
     /** @type {HutGate|null} */
     hutGate = null;
 
@@ -49,7 +47,6 @@ class Level {
         this.backgroundObjects = backgroundObjects;
         this.bottles = bottles;
 
-        // Optional gate & story elements
         this.hutGate = hutGate;
         this.storyBillboard = storyBillboard;
     }

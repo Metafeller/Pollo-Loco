@@ -1,5 +1,3 @@
-// js/class.models/background-object.class.js
-
 /**
  * Background tile that fills the horizon behind the world.
  * Uses a small horizontal overlap to hide seams between tiles.
@@ -20,7 +18,7 @@ class BackgroundObject extends MovableObject {
     super().loadImage(imagePath);
     this.x = x;
     this.y = 480 - this.height;
-    this._pad = 1; // 1px overlap left/right to hide seams
+    this._pad = 1;
   }
 
   /**
@@ -31,17 +29,17 @@ class BackgroundObject extends MovableObject {
    * @returns {void}
    */
   draw(ctx) {
-    // Pixel-perfect destination rect with small horizontal overlap
-    let dx = (this.x | 0) - this._pad; // |0 = integer
+    
+    let dx = (this.x | 0) - this._pad;
     let dy = (this.y | 0);
-    let dw = this.width + this._pad * 2; // 1px overlap on both sides
+    let dw = this.width + this._pad * 2;
     let dh = this.height;
 
     try {
-      // Source = full image
+
       ctx.drawImage(this.img, 0, 0, this.img.width, this.img.height, dx, dy, dw, dh);
     } catch (e) {
-      // Image might not be loaded yet → safely skip drawing
+      
     }
   }
 }

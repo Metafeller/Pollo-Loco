@@ -32,11 +32,8 @@ class MovableObject extends DrawableObject {
      */
     constructor() {
         super();
-        // Default hitbox offsets (override in subclasses)
         this.offset = { left: 0, right: 0, top: 0, bottom: 0 };
     }
-
-    // === Ground & Gravity (robust) ===
 
     /**
      * Checks if the object is above ground.
@@ -49,15 +46,12 @@ class MovableObject extends DrawableObject {
      * @returns {boolean} True if the object is above the defined ground level.
      */
     isAboveGround() {
-        // Throwable objects always fall (parabolic trajectory)
         if (this instanceof ThrowableObject) return true;
 
-        // Use an object-specific ground line if defined
         if (typeof this.groundPosition === 'number') {
             return this.y < this.groundPosition;
         }
 
-        // Fallback for legacy objects without a defined ground position
         return this.y < 150;
     }
 
@@ -73,7 +67,6 @@ class MovableObject extends DrawableObject {
      */
     applyGravity() {
         setInterval(() => {
-            // Store previous Y-position (important for stomp detection)
             this.prevY = this.y;
 
             if (this.isAboveGround() || this.speedY > 0) {
@@ -81,7 +74,6 @@ class MovableObject extends DrawableObject {
                 this.speedY -= this.acceleration;
             }
 
-            // Only clamp when the object actually defines a ground line
             if (typeof this.groundPosition === 'number' && this.y >= this.groundPosition) {
                 this.y = this.groundPosition;
                 this.speedY = 0;

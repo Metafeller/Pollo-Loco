@@ -67,9 +67,8 @@ class Character extends CharacterState {
         '/img/2_character_pepe/5_dead/D-57.png'
     ];
 
-    // Audio (idle / sleep / wakeup)
-    snoreAudio = new Audio('/audio/snoring-man.mp3');       // loop
-    wakeAudio  = new Audio('/audio/ave-maria-speech.mp3');  // one-shot
+    snoreAudio = new Audio('/audio/snoring-man.mp3');
+    wakeAudio  = new Audio('/audio/ave-maria-speech.mp3');
 
     /**
      * Creates a new character instance and prepares images and audio.

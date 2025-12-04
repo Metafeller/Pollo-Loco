@@ -19,15 +19,12 @@ class StoryBillboard extends DrawableObject {
         /** @type {HutGate|null} Gate this billboard is anchored to. */
         this.anchorGate = anchorGate;
 
-        // Manual offsets relative to the gate (default: slightly left)
-        this.offsetX = -24; // + moves to the right, - to the left
-        this.offsetY = 72;  // vertical distance above the gate's ground line
+        this.offsetX = -24;
+        this.offsetY = 72;
 
-        // Visibility / aspect state
         this.visible = false;
         this._aspectFixed = false;
 
-        // Story frames
         this.FRAMES = [
             '/img/objects/story/talk_closed_f1.png',
             '/img/objects/story/talk_closed_f1.png',
@@ -55,20 +52,17 @@ class StoryBillboard extends DrawableObject {
             7: new Audio('/audio/muffled-cry.mp3')
         };
 
-        // Background atmosphere loop while the billboard is active
         this.atmo = new Audio('/audio/crying-4.mp3');
         this.atmo.loop = true;
         this.atmo.volume = 0.25;
 
         this._idx = 0;
         this._timer = null;
-        this._delayMs = 1500; // slower frame switching
+        this._delayMs = 1500;
         this._lastPlayedFrameIndex = -1;
 
-        // Automatically deactivate when gate has finished opening
         window.addEventListener('gate:opened', () => this.deactivate());
 
-        // Tracks world pause state so story audio can be paused too
         this._worldPaused = false;
     }
 
@@ -100,11 +94,7 @@ class StoryBillboard extends DrawableObject {
     _followGate() {
         if (!this.anchorGate) return;
         const g = this.anchorGate;
-
-        // Horizontally centered relative to the gate
         this.x = g.x + Math.floor((g.width - this.width) / 2) + this.offsetX;
-
-        // Vertically stable relative to the gate's ground line (no jumping on load)
         this.y = g.groundY - this.height - this.offsetY;
     }
 
@@ -121,7 +111,6 @@ class StoryBillboard extends DrawableObject {
         this._worldPaused = !!flag;
 
         if (this._worldPaused) {
-            // Pause running audio sources
             try {
                 if (this.atmo) this.atmo.pause();
             } catch (e) {}
@@ -132,7 +121,6 @@ class StoryBillboard extends DrawableObject {
                 });
             } catch (e) {}
         }
-        // On resume, we do not auto-restart audio – next timer tick will continue visuals.
     }
 
     /**
@@ -147,7 +135,6 @@ class StoryBillboard extends DrawableObject {
         if (this.visible) return;
         this.visible = true;
 
-        // Only start atmosphere loop if world is not paused
         try {
             if (!this._worldPaused && this.atmo && this.atmo.paused) {
                 this.atmo.currentTime = 0;
@@ -159,14 +146,12 @@ class StoryBillboard extends DrawableObject {
         this._aspectFixed = false;
         this._applyAspectOnce();
 
-        // Stop any previous timer just in case
         if (this._timer) {
             clearInterval(this._timer);
             this._timer = null;
         }
 
         this._timer = setInterval(() => {
-            // While paused: do not advance frames or play audio one-shots
             if (this._worldPaused) return;
 
             this._idx = (this._idx + 1) % this.FRAMES.length;

@@ -1,4 +1,3 @@
-// js/touch-controls.js
 (() => {
   const $ = (sel, root = document) => root.querySelector(sel);
 
@@ -35,8 +34,6 @@
   function setKey(flagName, on) {
     const kb = window.KEYBOARD;
     if (!kb || !(flagName in kb)) return;
-
-    // Exclusive direction logic for mobile D-pad
     if (flagName === 'LEFT' && on) {
       kb.RIGHT = false;
     } else if (flagName === 'RIGHT' && on) {
@@ -76,25 +73,23 @@
   function wireDirectionButton(btn, flag) {
     if (!btn) return;
 
-    const TAP_MAX_MS = 170; // <= 170ms = tap
-    const STICK_MS   = 140; // duration of impulse
+    const TAP_MAX_MS = 170;
+    const STICK_MS   = 140;
 
     const downEv = (e) => {
       e.preventDefault();
       btn.setAttribute('data-active', '1');
       btn.__pressTs = performance.now();
-      activateDir(flag); // immediate direction activation
+      activateDir(flag);
     };
 
     const upCore = (tapLike) => {
       if (!tapLike) {
-        // Normal hold → release immediately
         clearDir(flag);
         btn.removeAttribute('data-active');
         return;
       }
 
-      // Tap → short sticky impulse
       cancelDirTimer(flag);
       touchDirTimers[flag] = setTimeout(() => {
         clearDir(flag);
@@ -113,7 +108,6 @@
       upCore(tapLike);
     };
 
-    // Pointer (touch / pen)
     btn.addEventListener('pointerdown', downEv);
     btn.addEventListener('pointerup', upEv);
     btn.addEventListener('pointercancel', upEv);
@@ -122,7 +116,6 @@
       upEv(e);
     });
 
-    // Mouse fallback (small desktop windows)
     btn.addEventListener('mousedown', downEv);
     ['mouseup', 'mouseleave'].forEach(ev => btn.addEventListener(ev, upEv));
   }
@@ -199,7 +192,7 @@
     if (!host) {
       host = document.createElement('div');
       host.className = 'canvas-ui';
-      root.appendChild(host); // attach to #stage instead of body
+      root.appendChild(host);
     }
     if ($('#mc-burger')) return;
 
@@ -236,12 +229,10 @@
 
     wireDirectionButton($('#mc-left'), 'LEFT');
     wireDirectionButton($('#mc-right'), 'RIGHT');
-    // Legacy hold behavior for left/right was replaced by smart-tap D-pad
     hold($('#mc-jump'),  () => setKey('SPACE', true), () => setKey('SPACE', false));
     hold($('#mc-throw'), () => setKey('D', true),     () => setKey('D', false));
     hold($('#mc-super'), () => setKey('F', true),     () => setKey('F', false));
 
-    // Live i18n updates
     window.addEventListener('i18n:changed', () => {
       const b = $('#mc-burger');
       if (b) {
@@ -259,7 +250,6 @@
       }
     });
 
-    // Let responsive.js know the mobile dock exists now
     window.dispatchEvent(new Event('mc:dock-ready'));
   }
 

@@ -19,12 +19,11 @@ class Coin extends DrawableObject {
         this.height = 60;
         this.loadImage('/img/7_statusbars/3_icons/icon_coin.png');
 
-        // Round coin hitbox slightly reduced → collect only on visible contact.
         this.offset = {
-            left: 20,   // previously 8
-            right: 20,  // previously 8
+            left: 20,
+            right: 20,
             top: 8,
-            bottom: 50  // previously 8
+            bottom: 50
         };
     }
 
