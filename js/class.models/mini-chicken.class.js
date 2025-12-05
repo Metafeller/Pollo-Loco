@@ -6,9 +6,9 @@
  * @extends MovableObject
  */
 class MiniChicken extends MovableObject {
-    y = 360;
-    height = 60;
-    width = 60;
+    y = 350;
+    height = 70;
+    width = 70;
 
     /** @type {number} Hit points of the mini chicken. */
     energy = 10;

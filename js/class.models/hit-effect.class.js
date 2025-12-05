@@ -1,4 +1,53 @@
 /**
+ * Advances a single animation step for the hit effect
+ * and marks it as done on the last frame.
+ *
+ * @param {HitEffect} effect
+ * @param {string[]} frames
+ * @returns {void}
+ */
+function stepHitEffectFrame(effect, frames) {
+  effect.frameIndex++;
+  let idx = Math.min(effect.frameIndex, frames.length - 1);
+  let path = frames[idx];
+  let nextImg = effect.imageCache[path];
+
+  if (nextImg && nextImg.complete && nextImg.naturalWidth > 0) {
+    effect.img = nextImg;
+  }
+
+  if (effect.frameIndex >= frames.length - 1) {
+    effect.done = true;
+    clearInterval(effect._anim);
+  }
+}
+
+/**
+ * Starts the frame animation once the first image is ready.
+ * Advances frames in equal time slices until the end is reached.
+ *
+ * @param {HitEffect} effect
+ * @param {number} totalDurationMs
+ * @returns {void}
+ */
+function startHitEffectAnimation(effect, totalDurationMs) {
+  let frames = Array.isArray(effect.frames) ? effect.frames : [];
+  if (frames.length === 0) {
+    effect.done = true;
+    return;
+  }
+
+  let frameCount = frames.length;
+  let safeDuration = Math.max(16, totalDurationMs);
+  let frameDelay = Math.max(16, Math.floor(safeDuration / frameCount));
+
+  let firstPath = frames[0];
+  effect.img = effect.imageCache[firstPath];
+
+  effect._anim = setInterval(() => stepHitEffectFrame(effect, frames), frameDelay);
+}
+
+/**
  * Short-lived hit effect (e.g. bottle splash) that plays
  * through a series of frames and then marks itself as done.
  *
@@ -23,54 +72,27 @@ class HitEffect extends DrawableObject {
     this.frames = frames;
     this.frameIndex = 0;
     this.done = false;
+    this._anim = null;
 
-    
     this.loadImages(this.frames);
 
-    /**
-     * Starts the frame animation once the first image is ready.
-     * Advances frames in equal time slices until the end is reached.
-     */
-    const startAnimation = () => {
-        const frameCount = Math.max(1, this.frames.length);
-        const frameDelay = Math.max(16, Math.floor(totalDurationMs / Math.max(1, frameCount)));
-
-        if (this.frames.length > 0) {
-            const firstPath = this.frames[0];
-            this.img = this.imageCache[firstPath];
-        }
-
-        this._anim = setInterval(() => {
-            this.frameIndex++;
-            const idx = Math.min(this.frameIndex, this.frames.length - 1);
-            const path = this.frames[idx];
-            const nextImg = this.imageCache[path];
-
-            if (nextImg && nextImg.complete && nextImg.naturalWidth > 0) {
-                this.img = nextImg;
-            }
-
-            if (this.frameIndex >= this.frames.length - 1) {
-                this.done = true;
-                clearInterval(this._anim);
-            }
-        }, frameDelay);
-    };
-
     if (!Array.isArray(this.frames) || this.frames.length === 0) {
-        this.done = true;
-    } else {
-        const firstPath = this.frames[0];
-        const firstImg = this.imageCache[firstPath];
+      this.done = true;
+      return;
+    }
 
-        if (firstImg && firstImg.complete && firstImg.naturalWidth > 0) {
-            startAnimation();
-        } else if (firstImg) {
-            firstImg.onload = () => startAnimation();
-            firstImg.onerror = () => { this.done = true; };
-        } else {
-            this.done = true;
-        }
+    let firstPath = this.frames[0];
+    let firstImg = this.imageCache[firstPath];
+
+    if (firstImg && firstImg.complete && firstImg.naturalWidth > 0) {
+      startHitEffectAnimation(this, totalDurationMs);
+    } else if (firstImg) {
+      firstImg.onload = () => startHitEffectAnimation(this, totalDurationMs);
+      firstImg.onerror = () => {
+        this.done = true;
+      };
+    } else {
+      this.done = true;
     }
   }
 }
