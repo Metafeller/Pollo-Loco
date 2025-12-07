@@ -34,6 +34,7 @@
   function setKey(flagName, on) {
     const kb = window.KEYBOARD;
     if (!kb || !(flagName in kb)) return;
+
     if (flagName === 'LEFT' && on) {
       kb.RIGHT = false;
     } else if (flagName === 'RIGHT' && on) {
@@ -51,10 +52,9 @@
 
   function cancelDirTimer(flag) {
     const t = touchDirTimers[flag];
-    if (t) {
-      clearTimeout(t);
-      touchDirTimers[flag] = null;
-    }
+    if (!t) return;
+    clearTimeout(t);
+    touchDirTimers[flag] = null;
   }
 
   function activateDir(flag) {
@@ -73,41 +73,45 @@
   function wireDirectionButton(btn, flag) {
     if (!btn) return;
 
-    const TAP_MAX_MS = 170;
-    const STICK_MS   = 140;
+    const config = { TAP_MAX_MS: 170, STICK_MS: 140 };
+    const downEv = (e) => handleDirBtnDown(e, btn, flag);
+    const upEv   = (e) => handleDirBtnUp(e, btn, flag, config);
 
-    const downEv = (e) => {
-      e.preventDefault();
-      btn.setAttribute('data-active', '1');
-      btn.__pressTs = performance.now();
-      activateDir(flag);
-    };
+    attachDirectionButtonEvents(btn, downEv, upEv);
+  }
 
-    const upCore = (tapLike) => {
-      if (!tapLike) {
-        clearDir(flag);
-        btn.removeAttribute('data-active');
-        return;
-      }
+  function handleDirBtnDown(e, btn, flag) {
+    e.preventDefault();
+    btn.setAttribute('data-active', '1');
+    btn.__pressTs = performance.now();
+    activateDir(flag);
+  }
 
-      cancelDirTimer(flag);
-      touchDirTimers[flag] = setTimeout(() => {
-        clearDir(flag);
-        btn.removeAttribute('data-active');
-        touchDirTimers[flag] = null;
-      }, STICK_MS);
-    };
+  function handleDirBtnUp(e, btn, flag, { TAP_MAX_MS, STICK_MS }) {
+    e.preventDefault();
+    const now = performance.now();
+    const ts = btn.__pressTs || now;
+    btn.__pressTs = 0;
+    const tapLike = (now - ts) <= TAP_MAX_MS;
+    runDirectionRelease(btn, flag, tapLike, STICK_MS);
+  }
 
-    const upEv = (e) => {
-      e.preventDefault();
-      const now = performance.now();
-      const ts = btn.__pressTs || now;
-      btn.__pressTs = 0;
-      const dt = now - ts;
-      const tapLike = dt <= TAP_MAX_MS;
-      upCore(tapLike);
-    };
+  function runDirectionRelease(btn, flag, tapLike, stickMs) {
+    if (!tapLike) {
+      clearDir(flag);
+      btn.removeAttribute('data-active');
+      return;
+    }
 
+    cancelDirTimer(flag);
+    touchDirTimers[flag] = setTimeout(() => {
+      clearDir(flag);
+      btn.removeAttribute('data-active');
+      touchDirTimers[flag] = null;
+    }, stickMs);
+  }
+
+  function attachDirectionButtonEvents(btn, downEv, upEv) {
     btn.addEventListener('pointerdown', downEv);
     btn.addEventListener('pointerup', upEv);
     btn.addEventListener('pointercancel', upEv);
@@ -121,9 +125,7 @@
   }
 
   /**
-   * Generic "hold" behavior for action buttons:
-   * - pointerdown/mousedown → run `down`
-   * - pointerup/mouseup → run `up`
+   * Generic "hold" behavior for action buttons.
    *
    * @param {HTMLElement} btn
    * @param {Function} down
@@ -131,19 +133,40 @@
    */
   function hold(btn, down, up) {
     if (!btn) return;
-    const downEv = (e) => { e.preventDefault(); down(); btn.setAttribute('data-active', '1'); };
-    const upEv   = (e) => { e.preventDefault(); up();   btn.removeAttribute('data-active'); };
 
+    const downEv = (e) => {
+      e.preventDefault();
+      down();
+      btn.setAttribute('data-active', '1');
+    };
+
+    const upEv = (e) => {
+      e.preventDefault();
+      up();
+      btn.removeAttribute('data-active');
+    };
+
+    attachHoldEvents(btn, downEv, upEv);
+  }
+
+  function attachHoldEvents(btn, downEv, upEv) {
     btn.addEventListener('pointerdown', downEv);
     btn.addEventListener('pointerup', upEv);
     btn.addEventListener('pointercancel', upEv);
-    btn.addEventListener('pointerleave', (e) => { if (btn.hasAttribute('data-active')) upEv(e); });
+    btn.addEventListener('pointerleave', (e) => {
+      if (btn.hasAttribute('data-active')) upEv(e);
+    });
+
     btn.addEventListener('mousedown', downEv);
     ['mouseup', 'mouseleave'].forEach(ev => btn.addEventListener(ev, upEv));
   }
 
   function isFullscreen() {
-    return !!(document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement);
+    return !!(
+      document.fullscreenElement ||
+      document.webkitFullscreenElement ||
+      document.msFullscreenElement
+    );
   }
 
   /**
@@ -151,21 +174,50 @@
    * Tries to lock orientation to landscape where supported.
    */
   async function toggleFullscreenForCanvas() {
-    const stage = document.getElementById('stage') || document.getElementById('canvas');
+    const stage =
+      document.getElementById('stage') || document.getElementById('canvas');
     if (!stage) return;
+
     try {
-      if (!isFullscreen()) {
-        const req = stage.requestFullscreen || stage.webkitRequestFullscreen || stage.msRequestFullscreen;
-        if (req) await req.call(stage);
-        if (screen.orientation?.lock) {
-          try { await screen.orientation.lock('landscape'); } catch (_) {}
-        }
-      } else {
-        const exit = document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen;
-        if (exit) await exit.call(document);
-      }
+      await toggleFullscreenStage(stage);
     } catch (_) {}
+
     setTimeout(applyVisibility, 50);
+  }
+
+  async function toggleFullscreenStage(stage) {
+    if (!isFullscreen()) {
+      await enterFullscreen(stage);
+      await lockLandscapeIfPossible();
+      return;
+    }
+    await exitFullscreenSafe();
+  }
+
+  async function enterFullscreen(stage) {
+    const req =
+      stage.requestFullscreen ||
+      stage.webkitRequestFullscreen ||
+      stage.msRequestFullscreen;
+    if (!req) return;
+    await req.call(stage);
+  }
+
+  async function lockLandscapeIfPossible() {
+    const api = screen.orientation;
+    if (!api || !api.lock) return;
+    try {
+      await api.lock('landscape');
+    } catch (_) {}
+  }
+
+  async function exitFullscreenSafe() {
+    const exit =
+      document.exitFullscreen ||
+      document.webkitExitFullscreen ||
+      document.msExitFullscreen;
+    if (!exit) return;
+    await exit.call(document);
   }
 
   /**
@@ -179,23 +231,32 @@
   }
 
   /**
-   * Ensures the main `.canvas-ui` mobile overlay is built,
-   * and wires all touch/mobile controls:
-   * - Burger + fullscreen button
-   * - D-pad (LEFT/RIGHT smart-tap)
-   * - Jump (SPACE), Throw (D), Supernova (F)
-   * Also dispatches "mc:dock-ready" for responsive.js.
+   * Ensures the main `.canvas-ui` mobile overlay is built.
+   * Wires all touch/mobile controls and dispatches "mc:dock-ready".
    */
   function ensureOverlay() {
     const root = document.getElementById('stage') || document.body;
+    const host = ensureCanvasUiHost(root);
+    if ($('#mc-burger')) return;
+
+    buildOverlayMarkup(host);
+    wireOverlayInteractions();
+    registerOverlayI18nListeners();
+
+    window.dispatchEvent(new Event('mc:dock-ready'));
+  }
+
+  function ensureCanvasUiHost(root) {
     let host = root.querySelector('.canvas-ui');
     if (!host) {
       host = document.createElement('div');
       host.className = 'canvas-ui';
       root.appendChild(host);
     }
-    if ($('#mc-burger')) return;
+    return host;
+  }
 
+  function buildOverlayMarkup(host) {
     host.innerHTML = `
       <button id="mc-burger" class="mc-btn mc-burger" aria-label="${t('mobile.menu','Menu')}" title="${t('mobile.menu','Menu')}">
         ${Icons.burger}
@@ -223,34 +284,41 @@
         ${Icons.fs}
       </button>
     `;
+  }
 
+  function wireOverlayInteractions() {
     $('#mc-burger')?.addEventListener('click', togglePanel);
     $('#mc-fs')?.addEventListener('click', toggleFullscreenForCanvas);
 
     wireDirectionButton($('#mc-left'), 'LEFT');
     wireDirectionButton($('#mc-right'), 'RIGHT');
+
     hold($('#mc-jump'),  () => setKey('SPACE', true), () => setKey('SPACE', false));
     hold($('#mc-throw'), () => setKey('D', true),     () => setKey('D', false));
     hold($('#mc-super'), () => setKey('F', true),     () => setKey('F', false));
+  }
 
+  function registerOverlayI18nListeners() {
     window.addEventListener('i18n:changed', () => {
-      const b = $('#mc-burger');
-      if (b) {
-        b.setAttribute('title', t('mobile.menu', 'Menu'));
-        b.setAttribute('aria-label', t('mobile.menu', 'Menu'));
+      const burger = $('#mc-burger');
+      if (burger) {
+        const label = t('mobile.menu', 'Menu');
+        burger.setAttribute('title', label);
+        burger.setAttribute('aria-label', label);
       }
+
       const fs = $('#mc-fs');
       if (fs) {
-        fs.setAttribute('title', t('mobile.fullscreen', 'Fullscreen'));
-        fs.setAttribute('aria-label', t('mobile.fullscreen', 'Fullscreen'));
+        const label = t('mobile.fullscreen', 'Fullscreen');
+        fs.setAttribute('title', label);
+        fs.setAttribute('aria-label', label);
       }
+
       const head = $('#mc-panel .mc-panel-head');
       if (head) {
         head.textContent = t('mobile.controls', 'Controls');
       }
     });
-
-    window.dispatchEvent(new Event('mc:dock-ready'));
   }
 
   /**
@@ -267,22 +335,25 @@
   }
 
   function isVisible(el) {
-    return !!el && el.offsetParent !== null && getComputedStyle(el).display !== 'none';
+    return !!el &&
+      el.offsetParent !== null &&
+      getComputedStyle(el).display !== 'none';
   }
 
   /**
-   * Checks whether any "blocking" overlay is currently open:
-   * - Generic .overlay.show
-   * - Overlays without [hidden]
-   * - Visible start screen
+   * Checks whether any "blocking" overlay is currently open.
    *
    * @returns {boolean}
    */
   function anyGameOverlayOpen() {
     if (document.querySelector('.overlay.show')) return true;
-    if ([...document.querySelectorAll('.overlay')].some(el => !el.hasAttribute('hidden'))) return true;
+
+    const overlays = [...document.querySelectorAll('.overlay')];
+    if (overlays.some(el => !el.hasAttribute('hidden'))) return true;
+
     const ss = document.querySelector('.start-screen');
     if (ss && isVisible(ss)) return true;
+
     return false;
   }
 
@@ -293,18 +364,34 @@
    * @param {boolean} on
    */
   function showControlsGroup(on) {
-    const nodes = [
-      '#mc-burger', '.mc-dpad', '.mc-actions', '#mc-fs', '#mc-panel'
-    ].map(s => document.querySelector(s)).filter(Boolean);
-    nodes.forEach(n => n.style.display = on ? '' : 'none');
-    if (!on) document.getElementById('mc-panel')?.classList.remove('open');
+    const selectors = [
+      '#mc-burger',
+      '.mc-dpad',
+      '.mc-actions',
+      '#mc-fs',
+      '#mc-panel'
+    ];
+
+    const nodes = selectors
+      .map(s => document.querySelector(s))
+      .filter(Boolean);
+
+    nodes.forEach(n => {
+      n.style.display = on ? '' : 'none';
+    });
+
     if (!on) {
-      setKey('LEFT', false);
-      setKey('RIGHT', false);
-      setKey('SPACE', false);
-      setKey('D', false);
-      setKey('F', false);
+      document.getElementById('mc-panel')?.classList.remove('open');
+      resetAllKeys();
     }
+  }
+
+  function resetAllKeys() {
+    setKey('LEFT', false);
+    setKey('RIGHT', false);
+    setKey('SPACE', false);
+    setKey('D', false);
+    setKey('F', false);
   }
 
   /**
@@ -314,12 +401,14 @@
    * - Hidden while overlays/start screen are open
    */
   function applyVisibility() {
-    const isMobileUI  = document.body.classList.contains('is-mobile-ui');
+    const isMobileUI = document.body.classList.contains('is-mobile-ui');
     const isLandscape = document.body.classList.contains('is-landscape');
     const blockedByUI = anyGameOverlayOpen();
 
     const host = document.querySelector('.canvas-ui');
-    if (host) host.style.display = isMobileUI ? 'block' : 'none';
+    if (host) {
+      host.style.display = isMobileUI ? 'block' : 'none';
+    }
 
     const showControls = isMobileUI && isLandscape && !blockedByUI;
     showControlsGroup(showControls);
@@ -331,29 +420,67 @@
   function syncBox() {
     const host = $('.canvas-ui');
     if (!host) return;
+
     host.style.left = '0';
-    host.style.top  = '0';
-    host.style.width  = '100%';
+    host.style.top = '0';
+    host.style.width = '100%';
     host.style.height = '100%';
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
+  function initTouchControls() {
     ensureOverlay();
     applyVisibility();
     syncBox();
 
-    const obs = new MutationObserver(() => { applyVisibility(); syncBox(); });
-    obs.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    setupMutationObserver();
+    setupFullscreenListeners();
+    setupResizeScrollOrientationListeners();
+  }
 
-    ['fullscreenchange', 'webkitfullscreenchange', 'msfullscreenchange']
-      .forEach(ev => document.addEventListener(ev, () => { applyVisibility(); syncBox(); }));
+  function setupMutationObserver() {
+    const obs = new MutationObserver(() => {
+      applyVisibility();
+      syncBox();
+    });
 
-    window.addEventListener('resize', () => { applyVisibility(); syncBox(); }, { passive: true });
-    window.addEventListener('scroll', () => { syncBox(); }, true);
+    obs.observe(document.body, {
+      attributes: true,
+      attributeFilter: ['class']
+    });
+  }
+
+  function setupFullscreenListeners() {
+    const events = [
+      'fullscreenchange',
+      'webkitfullscreenchange',
+      'msfullscreenchange'
+    ];
+
+    events.forEach(ev => {
+      document.addEventListener(ev, () => {
+        applyVisibility();
+        syncBox();
+      });
+    });
+  }
+
+  function setupResizeScrollOrientationListeners() {
+    window.addEventListener('resize', () => {
+      applyVisibility();
+      syncBox();
+    }, { passive: true });
+
+    window.addEventListener('scroll', () => {
+      syncBox();
+    }, true);
+
     window.addEventListener('orientationchange', () => {
       applyVisibility();
       setTimeout(syncBox, 80);
     });
-  });
+  }
 
+  document.addEventListener('DOMContentLoaded', () => {
+    initTouchControls();
+  });
 })();
