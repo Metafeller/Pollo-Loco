@@ -9,6 +9,55 @@
         return;
     }
 
+    /**
+     * Returns true if the Endboss timer tick should be skipped.
+     *
+     * @returns {boolean}
+     */
+    World.prototype._shouldSkipEndbossTick = function () {
+        if (!this.endbossTimerActive || this.paused) return true;
+
+        if (this.gameOver || this.gameWon) {
+            this.stopEndbossTimer();
+            return true;
+        }
+
+        const boss = this.getCurrentEndboss();
+        const bossDead = !boss || boss.energy <= 0;
+        const playerDead = this.character.energy <= 0;
+
+        if (bossDead || playerDead) {
+            this.stopEndbossTimer();
+            return true;
+        }
+
+        return false;
+    };
+
+    /**
+     * Returns true if the portal timer tick should be skipped.
+     *
+     * @returns {boolean}
+     */
+    World.prototype._shouldSkipPortalTick = function () {
+        if (!this.portalTimerActive || this.paused) return true;
+
+        if (this.gameOver || this.gameWon) {
+            this.stopPortalTimer();
+            return true;
+        }
+
+        const bossAlive = (this.level?.enemies || [])
+            .some(e => e instanceof Endboss && !e.dead);
+
+        if (bossAlive && !this.bossDefeated) {
+            this.stopPortalTimer();
+            return true;
+        }
+
+        return false;
+    };
+
     Object.assign(World.prototype, {
         /**
          * Starts the Endboss countdown when the fight begins.
@@ -35,19 +84,7 @@
          * @returns {void}
          */
         tickEndbossTimer() {
-            if (!this.endbossTimerActive) return;
-            if (this.paused) return;
-
-            if (this.gameOver || this.gameWon) {
-                this.stopEndbossTimer();
-                return;
-            }
-
-            const boss = this.getCurrentEndboss();
-            if (!boss || boss.energy <= 0 || this.character.energy <= 0) {
-                this.stopEndbossTimer();
-                return;
-            }
+            if (this._shouldSkipEndbossTick()) return;
 
             this.endbossTimerSeconds -= 1;
 
@@ -114,21 +151,7 @@
          * @returns {void}
          */
         tickPortalTimer() {
-            if (!this.portalTimerActive) return;
-            if (this.paused) return;
-
-            if (this.gameOver || this.gameWon) {
-                this.stopPortalTimer();
-                return;
-            }
-
-            const bossAlive = (this.level?.enemies || [])
-                .some(e => e instanceof Endboss && !e.dead);
-
-            if (bossAlive && !this.bossDefeated) {
-                this.stopPortalTimer();
-                return;
-            }
+            if (this._shouldSkipPortalTick()) return;
 
             this.portalTimerSeconds -= 1;
 
@@ -165,9 +188,11 @@
             if (this.gameOver || this.gameWon) return;
 
             this.character.energy = 0;
+
             if (this.statusBar && typeof this.statusBar.setPercentage === 'function') {
                 this.statusBar.setPercentage(this.character.energy);
             }
+
             this.onPlayerDeath();
         },
 
@@ -180,6 +205,7 @@
          */
         getEndbossTimerColor(now, seconds) {
             if (seconds > 10) return '#ffffff';
+
             const blinkOn = (Math.floor(now / 250) % 2) === 0;
             return blinkOn ? '#ff3333' : '#ffffff';
         },
@@ -200,6 +226,65 @@
         },
 
         /**
+         * Returns the active timer state (seconds + phase flags).
+         *
+         * @returns {{seconds:number,isBossPhase:boolean,isPortalPhase:boolean}}
+         */
+        _getActiveTimerState() {
+            const state = {
+                seconds: 0,
+                isBossPhase: false,
+                isPortalPhase: false
+            };
+
+            if (this.portalTimerActive && this.portalTimerSeconds > 0) {
+                state.seconds = Math.max(0, this.portalTimerSeconds);
+                state.isPortalPhase = true;
+                return state;
+            }
+
+            if (this.endbossTimerActive && this.endbossTimerSeconds > 0) {
+                state.seconds = Math.max(0, this.endbossTimerSeconds);
+                state.isBossPhase = true;
+            }
+
+            return state;
+        },
+
+        /**
+         * Configures text style for timer rendering.
+         *
+         * @param {CanvasRenderingContext2D} ctx
+         * @returns {void}
+         */
+        _setupTimerTextStyle(ctx) {
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.font = '32px sans-serif';
+        },
+
+        /**
+         * Returns color for the current timer based on phase.
+         *
+         * @param {number} now
+         * @param {number} seconds
+         * @param {boolean} isBossPhase
+         * @param {boolean} isPortalPhase
+         * @returns {string}
+         */
+        _getTimerPhaseColor(now, seconds, isBossPhase, isPortalPhase) {
+            if (isBossPhase) {
+                return this.getEndbossTimerColor(now, seconds);
+            }
+
+            if (isPortalPhase) {
+                return this.getPortalTimerColor(now, seconds);
+            }
+
+            return '#ffffff';
+        },
+
+        /**
          * Draws the Endboss and portal timer in the top center of the canvas.
          * Only one timer is active at a time.
          *
@@ -211,45 +296,40 @@
         drawEndbossTimer(ctx, canvas, now) {
             if (!canvas) return;
 
-            let seconds = 0;
-            let isBossPhase = false;
-            let isPortalPhase = false;
-
-            if (this.portalTimerActive && this.portalTimerSeconds > 0) {
-                seconds = Math.max(0, this.portalTimerSeconds);
-                isPortalPhase = true;
-            } else if (this.endbossTimerActive && this.endbossTimerSeconds > 0) {
-                seconds = Math.max(0, this.endbossTimerSeconds);
-                isBossPhase = true;
-            } else {
-                return;
-            }
+            const { seconds, isBossPhase, isPortalPhase } = this._getActiveTimerState();
+            if (seconds <= 0) return;
 
             const cx = canvas.width / 2;
             const cy = 40;
-
-            ctx.save();
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.font = '32px sans-serif';
-
             const w = 96;
             const h = 48;
             const x = cx - w / 2;
             const y = cy - h / 2;
 
+            ctx.save();
+            this._setupTimerTextStyle(ctx);
+
             ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
             ctx.fillRect(x, y, w, h);
 
-            if (isBossPhase) {
-                ctx.fillStyle = this.getEndbossTimerColor(now, seconds);
-            } else if (isPortalPhase) {
-                ctx.fillStyle = this.getPortalTimerColor(now, seconds);
-            }
-
+            ctx.fillStyle = this._getTimerPhaseColor(now, seconds, isBossPhase, isPortalPhase);
             ctx.fillText(String(seconds), cx, cy);
 
             ctx.restore();
+        },
+
+        /**
+         * Returns true if the portal arrow should be drawn.
+         *
+         * @param {number} now
+         * @returns {boolean}
+         */
+        _shouldDrawPortalArrow(now) {
+            if (!this.portalTimerActive || this.portalTimerSeconds <= 0) return false;
+            if (this.gameOver || this.gameWon) return false;
+
+            const blinkOn = (Math.floor(now / 200) % 2) === 0;
+            return blinkOn;
         },
 
         /**
@@ -261,19 +341,13 @@
          * @returns {void}
          */
         drawPortalArrow(ctx, now) {
-            if (!this.portalTimerActive || this.portalTimerSeconds <= 0) return;
-            if (this.gameOver || this.gameWon) return;
-
             const canvas = this.canvas;
             if (!canvas) return;
-
-            const blinkOn = (Math.floor(now / 200) % 2) === 0;
-            if (!blinkOn) return;
+            if (!this._shouldDrawPortalArrow(now)) return;
 
             const cx = canvas.width / 2;
             const timerCy = 40;
             const timerH = 48;
-
             const arrowCy = timerCy + (timerH / 2) + 32;
 
             const t = now / 220;
@@ -281,10 +355,10 @@
 
             const w = 64 * scale;
             const h = 32 * scale;
-
             const baseX = cx - w / 2;
 
             ctx.save();
+
             ctx.beginPath();
             ctx.moveTo(baseX, arrowCy - h / 2);
             ctx.lineTo(baseX + w, arrowCy);
@@ -295,6 +369,7 @@
             ctx.shadowColor = 'rgba(0, 255, 0, 0.9)';
             ctx.shadowBlur = 16;
             ctx.fill();
+
             ctx.restore();
         }
     });

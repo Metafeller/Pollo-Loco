@@ -1,6 +1,5 @@
 /**
- * World endgame flow: player death, GameOver overlay,
- * winner screen and boss/hut/portal flow.
+ * World endgame flow: player death, GameOver overlay and gravestone.
  *
  * Extends World.prototype without touching the constructor.
  */
@@ -58,29 +57,56 @@
          */
         freezeAllEnemies() {
             try {
-                (this.level?.enemies || []).forEach(e => {
-                    if (!e) return;
-
-                    e.speed = 0;
-                    e.baseSpeed = 0;
-
-                    if (typeof e.moveLeft === 'function') {
-                        e.moveLeft = function () {};
-                    }
-                    if (typeof e.moveRight === 'function') {
-                        e.moveRight = function () {};
-                    }
-                    if (typeof e.updateAI === 'function') {
-                        e.updateAI = function () {};
-                    }
-
-                    if (e instanceof Endboss) {
-                        e.inAggroMode = false;
-                        e.aiState = 'IDLE';
-                        e.returning = false;
-                    }
-                });
+                (this.level?.enemies || []).forEach(e => this._freezeEnemy(e));
             } catch (e) {}
+        },
+
+        /**
+         * Freezes a single enemy: speed 0, no movement, no AI, boss AI reset.
+         *
+         * @param {any} enemy
+         * @returns {void}
+         */
+        _freezeEnemy(enemy) {
+            if (!enemy) return;
+
+            enemy.speed = 0;
+            enemy.baseSpeed = 0;
+
+            this._disableEnemyMovement(enemy);
+            this._resetBossAggroIfNeeded(enemy);
+        },
+
+        /**
+         * Disables movement and AI methods on the enemy.
+         *
+         * @param {any} enemy
+         * @returns {void}
+         */
+        _disableEnemyMovement(enemy) {
+            if (typeof enemy.moveLeft === 'function') {
+                enemy.moveLeft = function () {};
+            }
+            if (typeof enemy.moveRight === 'function') {
+                enemy.moveRight = function () {};
+            }
+            if (typeof enemy.updateAI === 'function') {
+                enemy.updateAI = function () {};
+            }
+        },
+
+        /**
+         * Resets Endboss AI/aggro flags if the enemy is a boss.
+         *
+         * @param {any} enemy
+         * @returns {void}
+         */
+        _resetBossAggroIfNeeded(enemy) {
+            if (!(enemy instanceof Endboss)) return;
+
+            enemy.inAggroMode = false;
+            enemy.aiState = 'IDLE';
+            enemy.returning = false;
         },
 
         /**
@@ -167,8 +193,7 @@
         },
 
         /**
-         * Per-frame game over sequencer.
-         * No timers used to avoid race conditions with restart.
+         * Per-frame game over sequencer (no timers to avoid restart races).
          *
          * @param {number} now - current timestamp from performance.now()
          * @returns {void}
@@ -206,27 +231,34 @@
          * @returns {void}
          */
         drawGameOverSplash(ctx, canvas) {
-            if (!this.goSplashActive || !this.goSplashImg) return;
+            if (!this.goSplashActive || !this.goSplashImg || !canvas) return;
+
+            const img = this.goSplashImg;
+            if (!img.complete || !(img.naturalWidth > 0)) return;
 
             const { width, height } = canvas;
-            const img = this.goSplashImg;
+            const iw = img.naturalWidth;
+            const ih = img.naturalHeight;
+            const scale = Math.max(width / iw, height / ih);
+            const drawW = iw * scale;
+            const drawH = ih * scale;
+            const dx = (width - drawW) / 2;
+            const dy = (height - drawH) / 2;
 
-            if (img.complete && (img.naturalWidth || 0) > 0) {
-                const iw = img.naturalWidth;
-                const ih = img.naturalHeight;
+            ctx.save();
+            ctx.globalAlpha = 1;
+            ctx.imageSmoothingEnabled = true;
+            ctx.drawImage(img, dx, dy, drawW, drawH);
+            ctx.restore();
+        },
 
-                const scale = Math.max(width / iw, height / ih);
-                const drawW = iw * scale;
-                const drawH = ih * scale;
-                const dx = (width - drawW) / 2;
-                const dy = (height - drawH) / 2;
-
-                ctx.save();
-                ctx.globalAlpha = 1;
-                ctx.imageSmoothingEnabled = true;
-                ctx.drawImage(img, dx, dy, drawW, drawH);
-                ctx.restore();
-            }
+        // Internal: starts a looping Game Over ambience sound.
+        _startGameOverLoop(audio, volume) {
+            if (!audio) return;
+            audio.loop = true;
+            audio.volume = volume;
+            audio.currentTime = 0;
+            this.playAudioSafe(audio);
         },
 
         /**
@@ -243,18 +275,8 @@
             this.goLoopsStarted = true;
 
             try {
-                if (this.goCryLoop) {
-                    this.goCryLoop.loop = true;
-                    this.goCryLoop.volume = 0.7;
-                    this.goCryLoop.currentTime = 0;
-                    this.playAudioSafe(this.goCryLoop);
-                }
-                if (this.goRainLoop) {
-                    this.goRainLoop.loop = true;
-                    this.goRainLoop.volume = 0.5;
-                    this.goRainLoop.currentTime = 0;
-                    this.playAudioSafe(this.goRainLoop);
-                }
+                this._startGameOverLoop(this.goCryLoop, 0.7);
+                this._startGameOverLoop(this.goRainLoop, 0.5);
             } catch (e) {}
         },
 
@@ -266,158 +288,6 @@
         revealTryAgainButton() {
             if (!this.gameOverScreen) return;
             this.gameOverScreen.showButton();
-        },
-
-        /**
-         * Story billboard: activate once when the player is near the gate
-         * and keep it visible while the boss is still alive.
-         *
-         * @returns {void}
-         */
-        checkHutProximityAndStory() {
-            if (!this.hutGate || !this.hutStory) return;
-
-            const bossAlive = (this.level?.enemies || [])
-                .some(e => e instanceof Endboss && !e.dead);
-
-            if (!bossAlive) {
-                this.hutStory.deactivate();
-                this.storyLatched = false;
-                return;
-            }
-
-            if (this.storyLatched) {
-                if (!this.hutStory.visible) {
-                    this.hutStory.activate();
-                }
-                return;
-            }
-
-            const playerX = this.character?.x || 0;
-            const gateCenterX = this.hutGate.x + this.hutGate.width / 2;
-            const near = Math.abs(playerX - gateCenterX) < 220;
-
-            if (near && !this.hutGate.isOpen) {
-                this.hutStory.activate();
-                this.storyLatched = true;
-            }
-        },
-
-        /**
-         * Portal entry: only allowed after boss death and with an open gate.
-         *
-         * @returns {void}
-         */
-        checkPortalEnter() {
-            if (this.gameWon || !this.hutGate) return;
-
-            const bossAlive = (this.level?.enemies || [])
-                .some(e => e instanceof Endboss && !e.dead);
-
-            if (bossAlive) return;
-            if (!this.hutGate.isOpen) return;
-
-            if (this.hutGate.isCharacterInPortal(this.character)) {
-                this.stopPortalTimer();
-                this.showWinnerScreen();
-            }
-        },
-
-        /**
-         * Shows the winner screen, wires restart/back-to-start callbacks
-         * and pauses background music.
-         *
-         * @returns {void}
-         */
-        showWinnerScreen() {
-            this.gameWon = true;
-            this.stopPortalTimer();
-
-            try {
-                this.stopAmbienceLoop();
-            } catch (e) {}
-
-            if (this.winnerScreen) {
-                this.winnerScreen.show();
-
-                if (typeof this.winnerScreen.onRestartNow === 'function') {
-                    this.winnerScreen.onRestartNow(() => {
-                        if (window.restartNow) {
-                            window.restartNow();
-                        }
-                    });
-                }
-
-                if (typeof this.winnerScreen.onBackToStart === 'function') {
-                    this.winnerScreen.onBackToStart(() => {
-                        if (window.backToStart) {
-                            window.backToStart();
-                        }
-                    });
-                }
-            }
-
-            try {
-                this.pauseBgMusic();
-            } catch (e) {}
-        },
-
-        /**
-         * Handles Endboss death: ensures death animation, stops boss systems,
-         * opens the gate and starts the portal timer.
-         *
-         * @param {Endboss} endboss - boss instance that died
-         * @returns {void}
-         */
-        onEndbossDeath(endboss) {
-            if (this.bossDefeated) return;
-            this.bossDefeated = true;
-
-            this.endbossInSight = false;
-
-            if (endboss) {
-                endboss.isInSight = false;
-                endboss.inAggroMode = false;
-                endboss.returning = false;
-                endboss.aiState = 'IDLE';
-
-                if (typeof endboss.die === 'function' &&
-                    !endboss.dead &&
-                    !endboss.isDying) {
-                    endboss.die();
-                }
-            }
-
-            this.stopEndbossTimer();
-            this.stopMiniChickenSwarm();
-            this.clearBossSpawnedMiniChickens();
-
-            try {
-                this.stopAmbienceLoop();
-            } catch (e) {}
-
-            try {
-                if (this.bossDeathAudio) {
-                    this.bossDeathAudio.currentTime = 0;
-                    this.playAudioSafe(this.bossDeathAudio);
-                }
-            } catch (e) {}
-
-            try {
-                this.hutGate?.open();
-            } catch (e) {}
-
-            try {
-                this.hutStory?.deactivate();
-            } catch (e) {}
-
-            this.storyLatched = false;
-
-            try {
-                this.resumeBgMusic();
-            } catch (e) {}
-
-            this.startPortalTimer();
         }
     });
 })();

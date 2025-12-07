@@ -29,6 +29,41 @@ World.prototype.playAudioSafe = function (audio) {
 };
 
 /**
+ * Stops an audio element and resets its playback position.
+ *
+ * @param {HTMLAudioElement|null|undefined} audio
+ * @returns {void}
+ */
+World.prototype._stopAndResetAudio = function (audio) {
+    if (!audio) return;
+
+    try {
+        audio.pause();
+        audio.currentTime = 0;
+    } catch (e) {}
+};
+
+/**
+ * Pauses, rewinds and plays an audio element at the given volume.
+ *
+ * @param {HTMLAudioElement|null|undefined} audio
+ * @param {number} volume
+ * @returns {void}
+ */
+World.prototype._playFromStartWithVolume = function (audio, volume) {
+    if (!audio) return;
+
+    try {
+        audio.pause();
+        audio.currentTime = 0;
+        if (typeof volume === 'number') {
+            audio.volume = volume;
+        }
+        this.playAudioSafe(audio);
+    } catch (e) {}
+};
+
+/**
  * Starts the dramatic ambience loop during boss phases.
  * Keeps looping at a low volume until explicitly stopped.
  *
@@ -36,13 +71,14 @@ World.prototype.playAudioSafe = function (audio) {
  */
 World.prototype.startAmbienceLoop = function () {
     try {
-        if (this.dramaticAudio) {
-            this.dramaticAudio.loop = true;
-            this.dramaticAudio.volume = 0.5;
-            if (this.dramaticAudio.paused) {
-                this.dramaticAudio.currentTime = 0;
-                this.playAudioSafe(this.dramaticAudio);
-            }
+        if (!this.dramaticAudio) return;
+
+        this.dramaticAudio.loop = true;
+        this.dramaticAudio.volume = 0.5;
+
+        if (this.dramaticAudio.paused) {
+            this.dramaticAudio.currentTime = 0;
+            this.playAudioSafe(this.dramaticAudio);
         }
     } catch (e) {}
 };
@@ -53,12 +89,7 @@ World.prototype.startAmbienceLoop = function () {
  * @returns {void}
  */
 World.prototype.stopAmbienceLoop = function () {
-    try {
-        if (this.dramaticAudio && !this.dramaticAudio.paused) {
-            this.dramaticAudio.pause();
-            this.dramaticAudio.currentTime = 0;
-        }
-    } catch (e) {}
+    this._stopAndResetAudio(this.dramaticAudio);
 };
 
 /**
@@ -67,27 +98,14 @@ World.prototype.stopAmbienceLoop = function () {
  * @returns {void}
  */
 World.prototype.stopAllGameOverAudio = function () {
-    try {
-        if (this.playerDeathAudio) {
-            this.playerDeathAudio.pause();
-            this.playerDeathAudio.currentTime = 0;
-        }
-        if (this.deathSong) {
-            this.deathSong.pause();
-            this.deathSong.currentTime = 0;
-        }
-    } catch (e) {}
-
-    try {
-        if (this.goCryLoop) {
-            this.goCryLoop.pause();
-            this.goCryLoop.currentTime = 0;
-        }
-        if (this.goRainLoop) {
-            this.goRainLoop.pause();
-            this.goRainLoop.currentTime = 0;
-        }
-    } catch (e) {}
+    [
+        'playerDeathAudio',
+        'deathSong',
+        'goCryLoop',
+        'goRainLoop'
+    ].forEach((key) => {
+        this._stopAndResetAudio(this[key]);
+    });
 };
 
 /**
@@ -98,9 +116,14 @@ World.prototype.stopAllGameOverAudio = function () {
 World.prototype.startBgMusic = function () {
     try {
         if (!this.bgMusic) return;
+
         this.bgMusic.loop = true;
         this.bgMusic.volume = 0.28;
-        this.bgMusic.muted = !!window.IS_MUTED;
+
+        if (typeof window !== 'undefined') {
+            this.bgMusic.muted = !!window.IS_MUTED;
+        }
+
         if (this.bgMusic.paused) {
             this.bgMusic.currentTime = 0;
             this.playAudioSafe(this.bgMusic);
@@ -129,7 +152,14 @@ World.prototype.pauseBgMusic = function () {
 World.prototype.resumeBgMusic = function () {
     try {
         if (!this.bgMusic) return;
-        if (this.bgMusic.paused && !this.gameOver && !this.gameWon && !this.endbossInSight) {
+
+        const canPlay =
+            this.bgMusic.paused &&
+            !this.gameOver &&
+            !this.gameWon &&
+            !this.endbossInSight;
+
+        if (canPlay) {
             this.playAudioSafe(this.bgMusic);
         }
     } catch (e) {}
@@ -152,12 +182,14 @@ World.prototype.playEnemyDeathSound = function () {
 World.prototype.playPainOnce = function () {
     if (this._painLock) return;
     this._painLock = true;
+
     try {
         if (this.painAudio) {
             this.painAudio.currentTime = 0;
             this.playAudioSafe(this.painAudio);
         }
     } catch (e) {}
+
     setTimeout(() => {
         this._painLock = false;
     }, 300);
@@ -169,12 +201,16 @@ World.prototype.playPainOnce = function () {
  * @returns {void}
  */
 World.prototype.playPortalTimerStartSound = function () {
+    if (!this.portalTimerAudio) return;
+
     try {
-        if (!this.portalTimerAudio) return;
-        this.portalTimerAudio.pause();
-        this.portalTimerAudio.currentTime = 0;
+        this._stopAndResetAudio(this.portalTimerAudio);
+
+        if (typeof window !== 'undefined') {
+            this.portalTimerAudio.muted = !!window.IS_MUTED;
+        }
+
         this.portalTimerAudio.volume = 0.9;
-        this.portalTimerAudio.muted = !!window.IS_MUTED;
         this.playAudioSafe(this.portalTimerAudio);
     } catch (e) {}
 };
@@ -185,11 +221,7 @@ World.prototype.playPortalTimerStartSound = function () {
  * @returns {void}
  */
 World.prototype.stopPortalTimerSound = function () {
-    try {
-        if (!this.portalTimerAudio) return;
-        this.portalTimerAudio.pause();
-        this.portalTimerAudio.currentTime = 0;
-    } catch (e) {}
+    this._stopAndResetAudio(this.portalTimerAudio);
 };
 
 /**
@@ -198,12 +230,8 @@ World.prototype.stopPortalTimerSound = function () {
  * @returns {void}
  */
 World.prototype.stopStepAndAmbienceSounds = function () {
-    try {
-        this.character.walking_sound.pause();
-        this.character.walking_sound.currentTime = 0;
-        this.character.walking_sound_back.pause();
-        this.character.walking_sound_back.currentTime = 0;
-    } catch (e) {}
+    this._stopAndResetAudio(this.character && this.character.walking_sound);
+    this._stopAndResetAudio(this.character && this.character.walking_sound_back);
 
     try {
         this.stopAmbienceLoop();
@@ -216,30 +244,9 @@ World.prototype.stopStepAndAmbienceSounds = function () {
  * @returns {void}
  */
 World.prototype.playDeathAudioSequence = function () {
-    try {
-        if (this.painAudio) {
-            this.painAudio.pause();
-            this.painAudio.currentTime = 0;
-        }
-    } catch (e) {}
-
-    try {
-        if (this.playerDeathAudio) {
-            this.playerDeathAudio.pause();
-            this.playerDeathAudio.currentTime = 0;
-            this.playerDeathAudio.volume = 0.85;
-            this.playAudioSafe(this.playerDeathAudio);
-        }
-    } catch (e) {}
-
-    try {
-        if (this.deathSong) {
-            this.deathSong.pause();
-            this.deathSong.currentTime = 0;
-            this.deathSong.volume = 0.75;
-            this.playAudioSafe(this.deathSong);
-        }
-    } catch (e) {}
+    this._stopAndResetAudio(this.painAudio);
+    this._playFromStartWithVolume(this.playerDeathAudio, 0.85);
+    this._playFromStartWithVolume(this.deathSong, 0.75);
 };
 
 /**
@@ -248,7 +255,7 @@ World.prototype.playDeathAudioSequence = function () {
  * @returns {HTMLAudioElement[]} list of known audio instances
  */
 World.prototype.getAllAudios = function () {
-    const a = [
+    const base = [
         this.bgMusic,
         this.coinAudio,
         this.heartPickupAudio,
@@ -270,7 +277,8 @@ World.prototype.getAllAudios = function () {
         this.character?.walking_sound_back,
         this.enemyDeathAudio
     ];
-    return a.filter(Boolean);
+
+    return base.filter(Boolean);
 };
 
 /**
@@ -282,10 +290,86 @@ World.prototype.getAllAudios = function () {
  */
 World.prototype._collectAudiosShallow = function (obj, bag) {
     if (!obj) return;
+
     try {
-        Object.values(obj).forEach(v => {
-            if (v instanceof Audio) bag.add(v);
+        Object.values(obj).forEach((v) => {
+            if (v instanceof Audio) {
+                bag.add(v);
+            }
         });
+    } catch (e) {}
+};
+
+/**
+ * Collects character-related audios into the bag.
+ *
+ * @param {Set<HTMLAudioElement>} bag
+ * @returns {void}
+ */
+World.prototype._collectCharacterAudios = function (bag) {
+    const c = this.character;
+    if (!c) return;
+
+    try {
+        this._collectAudiosShallow(c, bag);
+
+        [
+            c.snoreAudio,
+            c.wakeAudio,
+            c.walking_sound,
+            c.walking_sound_back
+        ].forEach((a) => {
+            if (a) bag.add(a);
+        });
+    } catch (e) {}
+};
+
+/**
+ * Collects enemy audios into the bag.
+ *
+ * @param {Set<HTMLAudioElement>} bag
+ * @returns {void}
+ */
+World.prototype._collectEnemyAudios = function (bag) {
+    try {
+        (this.level?.enemies || []).forEach((e) => {
+            this._collectAudiosShallow(e, bag);
+        });
+    } catch (e) {}
+};
+
+/**
+ * Collects hut story audios into the bag.
+ *
+ * @param {Set<HTMLAudioElement>} bag
+ * @returns {void}
+ */
+World.prototype._collectHutStoryAudios = function (bag) {
+    const story = this.hutStory;
+    if (!story) return;
+
+    try {
+        if (story.atmo) {
+            bag.add(story.atmo);
+        }
+
+        Object.values(story.audioMap || {}).forEach((a) => {
+            if (a) bag.add(a);
+        });
+    } catch (e) {}
+};
+
+/**
+ * Collects winner screen audios into the bag.
+ *
+ * @param {Set<HTMLAudioElement>} bag
+ * @returns {void}
+ */
+World.prototype._collectWinnerAudios = function (bag) {
+    try {
+        if (this.winnerScreen?.winAudio) {
+            bag.add(this.winnerScreen.winAudio);
+        }
     } catch (e) {}
 };
 
@@ -297,38 +381,12 @@ World.prototype._collectAudiosShallow = function (obj, bag) {
  */
 World.prototype.getAllAudiosDeep = function () {
     const bag = new Set();
-    this.getAllAudios().forEach(a => bag.add(a));
 
-    try {
-        if (this.character) {
-            this._collectAudiosShallow(this.character, bag);
-            [
-                this.character.snoreAudio,
-                this.character.wakeAudio,
-                this.character.walking_sound,
-                this.character.walking_sound_back
-            ].forEach(a => {
-                if (a) bag.add(a);
-            });
-        }
-    } catch (e) {}
-
-    try {
-        (this.level?.enemies || []).forEach(e => this._collectAudiosShallow(e, bag));
-    } catch (e) {}
-
-    try {
-        if (this.hutStory) {
-            if (this.hutStory.atmo) bag.add(this.hutStory.atmo);
-            Object.values(this.hutStory.audioMap || {}).forEach(a => {
-                if (a) bag.add(a);
-            });
-        }
-    } catch (e) {}
-
-    try {
-        if (this.winnerScreen?.winAudio) bag.add(this.winnerScreen.winAudio);
-    } catch (e) {}
+    this.getAllAudios().forEach((a) => bag.add(a));
+    this._collectCharacterAudios(bag);
+    this._collectEnemyAudios(bag);
+    this._collectHutStoryAudios(bag);
+    this._collectWinnerAudios(bag);
 
     return Array.from(bag);
 };
@@ -341,12 +399,8 @@ World.prototype.getAllAudiosDeep = function () {
  */
 World.prototype.resetAllAudios = function () {
     try {
-        const audios = this.getAllAudiosDeep();
-        audios.forEach((a) => {
-            try {
-                a.pause();
-                a.currentTime = 0;
-            } catch (e) {}
+        this.getAllAudiosDeep().forEach((a) => {
+            this._stopAndResetAudio(a);
         });
     } catch (e) {}
 };
