@@ -104,6 +104,86 @@ class World {
     storyLatched = false;
 
     /**
+     * Creates a new world instance and sets up the main game loop.
+     *
+     * @param {HTMLCanvasElement} canvas - canvas used for rendering
+     * @param {Keyboard} keyboard - keyboard input handler
+     */
+    constructor(canvas, keyboard) {
+        this.initCanvasAndInput(canvas, keyboard);
+        this.initLevelGateAndStory();
+        this.initPickupCounters();
+        this.initGameOverAssets();
+        this.initAudioAndLoops();
+    }
+
+    /**
+     * Sets up canvas, context, keyboard and basic audio.
+     *
+     * @param {HTMLCanvasElement} canvas
+     * @param {Keyboard} keyboard
+     * @returns {void}
+     */
+    initCanvasAndInput(canvas, keyboard) {
+        this.ctx = canvas.getContext('2d');
+        this.canvas = canvas;
+        this.keyboard = keyboard;
+        this.enemyDeathAudio = new Audio('/audio/chicken-wing.mp3');
+        this.gameStartedAt = performance.now();
+    }
+
+    /**
+     * Initialises hut gate and story billboard references.
+     *
+     * @returns {void}
+     */
+    initLevelGateAndStory() {
+        this.hutGate = this.level.hutGate || null;
+        this.hutStory = this.level.storyBillboard || null;
+
+        if (this.hutStory && !this.hutStory.anchorGate && this.hutGate) {
+            this.hutStory.anchorGate = this.hutGate;
+        }
+    }
+
+    /**
+     * Initialises coin total, HUD percentage and whiskey counter.
+     *
+     * @returns {void}
+     */
+    initPickupCounters() {
+        this.totalCoins = Array.isArray(this.level.coins)
+            ? this.level.coins.length
+            : 0;
+
+        const pct = this.totalCoins > 0 ? 0 : 100;
+        this.coinStatusBar.setPercentage(pct);
+        this.whiskeyCounter.setCount(0);
+    }
+
+    /**
+     * Prepares game over splash image and winner screen.
+     *
+     * @returns {void}
+     */
+    initGameOverAssets() {
+        this.preloadGoSplash();
+        this.winnerScreen = new WinnerScreen();
+    }
+
+    /**
+     * Starts background music and the main loops (render + world tick).
+     *
+     * @returns {void}
+     */
+    initAudioAndLoops() {
+        this.startBgMusic();
+        this.draw();
+        this.setWorld();
+        this.run();
+    }
+
+    /**
      * Returns true if the world is still in the start grace period.
      * During this time, enemy collisions are ignored so the player
      * cannot die immediately at spawn.
@@ -116,39 +196,6 @@ class World {
 
         const now = performance.now();
         return (now - this.gameStartedAt) < this.START_GRACE_MS;
-    }
-
-    /**
-     * Creates a new world instance and sets up the main game loop.
-     *
-     * @param {HTMLCanvasElement} canvas - canvas used for rendering
-     * @param {Keyboard} keyboard - keyboard input handler
-     */
-    constructor(canvas, keyboard) {
-        this.ctx = canvas.getContext('2d');
-        this.canvas = canvas;
-        this.keyboard = keyboard;
-        this.enemyDeathAudio = new Audio('/audio/chicken-wing.mp3');
-
-        this.gameStartedAt = performance.now();
-        this.hutGate = this.level.hutGate || null;
-        this.hutStory = this.level.storyBillboard || null;
-        if (this.hutStory && !this.hutStory.anchorGate && this.hutGate) {
-            this.hutStory.anchorGate = this.hutGate;
-        }
-
-        this.totalCoins = Array.isArray(this.level.coins) ? this.level.coins.length : 0;
-        this.coinStatusBar.setPercentage(this.totalCoins > 0 ? 0 : 100);
-        this.whiskeyCounter.setCount(0);
-        this.preloadGoSplash();
-
-        this.winnerScreen = new WinnerScreen();
-
-        this.startBgMusic();
-
-        this.draw();
-        this.setWorld();
-        this.run();
     }
 
     /**
