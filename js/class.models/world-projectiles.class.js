@@ -2,6 +2,16 @@
  * Projectile & hit logic for the world (bottles + fireballs).
  * Mixed into World.prototype.
  */
+
+const BOTTLE_SPLASH_FRAMES = [
+    '/img/6_salsa_bottle/bottle_rotation/bottle_splash/1_bottle_splash.png',
+    '/img/6_salsa_bottle/bottle_rotation/bottle_splash/2_bottle_splash.png',
+    '/img/6_salsa_bottle/bottle_rotation/bottle_splash/3_bottle_splash.png',
+    '/img/6_salsa_bottle/bottle_rotation/bottle_splash/4_bottle_splash.png',
+    '/img/6_salsa_bottle/bottle_rotation/bottle_splash/5_bottle_splash.png',
+    '/img/6_salsa_bottle/bottle_rotation/bottle_splash/6_bottle_splash.png'
+];
+
 const WorldProjectilesMixin = {
     /**
      * Throws a normal bottle if at least one is available.
@@ -9,13 +19,18 @@ const WorldProjectilesMixin = {
      * @returns {void}
      */
     throwBottle() {
-        if (this.bottlesCollected > 0) {
-            const bottle = new ThrowableObject(this.character.x + 100, this.character.y + 100);
-            this.throwableObjects.push(bottle);
-            this.bottlesCollected--;
-            const pct = (this.bottlesCollected / this.maxBottles) * 100;
-            this.bottleStatusBar.setPercentage(pct);
-        }
+        if (this.bottlesCollected <= 0) return;
+
+        const bottle = new ThrowableObject(
+            this.character.x + 100,
+            this.character.y + 100
+        );
+
+        this.throwableObjects.push(bottle);
+        this.bottlesCollected--;
+
+        const pct = (this.bottlesCollected / this.maxBottles) * 100;
+        this.bottleStatusBar.setPercentage(pct);
     },
 
     /**
@@ -24,36 +39,57 @@ const WorldProjectilesMixin = {
      * @returns {void}
      */
     checkThrowObjects() {
-        if (this.keyboard.D && this.bottlesCollected > 0) {
-            const facingRight = true;
+        this.handleBottleThrowInput();
+        this.handleFireballThrowInput();
+        this.cleanupProjectiles();
+    },
 
-            const bottle = new ThrowableObject(
-                this.character.x + 100,
-                this.character.y + 80,
-                facingRight,
-                this
-            );
+    /**
+     * Handles keyboard input for bottle throws.
+     *
+     * @returns {void}
+     */
+    handleBottleThrowInput() {
+        if (!this.keyboard.D || this.bottlesCollected <= 0) return;
 
-            this.throwableObjects.push(bottle);
-            this.bottlesCollected--;
+        const facingRight = true;
+        const bottle = new ThrowableObject(
+            this.character.x + 100,
+            this.character.y + 80,
+            facingRight,
+            this
+        );
 
-            const pct = (this.bottlesCollected / this.maxBottles) * 100;
-            this.bottleStatusBar.setPercentage(pct);
-        }
+        this.throwableObjects.push(bottle);
+        this.bottlesCollected--;
 
-        if (this.keyboard.F && this.whiskeyCount > 0) {
-            const facingRight = true;
-            const fire = new Fireball(this.character.x + 110, this.character.y + 70, facingRight);
-            this.throwableObjects.push(fire);
-            this.whiskeyCount--;
-            this.whiskeyCounter.setCount(this.whiskeyCount);
-            try {
-                this.supernovaAudio.currentTime = 0;
-                this.playAudioSafe(this.supernovaAudio);
-            } catch (e) {}
-        }
+        const pct = (this.bottlesCollected / this.maxBottles) * 100;
+        this.bottleStatusBar.setPercentage(pct);
+    },
 
-        this.throwableObjects = this.throwableObjects.filter(p => !p.done);
+    /**
+     * Handles keyboard input for fireball throws.
+     *
+     * @returns {void}
+     */
+    handleFireballThrowInput() {
+        if (!this.keyboard.F || this.whiskeyCount <= 0) return;
+
+        const facingRight = true;
+        const fire = new Fireball(
+            this.character.x + 110,
+            this.character.y + 70,
+            facingRight
+        );
+
+        this.throwableObjects.push(fire);
+        this.whiskeyCount--;
+        this.whiskeyCounter.setCount(this.whiskeyCount);
+
+        try {
+            this.supernovaAudio.currentTime = 0;
+            this.playAudioSafe(this.supernovaAudio);
+        } catch (e) {}
     },
 
     /**
@@ -236,7 +272,7 @@ const WorldProjectilesMixin = {
      * @returns {void}
      */
     cleanupProjectiles() {
-        this.throwableObjects = this.throwableObjects.filter(p => !p.done);
+        this.throwableObjects = (this.throwableObjects || []).filter(p => !p.done);
     },
 
     /**
@@ -247,38 +283,72 @@ const WorldProjectilesMixin = {
      * @returns {void}
      */
     onBottleHitsEnemy(bottle, enemy) {
-        if (bottle && typeof bottle.onHit === 'function') {
-            try {
-                bottle.onHit(enemy);
-            } catch (e) {}
-        }
+        this._invokeBottleOnHitCallback(bottle, enemy);
+        this._spawnBottleHitEffect(bottle, enemy);
+        this._playBottleHitSound();
+    },
 
+    /**
+     * Safely calls bottle.onHit(enemy) if available.
+     *
+     * @param {ThrowableObject} bottle
+     * @param {object} enemy
+     * @returns {void}
+     */
+    _invokeBottleOnHitCallback(bottle, enemy) {
+        if (!bottle || typeof bottle.onHit !== 'function') return;
         try {
-            const splashFrames = [
-                '/img/6_salsa_bottle/bottle_rotation/bottle_splash/1_bottle_splash.png',
-                '/img/6_salsa_bottle/bottle_rotation/bottle_splash/2_bottle_splash.png',
-                '/img/6_salsa_bottle/bottle_rotation/bottle_splash/3_bottle_splash.png',
-                '/img/6_salsa_bottle/bottle_rotation/bottle_splash/4_bottle_splash.png',
-                '/img/6_salsa_bottle/bottle_rotation/bottle_splash/5_bottle_splash.png',
-                '/img/6_salsa_bottle/bottle_rotation/bottle_splash/6_bottle_splash.png'
-            ];
-            const hitX = (bottle && typeof bottle.x === 'number')
-                ? bottle.x + (bottle.width  || 0) * 0.5 - 45
-                : (enemy?.x || 0) + (enemy?.width  || 0) * 0.5 - 45;
-            const hitY = (bottle && typeof bottle.y === 'number')
-                ? bottle.y + (bottle.height || 0) * 0.5 - 45
-                : (enemy?.y || 0) + (enemy?.height || 0) * 0.5 - 45;
-            const effect = new HitEffect(hitX, hitY, splashFrames, 320);
+            bottle.onHit(enemy);
+        } catch (e) {}
+    },
+
+    /**
+     * Spawns the visual splash effect at the hit position.
+     *
+     * @param {ThrowableObject} bottle
+     * @param {object} enemy
+     * @returns {void}
+     */
+    _spawnBottleHitEffect(bottle, enemy) {
+        try {
+            const { x, y } = this._computeBottleHitPosition(bottle, enemy);
+            const effect = new HitEffect(x, y, BOTTLE_SPLASH_FRAMES, 320);
             effect.width = 100;
             effect.height = 100;
             this.effects.push(effect);
         } catch (e) {}
+    },
 
+    /**
+     * Computes the center position for the bottle splash effect.
+     *
+     * @param {ThrowableObject} bottle
+     * @param {object} enemy
+     * @returns {{x:number,y:number}}
+     */
+    _computeBottleHitPosition(bottle, enemy) {
+        const src = (bottle && typeof bottle.x === 'number') ? bottle : (enemy || {});
+        const baseX = src.x || 0;
+        const baseY = src.y || 0;
+        const baseW = src.width  || 0;
+        const baseH = src.height || 0;
+
+        const x = baseX + baseW * 0.5 - 45;
+        const y = baseY + baseH * 0.5 - 45;
+
+        return { x, y };
+    },
+
+    /**
+     * Plays the bottle hit sound effect once, if available.
+     *
+     * @returns {void}
+     */
+    _playBottleHitSound() {
         try {
-            if (this.hitAudio) {
-                this.hitAudio.currentTime = 0;
-                this.playAudioSafe(this.hitAudio);
-            }
+            if (!this.hitAudio) return;
+            this.hitAudio.currentTime = 0;
+            this.playAudioSafe(this.hitAudio);
         } catch (e) {}
     },
 
@@ -296,14 +366,14 @@ const WorldProjectilesMixin = {
         const y = projectile.y;
 
         try {
-            this.throwableObjects = (this.throwableObjects || []).filter(p => p !== projectile);
+            this.throwableObjects = (this.throwableObjects || [])
+                .filter(p => p !== projectile);
         } catch (e) {}
 
         try {
             if (!Array.isArray(this.level.bottles)) {
                 this.level.bottles = [];
             }
-
             this.level.bottles.push(new Bottle(x, y));
         } catch (e) {}
     }

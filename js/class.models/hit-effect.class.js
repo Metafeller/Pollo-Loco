@@ -8,9 +8,9 @@
  */
 function stepHitEffectFrame(effect, frames) {
   effect.frameIndex++;
-  let idx = Math.min(effect.frameIndex, frames.length - 1);
-  let path = frames[idx];
-  let nextImg = effect.imageCache[path];
+  const idx = Math.min(effect.frameIndex, frames.length - 1);
+  const path = frames[idx];
+  const nextImg = effect.imageCache[path];
 
   if (nextImg && nextImg.complete && nextImg.naturalWidth > 0) {
     effect.img = nextImg;
@@ -31,20 +31,23 @@ function stepHitEffectFrame(effect, frames) {
  * @returns {void}
  */
 function startHitEffectAnimation(effect, totalDurationMs) {
-  let frames = Array.isArray(effect.frames) ? effect.frames : [];
+  const frames = Array.isArray(effect.frames) ? effect.frames : [];
   if (frames.length === 0) {
     effect.done = true;
     return;
   }
 
-  let frameCount = frames.length;
-  let safeDuration = Math.max(16, totalDurationMs);
-  let frameDelay = Math.max(16, Math.floor(safeDuration / frameCount));
+  const frameCount = frames.length;
+  const safeDuration = Math.max(16, totalDurationMs);
+  const frameDelay = Math.max(16, Math.floor(safeDuration / frameCount));
 
-  let firstPath = frames[0];
+  const firstPath = frames[0];
   effect.img = effect.imageCache[firstPath];
 
-  effect._anim = setInterval(() => stepHitEffectFrame(effect, frames), frameDelay);
+  effect._anim = setInterval(
+    () => stepHitEffectFrame(effect, frames),
+    frameDelay
+  );
 }
 
 /**
@@ -60,39 +63,115 @@ class HitEffect extends DrawableObject {
    * @param {number} x - X-position on the canvas.
    * @param {number} y - Y-position on the canvas.
    * @param {string[]} [frames=[]] - Image paths for the splash frames.
-   * @param {number} [totalDurationMs=300] - Total animation duration in milliseconds.
+   * @param {number} [totalDurationMs=300] - Total animation duration in ms.
    */
   constructor(x, y, frames = [], totalDurationMs = 300) {
     super();
+
+    this.initPosition(x, y);
+    this.initAnimationState(frames);
+
+    this.loadImages(this.frames);
+    this.setupAnimationStart(totalDurationMs);
+  }
+
+  /**
+   * Initialises position and default size of the effect.
+   *
+   * @param {number} x
+   * @param {number} y
+   * @returns {void}
+   */
+  initPosition(x, y) {
     this.x = x;
     this.y = y;
     this.width = 90;
     this.height = 90;
+  }
 
-    this.frames = frames;
+  /**
+   * Initialises animation state for the hit effect.
+   *
+   * @param {string[]} frames
+   * @returns {void}
+   */
+  initAnimationState(frames) {
+    this.frames = Array.isArray(frames) ? frames : [];
     this.frameIndex = 0;
     this.done = false;
     this._anim = null;
+  }
 
-    this.loadImages(this.frames);
-
-    if (!Array.isArray(this.frames) || this.frames.length === 0) {
-      this.done = true;
+  /**
+   * Decides whether to start the animation or mark the effect as done.
+   *
+   * @param {number} totalDurationMs
+   * @returns {void}
+   */
+  setupAnimationStart(totalDurationMs) {
+    if (!this.frames.length) {
+      this.markDone();
       return;
     }
 
-    let firstPath = this.frames[0];
-    let firstImg = this.imageCache[firstPath];
+    const firstPath = this.frames[0];
+    const firstImg = this.imageCache[firstPath];
 
-    if (firstImg && firstImg.complete && firstImg.naturalWidth > 0) {
-      startHitEffectAnimation(this, totalDurationMs);
-    } else if (firstImg) {
-      firstImg.onload = () => startHitEffectAnimation(this, totalDurationMs);
-      firstImg.onerror = () => {
-        this.done = true;
-      };
-    } else {
-      this.done = true;
+    if (!firstImg) {
+      this.markDone();
+      return;
+    }
+
+    if (this.isImageReady(firstImg)) {
+      this.startAnimation(totalDurationMs);
+      return;
+    }
+
+    this.attachImageHandlers(firstImg, totalDurationMs);
+  }
+
+  /**
+   * Returns true if the image is loaded and ready to render.
+   *
+   * @param {HTMLImageElement} img
+   * @returns {boolean}
+   */
+  isImageReady(img) {
+    return !!(img && img.complete && img.naturalWidth > 0);
+  }
+
+  /**
+   * Starts the hit effect animation using the helper function.
+   *
+   * @param {number} totalDurationMs
+   * @returns {void}
+   */
+  startAnimation(totalDurationMs) {
+    startHitEffectAnimation(this, totalDurationMs);
+  }
+
+  /**
+   * Attaches load/error handlers to the first frame image.
+   *
+   * @param {HTMLImageElement} img
+   * @param {number} totalDurationMs
+   * @returns {void}
+   */
+  attachImageHandlers(img, totalDurationMs) {
+    img.onload = () => this.startAnimation(totalDurationMs);
+    img.onerror = () => this.markDone();
+  }
+
+  /**
+   * Marks the effect as finished and clears any running animation interval.
+   *
+   * @returns {void}
+   */
+  markDone() {
+    this.done = true;
+    if (this._anim) {
+      clearInterval(this._anim);
+      this._anim = null;
     }
   }
 }
