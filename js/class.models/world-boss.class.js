@@ -144,13 +144,8 @@ const WorldBossMixin = {
 
         const groupSize = Math.min(this.MINI_SWARM_GROUP_SIZE, freeSlots);
         const enemies = this.level?.enemies || [];
-
         const originX =
-            this.miniSwarmOriginX ||
-            boss.startX ||
-            boss.spawnX ||
-            boss.homeX ||
-            boss.x;
+            this.miniSwarmOriginX || boss.startX || boss.spawnX || boss.homeX || boss.x;
 
         const baseX = originX - 100;
 

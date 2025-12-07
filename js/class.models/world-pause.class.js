@@ -5,7 +5,7 @@
 
 /**
  * Sets the paused state of the world.
- * Freezes and unfreezes all moving objects and handles audio pausing.
+ * Freezes/unfreezes moving objects and handles audio pausing.
  *
  * @param {boolean} flag - true to pause, false to resume
  * @returns {void}
@@ -14,44 +14,93 @@ World.prototype.setPaused = function (flag) {
     if (flag === this.paused) return;
     this.paused = !!flag;
 
-    try {
-        if (this.hutStory && typeof this.hutStory.setWorldPaused === 'function') {
-            this.hutStory.setWorldPaused(this.paused);
-        }
-    } catch (e) {}
+    this._notifyHutStoryPause();
 
     if (this.paused) {
-        this.freezeWorld();
-        try {
-            this.getAllAudiosDeep().forEach(a => {
-                try {
-                    a.pause();
-                } catch (e) {}
-            });
-        } catch (e) {}
-
+        this._applyPauseSideEffects();
     } else {
-        this.unfreezeWorld();
-        try {
-            if (!this.endbossInSight &&
-                !this.gameOver &&
-                !this.gameWon &&
-                this.bgMusic &&
-                !this.bgMusic.muted) {
-                this.playAudioSafe(this.bgMusic);
-            }
-        } catch (e) {}
-
-        try {
-            if (this.portalTimerActive &&
-                this.portalTimerSeconds > 0 &&
-                this.portalTimerAudio &&
-                this.portalTimerAudio.paused &&
-                !this.portalTimerAudio.muted) {
-                this.playAudioSafe(this.portalTimerAudio);
-            }
-        } catch (e) {}
+        this._applyResumeSideEffects();
     }
+};
+
+/**
+ * Notifies hut story (if present) about world pause state.
+ *
+ * @returns {void}
+ */
+World.prototype._notifyHutStoryPause = function () {
+    try {
+        const story = this.hutStory;
+        if (story && typeof story.setWorldPaused === 'function') {
+            story.setWorldPaused(this.paused);
+        }
+    } catch (e) {}
+};
+
+/**
+ * Applies side effects when the world is paused.
+ *
+ * @returns {void}
+ */
+World.prototype._applyPauseSideEffects = function () {
+    this.freezeWorld();
+
+    try {
+        this.getAllAudiosDeep().forEach((a) => {
+            try {
+                a.pause();
+            } catch (e) {}
+        });
+    } catch (e) {}
+};
+
+/**
+ * Applies side effects when the world is resumed.
+ *
+ * @returns {void}
+ */
+World.prototype._applyResumeSideEffects = function () {
+    this.unfreezeWorld();
+    this._resumeBgMusicIfNeeded();
+    this._resumePortalTimerAudioIfNeeded();
+};
+
+/**
+ * Resumes background music if game state allows it.
+ *
+ * @returns {void}
+ */
+World.prototype._resumeBgMusicIfNeeded = function () {
+    try {
+        if (
+            !this.endbossInSight &&
+            !this.gameOver &&
+            !this.gameWon &&
+            this.bgMusic &&
+            !this.bgMusic.muted
+        ) {
+            this.playAudioSafe(this.bgMusic);
+        }
+    } catch (e) {}
+};
+
+/**
+ * Resumes portal timer audio if an active countdown is running.
+ *
+ * @returns {void}
+ */
+World.prototype._resumePortalTimerAudioIfNeeded = function () {
+    try {
+        if (
+            this.portalTimerActive &&
+            this.portalTimerSeconds > 0 &&
+            this.portalTimerAudio &&
+            this.portalTimerAudio.paused &&
+            !this.portalTimerAudio.muted
+        ) {
+            this.playAudioSafe(this.portalTimerAudio);
+        }
+    } catch (e) {}
 };
 
 /**
@@ -61,34 +110,42 @@ World.prototype.setPaused = function (flag) {
  * @returns {void}
  */
 World.prototype.freezeWorld = function () {
-    const patchOne = (o) => {
-        if (!o || o.__frozen) return;
-        o.__frozen = true;
+    const level = this.level || {};
 
-        if (typeof o.speed === 'number') {
-            o.__prevSpeed = o.speed;
-            o.speed = 0;
+    (level.enemies || []).forEach(o => this._freezeObject(o));
+    (level.clouds || []).forEach(o => this._freezeObject(o));
+    (level.backgroundObjects || []).forEach(o => this._freezeObject(o));
+    (this.throwableObjects || []).forEach(o => this._freezeObject(o));
+    (this.effects || []).forEach(o => this._freezeObject(o));
+
+    this._freezeObject(this.character);
+};
+
+/**
+ * Helper: freezes a single object (speed + movement/AI methods).
+ *
+ * @param {any} obj
+ * @returns {void}
+ */
+World.prototype._freezeObject = function (obj) {
+    if (!obj || obj.__frozen) return;
+    obj.__frozen = true;
+
+    if (typeof obj.speed === 'number') {
+        obj.__prevSpeed = obj.speed;
+        obj.speed = 0;
+    }
+    if (typeof obj.baseSpeed === 'number') {
+        obj.__prevBaseSpeed = obj.baseSpeed;
+        obj.baseSpeed = 0;
+    }
+
+    ['moveLeft', 'moveRight', 'updateAI', 'animate'].forEach((fn) => {
+        if (typeof obj[fn] === 'function' && !obj[`__orig_${fn}`]) {
+            obj[`__orig_${fn}`] = obj[fn];
+            obj[fn] = function () {};
         }
-        if (typeof o.baseSpeed === 'number') {
-            o.__prevBaseSpeed = o.baseSpeed;
-            o.baseSpeed = 0;
-        }
-
-        ['moveLeft', 'moveRight', 'updateAI', 'animate'].forEach(fn => {
-            if (typeof o[fn] === 'function' && !o[`__orig_${fn}`]) {
-                o[`__orig_${fn}`] = o[fn];
-                o[fn] = function () {};
-            }
-        });
-    };
-
-    (this.level?.enemies || []).forEach(patchOne);
-    (this.level?.clouds  || []).forEach(patchOne);
-    (this.level?.backgroundObjects || []).forEach(patchOne);
-    (this.throwableObjects || []).forEach(patchOne);
-    (this.effects || []).forEach(patchOne);
-
-    patchOne(this.character);
+    });
 };
 
 /**
@@ -97,32 +154,41 @@ World.prototype.freezeWorld = function () {
  * @returns {void}
  */
 World.prototype.unfreezeWorld = function () {
-    const unpatchOne = (o) => {
-        if (!o || !o.__frozen) return;
-        o.__frozen = false;
+    const level = this.level || {};
 
-        if ('__prevSpeed' in o) {
-            o.speed = o.__prevSpeed;
-            delete o.__prevSpeed;
+    (level.enemies || []).forEach(o => this._unfreezeObject(o));
+    (level.clouds || []).forEach(o => this._unfreezeObject(o));
+    (level.backgroundObjects || []).forEach(o => this._unfreezeObject(o));
+    (this.throwableObjects || []).forEach(o => this._unfreezeObject(o));
+    (this.effects || []).forEach(o => this._unfreezeObject(o));
+
+    this._unfreezeObject(this.character);
+};
+
+/**
+ * Helper: unfreezes a single object and restores methods/speeds.
+ *
+ * @param {any} obj
+ * @returns {void}
+ */
+World.prototype._unfreezeObject = function (obj) {
+    if (!obj || !obj.__frozen) return;
+    obj.__frozen = false;
+
+    if ('__prevSpeed' in obj) {
+        obj.speed = obj.__prevSpeed;
+        delete obj.__prevSpeed;
+    }
+    if ('__prevBaseSpeed' in obj) {
+        obj.baseSpeed = obj.__prevBaseSpeed;
+        delete obj.__prevBaseSpeed;
+    }
+
+    ['moveLeft', 'moveRight', 'updateAI', 'animate'].forEach((fn) => {
+        const key = `__orig_${fn}`;
+        if (typeof obj[key] === 'function') {
+            obj[fn] = obj[key];
+            delete obj[key];
         }
-        if ('__prevBaseSpeed' in o) {
-            o.baseSpeed = o.__prevBaseSpeed;
-            delete o.__prevBaseSpeed;
-        }
-
-        ['moveLeft', 'moveRight', 'updateAI', 'animate'].forEach(fn => {
-            const key = `__orig_${fn}`;
-            if (typeof o[key] === 'function') {
-                o[fn] = o[key];
-                delete o[key];
-            }
-        });
-    };
-
-    (this.level?.enemies || []).forEach(unpatchOne);
-    (this.level?.clouds  || []).forEach(unpatchOne);
-    (this.level?.backgroundObjects || []).forEach(unpatchOne);
-    (this.throwableObjects || []).forEach(unpatchOne);
-    (this.effects || []).forEach(unpatchOne);
-    unpatchOne(this.character);
+    });
 };

@@ -198,6 +198,7 @@
          */
         addObjectsToMap(objects) {
             if (!Array.isArray(objects) || objects.length === 0) return;
+
             for (let i = 0; i < objects.length; i++) {
                 const o = objects[i];
                 if (!o) continue;
@@ -212,50 +213,96 @@
          * @returns {void}
          */
         addToMap(mo) {
-            if (mo.otherDirection) this.flipImage(mo);
+            if (!mo) return;
+
+            this._drawMainObject(mo);
+
+            if (this.DEBUG_FRAMES) {
+                this._drawDebugForObject(mo);
+            }
+        },
+
+        /**
+         * Handles flipped/non-flipped draw of a single object.
+         *
+         * @param {DrawableObject} mo
+         * @returns {void}
+         */
+        _drawMainObject(mo) {
+            const flipped = !!mo.otherDirection;
+
+            if (flipped) {
+                this.flipImage(mo);
+            }
+
             mo.draw(this.ctx);
-            if (mo.otherDirection) this.flipImageBack(mo);
 
-            if (this.DEBUG_FRAMES && typeof mo.drawFrame === 'function') {
-                const show =
-                    (mo === this.character) ||
-                    (mo instanceof Chicken) ||
-                    (mo instanceof MiniChicken) ||
-                    (mo instanceof Endboss) ||
-                    (mo instanceof ThrowableObject) ||
-                    (mo instanceof Fireball) ||
-                    (mo instanceof Gravestone) ||
-                    (mo instanceof HutGate) ||
-                    (mo instanceof StoryBillboard) ||
-                    (mo instanceof Coin) ||
-                    (mo instanceof Bottle) ||
-                    (mo instanceof WhiskeyPickup) ||
-                    (mo instanceof HeartPickup);
+            if (flipped) {
+                this.flipImageBack(mo);
+            }
+        },
 
-                if (show) mo.drawFrame(this.ctx);
+        /**
+         * Draws debug frames and helper rectangles for an object if needed.
+         *
+         * @param {DrawableObject} mo
+         * @returns {void}
+         */
+        _drawDebugForObject(mo) {
+            if (this._shouldDrawDebugFrame(mo)) {
+                mo.drawFrame(this.ctx);
             }
 
-            if (this.DEBUG_FRAMES && mo === this.character) {
-                const ca = this.character.getBounds();
-                const charH   = Math.max(1, ca.bottom - ca.top);
-                const footH   = Math.max(32, Math.floor(charH * 0.52));
-                const marginX = 6;
-
-                const footRect = {
-                    x: ca.left + marginX,
-                    y: ca.bottom - footH,
-                    w: (ca.right - ca.left) - marginX * 2,
-                    h: footH
-                };
-
-                this.ctx.save();
-                this.ctx.setLineDash([6, 4]);
-                this.ctx.lineWidth = 2;
-                this.ctx.strokeStyle = 'lime';
-                this.ctx.strokeRect(footRect.x, footRect.y, footRect.w, footRect.h);
-                this.ctx.setLineDash([]);
-                this.ctx.restore();
+            if (mo === this.character) {
+                this._drawCharacterFootDebugRect();
             }
+        },
+
+        /**
+         * Returns true if debug frame should be drawn for this object.
+         *
+         * @param {DrawableObject} mo
+         * @returns {boolean}
+         */
+        _shouldDrawDebugFrame(mo) {
+            if (!mo || typeof mo.drawFrame !== 'function') return false;
+
+            const important =
+                mo === this.character ||
+                mo instanceof Chicken || mo instanceof MiniChicken ||
+                mo instanceof Endboss ||
+                mo instanceof ThrowableObject || mo instanceof Fireball ||
+                mo instanceof Gravestone || mo instanceof HutGate ||
+                mo instanceof StoryBillboard ||
+                mo instanceof Coin || mo instanceof Bottle ||
+                mo instanceof WhiskeyPickup || mo instanceof HeartPickup;
+
+            return important;
+        },
+
+        /**
+         * Draws the stomp foot-zone debug rectangle for Pepe.
+         *
+         * @returns {void}
+         */
+        _drawCharacterFootDebugRect() {
+            const ca = this.character.getBounds();
+            const charH = Math.max(1, ca.bottom - ca.top);
+            const footH = Math.max(32, Math.floor(charH * 0.52));
+            const marginX = 6;
+
+            const x = ca.left + marginX;
+            const y = ca.bottom - footH;
+            const w = (ca.right - ca.left) - marginX * 2;
+            const h = footH;
+
+            this.ctx.save();
+            this.ctx.setLineDash([6, 4]);
+            this.ctx.lineWidth = 2;
+            this.ctx.strokeStyle = 'lime';
+            this.ctx.strokeRect(x, y, w, h);
+            this.ctx.setLineDash([]);
+            this.ctx.restore();
         },
 
         /**
