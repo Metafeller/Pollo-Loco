@@ -273,6 +273,62 @@ class Endboss extends MovableObject {
         }, 1000);
     }
 
+    // ===== Death sequence helpers =====
+
+    _cancelHurtTimeout() {
+        if (!this.hurtTimeout) return;
+        clearTimeout(this.hurtTimeout);
+        this.hurtTimeout = null;
+    }
+
+    _beginDeathState() {
+        this.isDying = true;
+        this.isHurtAnimation = false;
+        this.isInSight = false;
+        this.returning = false;
+        this.speed = 0;
+    }
+
+    _setInitialDeathFrame(frames) {
+        if (!Array.isArray(frames) || frames.length === 0) return;
+        const firstPath = frames[0];
+        this.img = this.imageCache[firstPath];
+    }
+
+    _startDeathInterval(frames) {
+        let frameIndex = 0;
+
+        this.deathTimer = setInterval(() => {
+            frameIndex++;
+
+            const noFrames = !Array.isArray(frames) || frames.length === 0;
+            const lastIdx = noFrames ? -1 : frames.length - 1;
+
+            if (noFrames || frameIndex > lastIdx) {
+                this._finishDeath(frames);
+                return;
+            }
+
+            const path = frames[frameIndex];
+            this.img = this.imageCache[path];
+        }, 180);
+    }
+
+    _finishDeath(frames) {
+        if (this.deathTimer) {
+            clearInterval(this.deathTimer);
+            this.deathTimer = null;
+        }
+
+        this.isDying = false;
+        this.dead = true;
+
+        if (Array.isArray(frames) && frames.length > 0) {
+            const lastPath = frames[frames.length - 1];
+            this.img = this.imageCache[lastPath];
+        }
+    }
+
     /**
      * Starts the death animation if it is not already running.
      * Plays through IMAGES_DEAD and then marks the boss as dead.
@@ -280,36 +336,14 @@ class Endboss extends MovableObject {
      * @returns {void}
      */
     die() {
-        clearTimeout(this.hurtTimeout);
+        this._cancelHurtTimeout();
         if (this.isDying || this.dead) return;
 
-        this.isDying = true;
-        this.isHurtAnimation = false;
-        this.isInSight = false;
-        this.returning = false;
-        this.speed = 0;
+        this._beginDeathState();
 
         const frames = this.IMAGES_DEAD;
-        let i = 0;
-
-        if (frames && frames.length > 0) {
-            this.img = this.imageCache[frames[0]];
-        }
-
-        this.deathTimer = setInterval(() => {
-            i++;
-            if (!frames || i >= frames.length) {
-                clearInterval(this.deathTimer);
-                this.isDying = false;
-                this.dead = true;
-
-                if (frames && frames.length > 0) {
-                    this.img = this.imageCache[frames[frames.length - 1]];
-                }
-                return;
-            }
-            this.img = this.imageCache[frames[i]];
-        }, 180);
+        this._setInitialDeathFrame(frames);
+        this._startDeathInterval(frames);
     }
 
     /**
@@ -352,6 +386,57 @@ class Endboss extends MovableObject {
         this.playAnimation(this.IMAGES_WALKING);
     }
 
+    // ===== Animation / AI loop (60 FPS) =====
+
+    _isAlive() {
+        return !this.dead && !this.isDying;
+    }
+
+    _tickChaseState() {
+        const target = (typeof this.targetX === 'number')
+            ? this.targetX
+            : this.x;
+
+        const dx = target - this.x;
+        if (Math.abs(dx) > 5) {
+            this._moveTowardsTarget(dx);
+        }
+
+        const frames = this.inAggroMode
+            ? this.IMAGES_ALERT
+            : this.IMAGES_WALKING;
+
+        this.playAnimation(frames);
+    }
+
+    _moveTowardsTarget(dx) {
+        if (dx < 0) {
+            this.moveLeft();
+            this.otherDirection = false;
+        } else {
+            this.moveRight();
+            this.otherDirection = true;
+        }
+    }
+
+    _tickAnimation() {
+        if (!this._isAlive()) return;
+
+        if (this.isHurtAnimation) {
+            this.playAnimation(this.IMAGES_HURT);
+            this.clampX();
+            return;
+        }
+
+        if (this.aiState === 'CHASE') {
+            this._tickChaseState();
+        } else if (this.aiState === 'RETURN') {
+            this.returnToStart();
+        }
+
+        this.clampX();
+    }
+
     /**
      * Main animation / AI loop for the boss (60 FPS).
      * Handles CHASE, RETURN and hurt animations while alive.
@@ -359,36 +444,8 @@ class Endboss extends MovableObject {
      * @returns {void}
      */
     animate() {
-        setInterval(() => {
-            if (this.dead || this.isDying) return;
-
-            if (this.aiState === 'CHASE' && !this.isHurtAnimation) {
-                const target = (typeof this.targetX === 'number') ? this.targetX : this.x;
-                const dx = target - this.x;
-                const absDx = Math.abs(dx);
-
-                if (absDx > 5) {
-                    if (dx < 0) {
-                        this.moveLeft();
-                        this.otherDirection = false;
-                    } else {
-                        this.moveRight();
-                        this.otherDirection = true;
-                    }
-                }
-
-                const frames = this.inAggroMode ? this.IMAGES_ALERT : this.IMAGES_WALKING;
-                this.playAnimation(frames);
-
-            } else if (this.aiState === 'RETURN' && !this.isHurtAnimation) {
-                this.returnToStart();
-
-            } else if (this.isHurtAnimation) {
-                this.playAnimation(this.IMAGES_HURT);
-            }
-
-            this.clampX();
-        }, 1000 / 60);
+        const TICK_MS = 1000 / 60;
+        setInterval(() => this._tickAnimation(), TICK_MS);
     }
 
 }

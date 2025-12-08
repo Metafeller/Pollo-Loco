@@ -424,7 +424,6 @@ function showPauseOverlay(show) {
  */
 function applyI18nLabels() {
   const t = (k) => (window.I18N ? window.I18N.t(k) : k);
-
   const btnStart = document.getElementById('btn-start');
   const btnContinue = document.getElementById('btn-continue');
   const startGameBtn = document.getElementById('btn-startgame');
