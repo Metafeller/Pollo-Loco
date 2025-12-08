@@ -5,11 +5,13 @@
 class CharacterState extends CharacterMovement {
 
     idlePhase = 'active';
-    lastActiveAt = (typeof performance !== 'undefined' ? performance.now() : Date.now());
+    lastActiveAt = (typeof performance !== 'undefined'
+        ? performance.now()
+        : Date.now());
 
     IDLE_DELAY_MS  = 300;
     SNORE_DELAY_MS = 9500;
-    
+
     idleAnimTick = 0;
 
     invulnerable = false;
@@ -108,192 +110,6 @@ class CharacterState extends CharacterMovement {
     }
 
     /**
-     * Returns true if any relevant control key is currently active.
-     * Includes movement, jump and throw inputs, but only if
-     * bottles/whiskey are actually available for throws.
-     *
-     * @returns {boolean} whether the character is actively controlled
-     */
-    isControlActive() {
-        const kb = this.world?.keyboard || {};
-
-        const hasBottles =
-            this.world &&
-            typeof this.world.bottlesCollected === 'number' &&
-            this.world.bottlesCollected > 0;
-
-        const hasWhiskey =
-            this.world &&
-            typeof this.world.whiskeyCount === 'number' &&
-            this.world.whiskeyCount > 0;
-
-        return !!(
-            kb.RIGHT ||
-            kb.LEFT ||
-            kb.SPACE ||
-            (kb.D && hasBottles) ||
-            (kb.F && hasWhiskey)
-        );
-    }
-
-    /**
-     * Enters the soft idle phase (no snore).
-     *
-     * @returns {void}
-     */
-    enterIdle() {
-        if (this.idlePhase === 'idle') return;
-        this.stopSnore();
-        this.idlePhase = 'idle';
-        this.currentImage = 0;
-    }
-
-    /**
-     * Enters the snore (sleep) phase and starts the snore loop.
-     *
-     * @returns {void}
-     */
-    enterSnore() {
-        if (this.idlePhase === 'snore') return;
-        this.idlePhase = 'snore';
-        this.currentImage = 0;
-        
-        try {
-            if (this.snoreAudio) {
-                this.snoreAudio.currentTime = 0;
-                const p = this.snoreAudio.play();
-                if (p && typeof p.catch === 'function') {
-                    p.catch(() => {});
-                }
-            }
-        } catch (e) {}
-    }
-
-    /**
-     * Stops snore audio safely and resets its position.
-     *
-     * @returns {void}
-     */
-    stopSnore() {
-        try {
-            if (this.snoreAudio && !this.snoreAudio.paused) {
-                this.snoreAudio.pause();
-                this.snoreAudio.currentTime = 0;
-            }
-        } catch (e) {}
-    }
-
-    /**
-     * Called when waking up from snore:
-     * stops snore audio and plays the wake one-shot.
-     *
-     * @returns {void}
-     */
-    onWakeFromSnore() {
-        this.stopSnore();
-        try {
-            if (this.wakeAudio) {
-                this.wakeAudio.pause();
-                this.wakeAudio.currentTime = 0;
-                const p = this.wakeAudio.play();
-                if (p && typeof p.catch === 'function') {
-                    p.catch(() => {});
-                }
-            }
-        } catch (e) {}
-    }
-
-    /**
-     * Central idle / snore logic based on inactivity duration.
-     *
-     * @param {number} nowMs - current timestamp in ms
-     * @returns {void}
-     */
-    updateIdleState(nowMs) {
-        if (this.resetIdleWhenWorldFinished()) {
-            return;
-        }
-
-        if (this.handleIdleWhileControlActive(nowMs)) {
-            return;
-        }
-
-        const idleFor = this.computeIdleDuration(nowMs);
-        this.updateIdlePhaseByDuration(idleFor);
-    }
-
-        /**
-     * Resets idle/snore when world is finished (game over / won).
-     *
-     * @returns {boolean} true if the state was reset
-     */
-    resetIdleWhenWorldFinished() {
-        const world = this.world;
-        if (!world) return false;
-        if (!world.gameOver && !world.gameWon) return false;
-
-        this.stopSnore();
-        this.idlePhase = 'idle';
-        return true;
-    }
-
-    /**
-     * Handles idle logic while the player is actively controlling Pepe
-     * or while he's airborne/hurt.
-     *
-     * @param {number} nowMs - current timestamp in ms
-     * @returns {boolean} true if the active-control branch handled the state
-     */
-    handleIdleWhileControlActive(nowMs) {
-        const controlActive = this.isControlActive();
-
-        if (!controlActive && !this.isAboveGround() && !this.isHurt()) {
-            return false;
-        }
-
-        if (this.idlePhase === 'snore') {
-            this.onWakeFromSnore();
-        }
-
-        this.idlePhase = 'active';
-        this.lastActiveAt = nowMs;
-        return true;
-    }
-
-    /**
-     * Computes idle duration in milliseconds.
-     *
-     * @param {number} nowMs - current timestamp in ms
-     * @returns {number} idle duration
-     */
-    computeIdleDuration(nowMs) {
-        return nowMs - (this.lastActiveAt || nowMs);
-    }
-
-    /**
-     * Updates idle/sleep state based on how long Pepe has been idle.
-     *
-     * @param {number} idleFor - idle duration in ms
-     * @returns {void}
-     */
-    updateIdlePhaseByDuration(idleFor) {
-        if (idleFor >= this.SNORE_DELAY_MS) {
-            this.enterSnore();
-            return;
-        }
-
-        if (idleFor >= this.IDLE_DELAY_MS) {
-            this.enterIdle();
-            return;
-        }
-
-        if (this.idlePhase === 'snore') {
-            this.stopSnore();
-        }
-        this.idlePhase = 'active';
-    }
-
-    /**
      * Handles pause state: stop walking sounds, keep camera following Pepe.
      *
      * @returns {boolean} true if world is paused
@@ -342,7 +158,8 @@ class CharacterState extends CharacterMovement {
     }
 
     /**
-     * Single animation tick: state priority handling (dead, hurt, jump, idle, walk).
+     * Single animation tick: state priority handling
+     * (dead, hurt, jump, idle, walk).
      *
      * @returns {void}
      */
@@ -469,7 +286,8 @@ class CharacterState extends CharacterMovement {
      * @returns {boolean} whether the enemy was jumped on
      */
     checkIfJumpedOnEnemy(enemy) {
-        return this.isAboveGround() && this.speedY < 0 && this.isColliding(enemy);
+        return this.isAboveGround() &&
+            this.speedY < 0 &&
+            this.isColliding(enemy);
     }
-    
 }
