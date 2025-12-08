@@ -1,7 +1,7 @@
 /**
  * Endboss enemy (giant chicken).
- * Handles simple AI states (idle, chase, return), aggro behaviour,
- * damage, hurt state and death animation.
+ * Core data, movement, damage and death logic.
+ * AI and animation loop are extended in endboss-ai.js.
  *
  * @extends MovableObject
  */
@@ -93,6 +93,7 @@ class Endboss extends MovableObject {
             bottom: 8
         };
 
+        // animate() wird in endboss-ai.js an das Prototype gehängt
         this.animate();
     }
 
@@ -153,57 +154,6 @@ class Endboss extends MovableObject {
     moveRight() {
         this.x += this.speed;
         this.clampX();
-    }
-
-    /**
-     * Enters aggro mode: only done once, then speed is raised to aggroSpeed.
-     *
-     * @returns {void}
-     */
-    enterAggro() {
-        if (this.inAggroMode) return;
-        this.inAggroMode = true;
-        this.speed = Math.max(this.speed, this.aggroSpeed);
-    }
-
-    /**
-     * Updates the AI state based on the player's X-position.
-     * Called multiple times per second from world.run().
-     *
-     * @param {number} characterX - current X-position of the player character
-     * @returns {void}
-     */
-    updateAI(characterX) {
-        if (this.dead || this.isDying) return;
-
-        this.targetX = characterX;
-
-        const inSight = (characterX > this.x - this.sightRange);
-        if (this.aiState === 'IDLE' && inSight) {
-            this.aiState = 'CHASE';
-            this.enterAggro();
-        }
-
-        if (!this.permanentChase) {
-            this.applyLeash();
-        }
-        this.isInSight = (this.aiState === 'CHASE');
-    }
-
-    /**
-     * Limits the chase distance to the left if permanentChase is disabled.
-     * When the boss reaches the leash radius, the AI switches to RETURN.
-     *
-     * @returns {void}
-     */
-    applyLeash() {
-        if (this.aiState !== 'CHASE') return;
-
-        const leftLimit = this.startPosition - this.leashRadius;
-        if (this.x <= leftLimit) {
-            this.aiState = 'RETURN';
-            this.returning = true;
-        }
     }
 
     /**
@@ -273,6 +223,62 @@ class Endboss extends MovableObject {
         }, 1000);
     }
 
+    // ===== Death sequence helpers =====
+
+    _cancelHurtTimeout() {
+        if (!this.hurtTimeout) return;
+        clearTimeout(this.hurtTimeout);
+        this.hurtTimeout = null;
+    }
+
+    _beginDeathState() {
+        this.isDying = true;
+        this.isHurtAnimation = false;
+        this.isInSight = false;
+        this.returning = false;
+        this.speed = 0;
+    }
+
+    _setInitialDeathFrame(frames) {
+        if (!Array.isArray(frames) || frames.length === 0) return;
+        const firstPath = frames[0];
+        this.img = this.imageCache[firstPath];
+    }
+
+    _startDeathInterval(frames) {
+        let frameIndex = 0;
+
+        this.deathTimer = setInterval(() => {
+            frameIndex++;
+
+            const noFrames = !Array.isArray(frames) || frames.length === 0;
+            const lastIdx = noFrames ? -1 : frames.length - 1;
+
+            if (noFrames || frameIndex > lastIdx) {
+                this._finishDeath(frames);
+                return;
+            }
+
+            const path = frames[frameIndex];
+            this.img = this.imageCache[path];
+        }, 180);
+    }
+
+    _finishDeath(frames) {
+        if (this.deathTimer) {
+            clearInterval(this.deathTimer);
+            this.deathTimer = null;
+        }
+
+        this.isDying = false;
+        this.dead = true;
+
+        if (Array.isArray(frames) && frames.length > 0) {
+            const lastPath = frames[frames.length - 1];
+            this.img = this.imageCache[lastPath];
+        }
+    }
+
     /**
      * Starts the death animation if it is not already running.
      * Plays through IMAGES_DEAD and then marks the boss as dead.
@@ -280,36 +286,14 @@ class Endboss extends MovableObject {
      * @returns {void}
      */
     die() {
-        clearTimeout(this.hurtTimeout);
+        this._cancelHurtTimeout();
         if (this.isDying || this.dead) return;
 
-        this.isDying = true;
-        this.isHurtAnimation = false;
-        this.isInSight = false;
-        this.returning = false;
-        this.speed = 0;
+        this._beginDeathState();
 
         const frames = this.IMAGES_DEAD;
-        let i = 0;
-
-        if (frames && frames.length > 0) {
-            this.img = this.imageCache[frames[0]];
-        }
-
-        this.deathTimer = setInterval(() => {
-            i++;
-            if (!frames || i >= frames.length) {
-                clearInterval(this.deathTimer);
-                this.isDying = false;
-                this.dead = true;
-
-                if (frames && frames.length > 0) {
-                    this.img = this.imageCache[frames[frames.length - 1]];
-                }
-                return;
-            }
-            this.img = this.imageCache[frames[i]];
-        }, 180);
+        this._setInitialDeathFrame(frames);
+        this._startDeathInterval(frames);
     }
 
     /**
@@ -321,74 +305,4 @@ class Endboss extends MovableObject {
         this.isHurtAnimation = false;
         this.y = 60;
     }
-
-    /**
-     * RETURN state logic:
-     * moves the boss back towards his return target until he is close enough
-     * and then snaps him to the target and switches to IDLE.
-     *
-     * @returns {void}
-     */
-    returnToStart() {
-        if (this.isDying || this.dead) {
-            this.returning = false;
-            this.aiState = 'IDLE';
-            return;
-        }
-
-        this.returning = true;
-        this.aiState = 'RETURN';
-
-        const target = this.getReturnTargetX();
-        const EPSILON = this.speed * 1.5;
-
-        if (this.x < target - EPSILON) {
-            this.moveRight();
-        } else {
-            this.snapToStart();
-        }
-
-        this.otherDirection = true;
-        this.playAnimation(this.IMAGES_WALKING);
-    }
-
-    /**
-     * Main animation / AI loop for the boss (60 FPS).
-     * Handles CHASE, RETURN and hurt animations while alive.
-     *
-     * @returns {void}
-     */
-    animate() {
-        setInterval(() => {
-            if (this.dead || this.isDying) return;
-
-            if (this.aiState === 'CHASE' && !this.isHurtAnimation) {
-                const target = (typeof this.targetX === 'number') ? this.targetX : this.x;
-                const dx = target - this.x;
-                const absDx = Math.abs(dx);
-
-                if (absDx > 5) {
-                    if (dx < 0) {
-                        this.moveLeft();
-                        this.otherDirection = false;
-                    } else {
-                        this.moveRight();
-                        this.otherDirection = true;
-                    }
-                }
-
-                const frames = this.inAggroMode ? this.IMAGES_ALERT : this.IMAGES_WALKING;
-                this.playAnimation(frames);
-
-            } else if (this.aiState === 'RETURN' && !this.isHurtAnimation) {
-                this.returnToStart();
-
-            } else if (this.isHurtAnimation) {
-                this.playAnimation(this.IMAGES_HURT);
-            }
-
-            this.clampX();
-        }, 1000 / 60);
-    }
-
 }

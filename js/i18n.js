@@ -12,7 +12,6 @@
     'btn-lang-de': 'ui.lang_de',
     'btn-lang-en': 'ui.lang_en',
     'btn-to-top': 'ui.toTop',
-
     'lbl-rules': 'ui-nav.rules',
     'lbl-contact': 'ui-nav.contact',
     'lbl-imprint': 'ui-nav.imprint',
@@ -55,7 +54,6 @@
   let current = 'de';
   const cache = {};
   let dict = {};
-
   const getEl = (id) => document.getElementById(id);
 
   /**
@@ -79,7 +77,6 @@
   function fetchLangWithTimeout(url, ms = 3500) {
     return new Promise((resolve, reject) => {
       const t = setTimeout(() => reject(new Error('i18n timeout')), ms);
-
       fetch(url, { cache: 'no-store' }).then(
         (res) => {
           clearTimeout(t);
@@ -125,9 +122,7 @@
    */
   async function loadLang(lang) {
     if (cache[lang]) return cache[lang];
-
     const url = buildLangUrl(lang);
-
     try {
       const res = await fetchLangWithTimeout(url, 3500);
       const data = await parseLangResponse(res);
@@ -183,10 +178,8 @@
     Object.keys(I18N_MAP).forEach((id) => {
       const el = getEl(id);
       if (!el) return;
-
       const key = I18N_MAP[id];
       const label = t(dict, key);
-
       el.textContent = label;
       if (id === 'btn-to-top') {
         el.setAttribute('title', label);
@@ -236,7 +229,6 @@
   function updateUiStartButton() {
     const btn = getEl('btn-start');
     if (!btn) return;
-
     const isRunning = !!window.world;
     const key = isRunning ? 'ui.resume' : 'ui.start';
     btn.textContent = t(dict, key);
@@ -252,7 +244,6 @@
     if (uiRestartBack) {
       uiRestartBack.textContent = t(dict, 'ui.backToStart');
     }
-
     const uiRestartNow = getEl('btn-restart-now');
     if (uiRestartNow) {
       uiRestartNow.textContent = t(dict, 'ui.restart');
@@ -284,15 +275,12 @@
     if (winRestartNow) {
       winRestartNow.textContent = t(dict, 'ui.restart');
     }
-
     const winBackStart = getEl('btn-win-backstart');
     if (winBackStart) {
       winBackStart.textContent = t(dict, 'ui.backToStart');
     }
-
     const winRestartLegacy = getEl('btn-win-restart');
     const hasModernButtons = !!(winRestartNow || winBackStart);
-
     if (winRestartLegacy && !hasModernButtons) {
       winRestartLegacy.textContent = t(dict, 'ui.restart');
     }
@@ -372,7 +360,6 @@
     const startBtn = getEl('btn-start');
     const pauseBtn = getEl('btn-pause');
     const restartBtn = getEl('btn-restart');
-
     if (startBtn && typeof window.startGame === 'function') {
       startBtn.addEventListener('click', () => window.startGame());
     }
@@ -382,7 +369,6 @@
     if (restartBtn && typeof window.restartGame === 'function') {
       restartBtn.addEventListener('click', () => window.restartGame());
     }
-
     const deBtn = getEl('btn-lang-de');
     const enBtn = getEl('btn-lang-en');
     if (deBtn) deBtn.addEventListener('click', () => setLanguage('de'));
@@ -406,11 +392,9 @@
 
 window.addEventListener('unhandledrejection', (e) => {
   e.preventDefault();
-
   const reason = e.reason;
   if (reason && reason.name === 'AbortError') {
     return;
   }
-
   console.warn('[Unhandled promise]', reason);
 });

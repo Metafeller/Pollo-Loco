@@ -12,7 +12,6 @@
     'btn-lang-de': 'ui.lang_de',
     'btn-lang-en': 'ui.lang_en',
     'btn-to-top': 'ui.toTop',
-
     'lbl-rules': 'ui-nav.rules',
     'lbl-contact': 'ui-nav.contact',
     'lbl-imprint': 'ui-nav.imprint',
@@ -20,17 +19,102 @@
     'lbl-copyright': 'footer.copyright',
     'lbl-rules-title': 'rules.title',
     'lbl-imprint-title': 'legal.imprint.title',
-    'lbl-privacy-title': 'legal.privacy.title',
+    'lbl-privacy-title': 'legal.privacy.title'
+  };
+
+  const FALLBACKS = {
+    de: {
+      app: { title: 'Das verrückte Huhn' },
+      ui: {
+        language: 'Sprache',
+        start: 'Starten',
+        pause: 'Pause',
+        restart: 'Neu starten',
+        backToStart: 'Zurück zum Startbildschirm',
+        lang_de: 'DE',
+        lang_en: 'EN',
+        toTop: 'Nach oben'
+      }
+    },
+    en: {
+      app: { title: 'El Pollo Loco' },
+      ui: {
+        language: 'Language',
+        start: 'Start',
+        pause: 'Pause',
+        restart: 'Restart',
+        backToStart: 'Back to Start Screen',
+        lang_de: 'DE',
+        lang_en: 'EN',
+        toTop: 'Back to top'
+      }
+    }
   };
 
   let current = 'de';
   const cache = {};
   let dict = {};
-
   const getEl = (id) => document.getElementById(id);
 
   /**
-   * Loads a language JSON file (with cache-busting and timeout).
+   * Builds the JSON URL for a given language.
+   *
+   * @param {string} lang
+   * @returns {string}
+   */
+  function buildLangUrl(lang) {
+    const file = SUPPORTED[lang];
+    return `${file}?v=${Date.now()}`;
+  }
+
+  /**
+   * Fetches a URL with a timeout wrapper.
+   *
+   * @param {string} url
+   * @param {number} [ms=3500]
+   * @returns {Promise<Response>}
+   */
+  function fetchLangWithTimeout(url, ms = 3500) {
+    return new Promise((resolve, reject) => {
+      const t = setTimeout(() => reject(new Error('i18n timeout')), ms);
+      fetch(url, { cache: 'no-store' }).then(
+        (res) => {
+          clearTimeout(t);
+          resolve(res);
+        },
+        (err) => {
+          clearTimeout(t);
+          reject(err);
+        }
+      );
+    });
+  }
+
+  /**
+   * Validates a fetch response and parses JSON.
+   *
+   * @param {Response} res
+   * @returns {Promise<object>}
+   */
+  async function parseLangResponse(res) {
+    if (!res.ok) {
+      throw new Error('HTTP ' + res.status);
+    }
+    return res.json();
+  }
+
+  /**
+   * Returns a fallback dictionary for a language.
+   *
+   * @param {string} lang
+   * @returns {object}
+   */
+  function getFallbackDict(lang) {
+    return FALLBACKS[lang] || {};
+  }
+
+  /**
+   * Loads a language JSON file (with cache + timeout).
    * Falls back to a minimal inline dictionary on failure.
    *
    * @param {string} lang - Language code.
@@ -38,55 +122,17 @@
    */
   async function loadLang(lang) {
     if (cache[lang]) return cache[lang];
-
-    const url = `${SUPPORTED[lang]}?v=${Date.now()}`;
-
-    const withTimeout = (p, ms = 3500) => new Promise((res, rej) => {
-      const t = setTimeout(() => rej(new Error('i18n timeout')), ms);
-      p.then(
-        v => { clearTimeout(t); res(v); },
-        e => { clearTimeout(t); rej(e); }
-      );
-    });
-
+    const url = buildLangUrl(lang);
     try {
-      const res = await withTimeout(fetch(url, { cache: 'no-store' }), 3500);
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      const data = await res.json();
+      const res = await fetchLangWithTimeout(url, 3500);
+      const data = await parseLangResponse(res);
       cache[lang] = data;
       return data;
     } catch (e) {
       console.warn('[i18n] Fallback activated for', lang, e);
-      const FALLBACKS = {
-        de: {
-          app: { title: 'Das verrückte Huhn' },
-          ui: {
-            language: 'Sprache',
-            start: 'Starten',
-            pause: 'Pause',
-            restart: 'Neu starten',
-            backToStart: 'Zurück zum Startbildschirm',
-            lang_de: 'DE',
-            lang_en: 'EN',
-            toTop: 'Nach oben'
-          }
-        },
-        en: {
-          app: { title: 'El Pollo Loco' },
-          ui: {
-            language: 'Language',
-            start: 'Start',
-            pause: 'Pause',
-            restart: 'Restart',
-            backToStart: 'Back to Start Screen',
-            lang_de: 'DE',
-            lang_en: 'EN',
-            toTop: 'Back to top'
-          }
-        }
-      };
-      cache[lang] = FALLBACKS[lang] || {};
-      return cache[lang];
+      const fb = getFallbackDict(lang);
+      cache[lang] = fb;
+      return fb;
     }
   }
 
@@ -124,12 +170,11 @@
   }
 
   /**
-   * Applies translations to:
-   * - Static ID map
-   * - Dynamic buttons
-   * - Overlay bodies (rules / imprint / privacy)
+   * Applies translations defined in the static ID → key map.
+   *
+   * @returns {void}
    */
-  function applyTranslations() {
+  function applyStaticIdTranslations() {
     Object.keys(I18N_MAP).forEach((id) => {
       const el = getEl(id);
       if (!el) return;
@@ -141,46 +186,137 @@
         el.setAttribute('aria-label', label);
       }
     });
+  }
 
-    const startGameBtn = getEl('btn-startgame');
-    if (startGameBtn) startGameBtn.textContent = t(dict, 'ui.startGame');
+  /**
+   * Updates the "Start Game" button label.
+   *
+   * @returns {void}
+   */
+  function updateStartGameButton() {
+    const btn = getEl('btn-startgame');
+    if (!btn) return;
+    btn.textContent = t(dict, 'ui.startGame');
+  }
 
-    const contBtn = getEl('btn-continue');
-    if (contBtn) contBtn.textContent = t(dict, 'ui.continue');
+  /**
+   * Updates the "Continue" button label.
+   *
+   * @returns {void}
+   */
+  function updateContinueButton() {
+    const btn = getEl('btn-continue');
+    if (!btn) return;
+    btn.textContent = t(dict, 'ui.continue');
+  }
 
+  /**
+   * Updates the "Try again" button label.
+   *
+   * @returns {void}
+   */
+  function updateTryAgainButton() {
+    const btn = getEl('btn-try-again');
+    if (!btn) return;
+    btn.textContent = t(dict, 'ui.tryAgain');
+  }
+
+  /**
+   * Updates the main UI start button ("Start" / "Resume").
+   *
+   * @returns {void}
+   */
+  function updateUiStartButton() {
+    const btn = getEl('btn-start');
+    if (!btn) return;
+    const isRunning = !!window.world;
+    const key = isRunning ? 'ui.resume' : 'ui.start';
+    btn.textContent = t(dict, key);
+  }
+
+  /**
+   * Updates back / restart button labels in the header controls.
+   *
+   * @returns {void}
+   */
+  function updateRestartButtons() {
+    const uiRestartBack = getEl('btn-restart');
+    if (uiRestartBack) {
+      uiRestartBack.textContent = t(dict, 'ui.backToStart');
+    }
+    const uiRestartNow = getEl('btn-restart-now');
+    if (uiRestartNow) {
+      uiRestartNow.textContent = t(dict, 'ui.restart');
+    }
+  }
+
+  /**
+   * Applies translations for primary UI buttons
+   * (start, continue, restart/back).
+   *
+   * @returns {void}
+   */
+  function applyPrimaryButtons() {
+    updateStartGameButton();
+    updateContinueButton();
+    updateTryAgainButton();
+    updateUiStartButton();
+    updateRestartButtons();
+  }
+
+  /**
+   * Applies translations for win-screen buttons
+   * (new layout + legacy fallback).
+   *
+   * @returns {void}
+   */
+  function applyWinScreenButtons() {
     const winRestartNow = getEl('btn-win-restart-now');
-    if (winRestartNow) winRestartNow.textContent = t(dict, 'ui.restart');
-
-    const winBackStart  = getEl('btn-win-backstart');
-    if (winBackStart)  winBackStart.textContent  = t(dict, 'ui.backToStart');
-
+    if (winRestartNow) {
+      winRestartNow.textContent = t(dict, 'ui.restart');
+    }
+    const winBackStart = getEl('btn-win-backstart');
+    if (winBackStart) {
+      winBackStart.textContent = t(dict, 'ui.backToStart');
+    }
     const winRestartLegacy = getEl('btn-win-restart');
-    if (winRestartLegacy && !winRestartNow && !winBackStart) {
+    const hasModernButtons = !!(winRestartNow || winBackStart);
+    if (winRestartLegacy && !hasModernButtons) {
       winRestartLegacy.textContent = t(dict, 'ui.restart');
     }
+  }
 
-    const tryAgain = getEl('btn-try-again');
-    if (tryAgain) tryAgain.textContent = t(dict, 'ui.tryAgain');
-
-    const uiStart = getEl('btn-start');
-    if (uiStart) {
-      const isRunning = !!window.world;
-      uiStart.textContent = isRunning ? t(dict, 'ui.resume') : t(dict, 'ui.start');
-    }
-
-    const uiRestartBack = getEl('btn-restart');
-    if (uiRestartBack) uiRestartBack.textContent = t(dict, 'ui.backToStart');
-
-    const uiRestartNow = getEl('btn-restart-now');
-    if (uiRestartNow) uiRestartNow.textContent = t(dict, 'ui.restart');
-
+  /**
+   * Applies translations for rich overlay bodies
+   * (rules, imprint, privacy).
+   *
+   * @returns {void}
+   */
+  function applyOverlayBodies() {
     renderRich(getEl('rules-body'),   dict.rules);
     renderRich(getEl('imprint-body'), dict.legal?.imprint);
     renderRich(getEl('privacy-body'), dict.legal?.privacy);
   }
 
   /**
+   * Applies translations to:
+   * - Static ID map
+   * - Dynamic buttons (header, overlays, win screen)
+   * - Overlay bodies (rules / imprint / privacy)
+   *
+   * @returns {void}
+   */
+  function applyTranslations() {
+    applyStaticIdTranslations();
+    applyPrimaryButtons();
+    applyWinScreenButtons();
+    applyOverlayBodies();
+  }
+
+  /**
    * Updates "active" visual state on language toggle buttons.
+   *
+   * @returns {void}
    */
   function updateActiveButtons() {
     const deBtn = getEl('btn-lang-de');
@@ -199,6 +335,7 @@
    * - Emits an "i18n:changed" event with {lang, dict}
    *
    * @param {string} lang - Language code.
+   * @returns {Promise<void>}
    */
   async function setLanguage(lang) {
     if (!SUPPORTED[lang]) lang = 'de';
@@ -216,12 +353,13 @@
    * Wires up basic UI events such as:
    * - Start / Pause / Restart (legacy wiring for header buttons)
    * - Language switch buttons (DE/EN)
+   *
+   * @returns {void}
    */
   function wireEvents() {
     const startBtn = getEl('btn-start');
     const pauseBtn = getEl('btn-pause');
     const restartBtn = getEl('btn-restart');
-
     if (startBtn && typeof window.startGame === 'function') {
       startBtn.addEventListener('click', () => window.startGame());
     }
@@ -231,7 +369,6 @@
     if (restartBtn && typeof window.restartGame === 'function') {
       restartBtn.addEventListener('click', () => window.restartGame());
     }
-
     const deBtn = getEl('btn-lang-de');
     const enBtn = getEl('btn-lang-en');
     if (deBtn) deBtn.addEventListener('click', () => setLanguage('de'));
@@ -243,7 +380,8 @@
     setLanguage,
     getDict: () => dict,
     lang: () => current,
-    onChange: (cb) => window.addEventListener('i18n:changed', (e) => cb?.(e.detail))
+    onChange: (cb) =>
+      window.addEventListener('i18n:changed', (e) => cb?.(e.detail))
   };
 
   document.addEventListener('DOMContentLoaded', async () => {
@@ -254,11 +392,9 @@
 
 window.addEventListener('unhandledrejection', (e) => {
   e.preventDefault();
-
   const reason = e.reason;
   if (reason && reason.name === 'AbortError') {
     return;
   }
-
   console.warn('[Unhandled promise]', reason);
 });

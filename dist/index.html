@@ -38,13 +38,18 @@
 
     <script src="js/class.models/character-movement.class.js"></script>
     <script src="js/class.models/character-state.class.js"></script>
+    <script src="js/class.models/character-state-idle.js"></script>
     <script src="js/class.models/character.class.js"></script>
 
     <script src="js/class.models/chicken.class.js"></script>
     <script src="js/class.models/mini-chicken.class.js"></script>
     <script src="js/class.models/bottle.class.js"></script>
     
-    <script src="js/class.models/endboss.class.js"></script>
+    <!-- <script src="js/class.models/endboss.class.js"></script> -->
+
+    <script src="js/class.models/endboss-core.class.js"></script>
+    <script src="js/class.models/endboss-ai.class.js"></script>
+
     <script src="js/class.models/hut-gate.class.js"></script>
     <script src="js/class.models/story-billboard.class.js"></script>
     <script src="js/class.models/winner-screen.class.js"></script>
@@ -53,18 +58,36 @@
     <script src="js/levels/level1.js"></script>
 
     <!-- World AFTER all classes -->
-    <script src="js/class.models/world.class.js"></script>
+    <script src="js/class.models/world-core.class.js"></script>
+    <script src="js/class.models/world-audio.class.js"></script>
+    <script src="js/class.models/world-timers.class.js"></script>
+    <script src="js/class.models/world-endgame.class.js"></script>
+    <script src="js/class.models/world-hut-portal.class.js"></script>
+    <script src="js/class.models/world-render.class.js"></script>
+    <script src="js/class.models/world-projectiles.class.js"></script>
+    <script src="js/class.models/world-boss.class.js"></script>
+    <script src="js/class.models/world-collisions.class.js"></script>
+    <script src="js/class.models/world-pickups.class.js"></script>
+    <script src="js/class.models/world-pause.class.js"></script>
 
     <!-- In <head> AFTER world.class.js and BEFORE game.js -->
     <script src="js/class.models/start-screen.class.js"></script>
     <script src="js/controls-core.js"></script>
+    <script src="js/controls-world.js"></script>
     <script src="js/controls-ui.js"></script>
     <!-- <script src="js/controls.js"></script> -->
-    <script src="js/ui-frame.js"></script>
+
+    <script src="js/ui-frame-core.js"></script>
+    <script src="js/ui-frame-overlays.js"></script>
 
     <!-- At the end of <body>: responsive & touch handling -->
-    <script src="js/responsive.js" defer></script>
-    <script src="js/touch-controls.js" defer></script>
+    <!-- <script src="js/responsive.js" defer></script> -->
+    <script src="js/responsive-core.js"></script>
+    <script src="js/responsive-header.js"></script>
+
+    <!-- <script src="js/touch-controls.js" defer></script> -->
+    <script src="js/touch-controls-core.js"></script>
+    <script src="js/touch-controls-overlays.js"></script>
 
     <!-- Game bootstrap last -->
     <script src="js/game.js"></script>

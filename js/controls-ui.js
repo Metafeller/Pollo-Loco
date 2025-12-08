@@ -8,11 +8,9 @@ function isPortraitBlocked() {
   try {
     const body = document.body;
     if (!body) return false;
-
     const isMobileUI = body.classList.contains('is-mobile-ui');
     const isPortrait = body.classList.contains('is-portrait');
     const rotateVisible = !!window.__ROTATE_OVERLAY_VISIBLE__;
-
     return isMobileUI && (isMobileUI && (isPortrait || rotateVisible));
   } catch (e) {
     return false;
@@ -29,7 +27,6 @@ function isPortraitBlocked() {
  */
 function handlePortraitBlockedStart() {
   let overlayFound = false;
-
   try {
     const overlay = document.getElementById('rotate-overlay');
     if (overlay) {
@@ -38,7 +35,6 @@ function handlePortraitBlockedStart() {
       overlayFound = true;
     }
   } catch (e) {}
-
   if (overlayFound && startScreen && typeof startScreen.hide === 'function') {
     try {
       startScreen.hide();
@@ -48,7 +44,6 @@ function handlePortraitBlockedStart() {
       startScreen.show();
     } catch (e) {}
   }
-
   pokeMobileUiLayout();
 }
 
@@ -66,11 +61,6 @@ function pokeMobileUiLayout() {
 
 /* ===== bootApp: Helpers ===== */
 
-/**
- * Initialises the shared Keyboard instance and restores mute state.
- *
- * @returns {void}
- */
 function initKeyboardAndMuteState() {
   keyboard = window.KEYBOARD || new Keyboard();
   window.KEYBOARD = keyboard;
@@ -123,11 +113,6 @@ function wireSpaceKeyButtonBlur() {
   );
 }
 
-/**
- * Reads the pending autostart flag from localStorage.
- *
- * @returns {boolean} true if autostart is requested
- */
 function loadPendingAutostartFlag() {
   try {
     return localStorage.getItem('autostart') === '1';
@@ -165,40 +150,24 @@ function initStartScreen() {
  */
 function initMenuAudio(pendingAutostart) {
   menuAudio = new Audio('audio/background-audio.mp3');
-
   try {
     menuAudio.loop = true;
     menuAudio.volume = 0.5;
     menuAudio.muted = isMuted;
-
     if (!pendingAutostart) {
       menuAudio.play().catch(() => {});
     }
   } catch (e) {}
 }
 
-/**
- * Handles pending autostart: clears the flag and
- * immediately starts the game.
- *
- * @param {boolean} pendingAutostart
- * @returns {void}
- */
 function handlePendingAutostart(pendingAutostart) {
   if (!pendingAutostart) return;
-
   try {
     localStorage.removeItem('autostart');
   } catch (e) {}
-
   startGame();
 }
 
-/**
- * Applies initial i18n labels and registers change listener.
- *
- * @returns {void}
- */
 function initI18nWiring() {
   applyI18nLabels();
   window.addEventListener('i18n:changed', applyI18nLabels);
@@ -239,14 +208,11 @@ function bootApp() {
   exposeGlobalControlFunctions();
   wireUiControls();
   wireSpaceKeyButtonBlur();
-
   const pendingAutostart = loadPendingAutostartFlag();
-
   initStartScreen();
   initMenuAudio(pendingAutostart);
   setMuted(isMuted);
   handlePendingAutostart(pendingAutostart);
-
   pauseOverlay = createPauseOverlay();
   initI18nWiring();
   wireStartScreenVisibilityGuards();
@@ -254,11 +220,6 @@ function bootApp() {
 
 /* ===== UI Controls wiring ===== */
 
-/**
- * Blurs the currently active element, if possible.
- *
- * @returns {void}
- */
 function blurActiveElement() {
   const el = document.activeElement;
   if (el && typeof el.blur === 'function') {
@@ -309,11 +270,6 @@ function wirePauseButton() {
   });
 }
 
-/**
- * Wires the "Back to start" button (btn-restart).
- *
- * @returns {void}
- */
 function wireRestartButton() {
   const btn = document.getElementById('btn-restart');
   if (!btn) return;
@@ -339,11 +295,6 @@ function wireRestartNowButton() {
   });
 }
 
-/**
- * Wires the Mute toggle button (btn-mute).
- *
- * @returns {void}
- */
 function wireMuteButton() {
   const btn = document.getElementById('btn-mute');
   if (!btn) return;

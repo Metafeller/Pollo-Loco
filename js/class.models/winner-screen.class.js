@@ -34,19 +34,10 @@ class WinnerScreen extends DrawableObject {
 
   initState() {
     /** @type {boolean} True while the winner overlay is visible. */
-    this.visible = false;
-    this._idx = 0;
-    this._timer = null;
-    this._delayMs = 300;
-    this._oneShot = true;
-    this._played = false;
-    this.overlayRGBA = 'rgba(0, 0, 0, 0.45)';
-    this._ui = null;
-    this._btnRestartNow = null;
-    this._btnBackStart = null;
-    this._syncToCanvas = null;
-    this._onRestartNow = null;
-    this._onBackToStart = null;
+    this.visible = false; this._idx = 0; this._timer = null; this._delayMs = 300;
+    this._oneShot = true; this._played = false; this.overlayRGBA = 'rgba(0, 0, 0, 0.45)';
+    this._ui = null; this._btnRestartNow = null; this._btnBackStart = null; this._syncToCanvas = null;
+    this._onRestartNow = null; this._onBackToStart = null;
   }
 
   initAudio() {
@@ -68,11 +59,9 @@ class WinnerScreen extends DrawableObject {
    */
   show() {
     if (this.visible) return;
-
     this.visible = true;
     this._played = false;
     this._idx = 0;
-
     this.ensureDom();
     this.toggleButtons(false);
     this.startAnimationLoop();
@@ -86,7 +75,6 @@ class WinnerScreen extends DrawableObject {
    */
   startAnimationLoop() {
     this.stopAnimationLoop();
-
     const lastIdx = this.FRAMES.length - 1;
     this._timer = setInterval(() => {
       this.advanceAnimationFrame(lastIdx);
@@ -101,7 +89,6 @@ class WinnerScreen extends DrawableObject {
    */
   advanceAnimationFrame(lastIdx) {
     this._idx++;
-
     if (this._idx > lastIdx) {
       if (this._oneShot) {
         this.finishOneShotAnimation(lastIdx);
@@ -109,7 +96,6 @@ class WinnerScreen extends DrawableObject {
       }
       this._idx = 0;
     }
-
     const frameIdx = Math.min(this._idx, lastIdx);
     this.img = this.imageCache[this.FRAMES[frameIdx]];
   }
@@ -158,7 +144,6 @@ class WinnerScreen extends DrawableObject {
    */
   hide() {
     if (!this.visible) return;
-
     this.visible = false;
     this.stopAnimationLoop();
     this.toggleButtons(false);
@@ -173,10 +158,8 @@ class WinnerScreen extends DrawableObject {
    */
   drawOverlay(ctx, canvas) {
     if (!this.visible) return;
-
     this.drawOverlayBackground(ctx, canvas);
     this.drawOverlayFrame(ctx, canvas);
-
     if (this._syncToCanvas) {
       this._syncToCanvas();
     }
@@ -206,7 +189,6 @@ class WinnerScreen extends DrawableObject {
   drawOverlayFrame(ctx, canvas) {
     const idx = Math.max(0, Math.min(this._idx, this.FRAMES.length - 1));
     const img = this.imageCache[this.FRAMES[idx]];
-
     if (img) {
       ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
     }
@@ -223,7 +205,6 @@ class WinnerScreen extends DrawableObject {
 
     const canvas = document.querySelector('#canvas');
     const root = document.querySelector(containerSelector) || document.body;
-
     const ui = this.createUiContainer(root);
     const btnRestartNow = this.createPrimaryButton('btn-win-restart-now');
     const btnBackStart = this.createSecondaryButton('btn-win-backstart');
@@ -285,18 +266,12 @@ class WinnerScreen extends DrawableObject {
       : 'game-primary-btn';
 
     Object.assign(btn.style, {
-      pointerEvents: 'auto',
-      padding: '14px 80px',
-      fontSize: '28px',
-      fontFamily: "'zabars', Arial, Helvetica, sans-serif",
-      border: 'none',
-      borderRadius: '12px',
-      cursor: 'pointer',
-      boxShadow: '0 10px 28px rgba(0,0,0,0.35)',
-      background: '#068F42',
-      color: '#fff',
-      letterSpacing: '1px',
-      backdropFilter: 'blur(2px)',
+      pointerEvents: 'auto', padding: '14px 80px',
+      fontSize: '28px', fontFamily: "'zabars', Arial, Helvetica, sans-serif",
+      border: 'none', borderRadius: '12px',
+      cursor: 'pointer', boxShadow: '0 10px 28px rgba(0,0,0,0.35)',
+      background: '#068F42', color: '#fff',
+      letterSpacing: '1px', backdropFilter: 'blur(2px)',
       transform: 'translateY(0)'
     });
 
@@ -320,13 +295,9 @@ class WinnerScreen extends DrawableObject {
     const btn = this.createPrimaryButton(id);
 
     Object.assign(btn.style, {
-      background: '#f2d5a280',
-      color: '#1a1a1a',
-      border: '1px solid #F2D4A2',
-      boxShadow: '4px 4px 8px rgba(0, 0, 0, 0.5)',
-      padding: '14px 18px',
-      backdropFilter: 'blur(6px)',
-      marginTop: '8px'
+      background: '#f2d5a280', color: '#1a1a1a',
+      border: '1px solid #F2D4A2', boxShadow: '4px 4px 8px rgba(0, 0, 0, 0.5)',
+      padding: '14px 18px', backdropFilter: 'blur(6px)', marginTop: '8px'
     });
 
     return btn;
@@ -345,7 +316,6 @@ class WinnerScreen extends DrawableObject {
       btnBackStart.textContent = window.I18N.t('ui.backToStart');
       return;
     }
-
     btnRestartNow.textContent = 'Restart';
     btnBackStart.textContent = 'Back to Start Screen';
   }
@@ -383,21 +353,17 @@ class WinnerScreen extends DrawableObject {
     const syncToCanvas = () => {
       const r = canvas.getBoundingClientRect();
       const gr = root.getBoundingClientRect();
-
       const left = r.left - gr.left + root.scrollLeft;
       const top = r.top - gr.top + root.scrollTop;
 
       Object.assign(ui.style, {
-        left: `${left}px`,
-        top: `${top}px`,
-        width: `${r.width}px`,
-        height: `${r.height}px`
+        left: `${left}px`, top: `${top}px`,
+        width: `${r.width}px`, height: `${r.height}px`
       });
     };
 
     this._syncToCanvas = syncToCanvas;
     syncToCanvas();
-
     window.addEventListener('resize', syncToCanvas);
     window.addEventListener('scroll', syncToCanvas, true);
     window.addEventListener('i18n:changed', () => {
