@@ -71,7 +71,7 @@ class StoryBillboard extends DrawableObject {
             4: new Audio('/audio/oh-my.mp3'),
             5: new Audio('/audio/farmer-smile.mp3'),
             6: new Audio('/audio/what-are-you-doing.mp3'),
-            7: new Audio('/audio/muffed-cry.mp3')
+            7: new Audio('/audio/muffled-cry.mp3')
         };
 
         this.atmo = new Audio('/audio/crying-4.mp3');

@@ -1,7 +1,7 @@
 /**
  * Endboss enemy (giant chicken).
- * Handles simple AI states (idle, chase, return), aggro behaviour,
- * damage, hurt state and death animation.
+ * Core data, movement, damage and death logic.
+ * AI and animation loop are extended in endboss-ai.js.
  *
  * @extends MovableObject
  */
@@ -93,6 +93,7 @@ class Endboss extends MovableObject {
             bottom: 8
         };
 
+        // animate() wird in endboss-ai.js an das Prototype gehängt
         this.animate();
     }
 
@@ -153,57 +154,6 @@ class Endboss extends MovableObject {
     moveRight() {
         this.x += this.speed;
         this.clampX();
-    }
-
-    /**
-     * Enters aggro mode: only done once, then speed is raised to aggroSpeed.
-     *
-     * @returns {void}
-     */
-    enterAggro() {
-        if (this.inAggroMode) return;
-        this.inAggroMode = true;
-        this.speed = Math.max(this.speed, this.aggroSpeed);
-    }
-
-    /**
-     * Updates the AI state based on the player's X-position.
-     * Called multiple times per second from world.run().
-     *
-     * @param {number} characterX - current X-position of the player character
-     * @returns {void}
-     */
-    updateAI(characterX) {
-        if (this.dead || this.isDying) return;
-
-        this.targetX = characterX;
-
-        const inSight = (characterX > this.x - this.sightRange);
-        if (this.aiState === 'IDLE' && inSight) {
-            this.aiState = 'CHASE';
-            this.enterAggro();
-        }
-
-        if (!this.permanentChase) {
-            this.applyLeash();
-        }
-        this.isInSight = (this.aiState === 'CHASE');
-    }
-
-    /**
-     * Limits the chase distance to the left if permanentChase is disabled.
-     * When the boss reaches the leash radius, the AI switches to RETURN.
-     *
-     * @returns {void}
-     */
-    applyLeash() {
-        if (this.aiState !== 'CHASE') return;
-
-        const leftLimit = this.startPosition - this.leashRadius;
-        if (this.x <= leftLimit) {
-            this.aiState = 'RETURN';
-            this.returning = true;
-        }
     }
 
     /**
@@ -355,97 +305,4 @@ class Endboss extends MovableObject {
         this.isHurtAnimation = false;
         this.y = 60;
     }
-
-    /**
-     * RETURN state logic:
-     * moves the boss back towards his return target until he is close enough
-     * and then snaps him to the target and switches to IDLE.
-     *
-     * @returns {void}
-     */
-    returnToStart() {
-        if (this.isDying || this.dead) {
-            this.returning = false;
-            this.aiState = 'IDLE';
-            return;
-        }
-
-        this.returning = true;
-        this.aiState = 'RETURN';
-
-        const target = this.getReturnTargetX();
-        const EPSILON = this.speed * 1.5;
-
-        if (this.x < target - EPSILON) {
-            this.moveRight();
-        } else {
-            this.snapToStart();
-        }
-
-        this.otherDirection = true;
-        this.playAnimation(this.IMAGES_WALKING);
-    }
-
-    // ===== Animation / AI loop (60 FPS) =====
-
-    _isAlive() {
-        return !this.dead && !this.isDying;
-    }
-
-    _tickChaseState() {
-        const target = (typeof this.targetX === 'number')
-            ? this.targetX
-            : this.x;
-
-        const dx = target - this.x;
-        if (Math.abs(dx) > 5) {
-            this._moveTowardsTarget(dx);
-        }
-
-        const frames = this.inAggroMode
-            ? this.IMAGES_ALERT
-            : this.IMAGES_WALKING;
-
-        this.playAnimation(frames);
-    }
-
-    _moveTowardsTarget(dx) {
-        if (dx < 0) {
-            this.moveLeft();
-            this.otherDirection = false;
-        } else {
-            this.moveRight();
-            this.otherDirection = true;
-        }
-    }
-
-    _tickAnimation() {
-        if (!this._isAlive()) return;
-
-        if (this.isHurtAnimation) {
-            this.playAnimation(this.IMAGES_HURT);
-            this.clampX();
-            return;
-        }
-
-        if (this.aiState === 'CHASE') {
-            this._tickChaseState();
-        } else if (this.aiState === 'RETURN') {
-            this.returnToStart();
-        }
-
-        this.clampX();
-    }
-
-    /**
-     * Main animation / AI loop for the boss (60 FPS).
-     * Handles CHASE, RETURN and hurt animations while alive.
-     *
-     * @returns {void}
-     */
-    animate() {
-        const TICK_MS = 1000 / 60;
-        setInterval(() => this._tickAnimation(), TICK_MS);
-    }
-
 }
