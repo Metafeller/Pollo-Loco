@@ -64,57 +64,87 @@ function pokeMobileUiLayout() {
   } catch (e) {}
 }
 
+/* ===== bootApp: Helpers ===== */
+
 /**
- * Application bootstrapping:
- * - Creates a shared Keyboard instance
- * - Restores mute state
- * - Wires up global control functions
- * - Instantiates StartScreen and menu music
- * - Handles optional autostart
- * - Sets up pause-overlay and i18n labels
+ * Initialises the shared Keyboard instance and restores mute state.
  *
  * @returns {void}
  */
-function bootApp() {
+function initKeyboardAndMuteState() {
   keyboard = window.KEYBOARD || new Keyboard();
   window.KEYBOARD = keyboard;
   window.__UI_AUDIOS = window.__UI_AUDIOS || [];
 
   isMuted = loadMutedFromStorage();
+}
 
+/**
+ * Exposes core game control functions on the global window object.
+ *
+ * @returns {void}
+ */
+function exposeGlobalControlFunctions() {
   window.startGame = startGame;
   window.pauseGame = pauseGame;
   window.resumeGame = resumeGame;
   window.restartGame = backToStart;
   window.restartNow = restartNow;
   window.backToStart = backToStart;
+}
 
-  wireUiControls();
-
+/**
+ * Adds a Space-key workaround so focused buttons don't
+ * accidentally trigger while the game is running.
+ *
+ * @returns {void}
+ */
+function wireSpaceKeyButtonBlur() {
   document.addEventListener(
     'keydown',
     (e) => {
-      if (e.code === 'Space' && window.world && !window.world.paused) {
-        const a = document.activeElement;
-        if (a && (a.tagName === 'BUTTON' || a.getAttribute('role') === 'button')) {
-          e.preventDefault();
-          e.stopPropagation();
-          a.blur();
-        }
-      }
+      if (e.code !== 'Space') return;
+      if (!window.world || window.world.paused) return;
+
+      const a = document.activeElement;
+      const isButton =
+        a &&
+        (a.tagName === 'BUTTON' || a.getAttribute('role') === 'button');
+
+      if (!isButton) return;
+
+      e.preventDefault();
+      e.stopPropagation();
+      try {
+        a.blur();
+      } catch (err) {}
     },
     true
   );
+}
 
-  const pendingAutostart = (() => {
-    try {
-      return localStorage.getItem('autostart') === '1';
-    } catch (e) {
-      return false;
-    }
-  })();
+/**
+ * Reads the pending autostart flag from localStorage.
+ *
+ * @returns {boolean} true if autostart is requested
+ */
+function loadPendingAutostartFlag() {
+  try {
+    return localStorage.getItem('autostart') === '1';
+  } catch (e) {
+    return false;
+  }
+}
 
-  startScreen = new StartScreen('/img/9_intro_outro_screens/start/startscreen_3.png');
+/**
+ * Creates and wires the StartScreen instance.
+ *
+ * @returns {void}
+ */
+function initStartScreen() {
+  startScreen = new StartScreen(
+    '/img/9_intro_outro_screens/start/startscreen_3.png'
+  );
   startScreen.attachDom('#stage');
   startScreen.onStart(() => {
     if (isPortraitBlocked()) {
@@ -124,8 +154,18 @@ function bootApp() {
     startGame();
   });
   startScreen.show();
+}
 
+/**
+ * Initialises the menu background audio and starts playback
+ * if no autostart is pending.
+ *
+ * @param {boolean} pendingAutostart
+ * @returns {void}
+ */
+function initMenuAudio(pendingAutostart) {
   menuAudio = new Audio('audio/background-audio.mp3');
+
   try {
     menuAudio.loop = true;
     menuAudio.volume = 0.5;
@@ -135,21 +175,42 @@ function bootApp() {
       menuAudio.play().catch(() => {});
     }
   } catch (e) {}
+}
 
-  setMuted(isMuted);
+/**
+ * Handles pending autostart: clears the flag and
+ * immediately starts the game.
+ *
+ * @param {boolean} pendingAutostart
+ * @returns {void}
+ */
+function handlePendingAutostart(pendingAutostart) {
+  if (!pendingAutostart) return;
 
-  if (pendingAutostart) {
-    try {
-      localStorage.removeItem('autostart');
-    } catch (e) {}
-    startGame();
-  }
+  try {
+    localStorage.removeItem('autostart');
+  } catch (e) {}
 
-  pauseOverlay = createPauseOverlay();
+  startGame();
+}
 
+/**
+ * Applies initial i18n labels and registers change listener.
+ *
+ * @returns {void}
+ */
+function initI18nWiring() {
   applyI18nLabels();
   window.addEventListener('i18n:changed', applyI18nLabels);
+}
 
+/**
+ * Ensures the start screen stays visible when no world
+ * is running and portrait is not blocked.
+ *
+ * @returns {void}
+ */
+function wireStartScreenVisibilityGuards() {
   const ensureStartScreenVisible = () => {
     if (!world && startScreen && !isPortraitBlocked()) {
       try {
@@ -163,26 +224,58 @@ function bootApp() {
 }
 
 /**
- * Wires up all main UI controls:
- * - Start / Resume
- * - Pause
- * - Back to start
- * - Restart now
- * - Mute toggle
+ * Application bootstrapping:
+ * - Creates a shared Keyboard instance
+ * - Restores mute state
+ * - Wires up global control functions
+ * - Instantiates StartScreen and menu music
+ * - Handles optional autostart
+ * - Sets up pause-overlay and i18n labels
  *
  * @returns {void}
  */
-function wireUiControls() {
-  const qs = (id) => document.getElementById(id);
+function bootApp() {
+  initKeyboardAndMuteState();
+  exposeGlobalControlFunctions();
+  wireUiControls();
+  wireSpaceKeyButtonBlur();
 
-  const blurActive = () => {
-    const el = document.activeElement;
-    if (el && typeof el.blur === 'function') {
-      el.blur();
-    }
-  };
+  const pendingAutostart = loadPendingAutostartFlag();
 
-  qs('btn-start')?.addEventListener('click', () => {
+  initStartScreen();
+  initMenuAudio(pendingAutostart);
+  setMuted(isMuted);
+  handlePendingAutostart(pendingAutostart);
+
+  pauseOverlay = createPauseOverlay();
+  initI18nWiring();
+  wireStartScreenVisibilityGuards();
+}
+
+/* ===== UI Controls wiring ===== */
+
+/**
+ * Blurs the currently active element, if possible.
+ *
+ * @returns {void}
+ */
+function blurActiveElement() {
+  const el = document.activeElement;
+  if (el && typeof el.blur === 'function') {
+    el.blur();
+  }
+}
+
+/**
+ * Wires the Start / Resume button (btn-start).
+ *
+ * @returns {void}
+ */
+function wireStartButton() {
+  const btn = document.getElementById('btn-start');
+  if (!btn) return;
+
+  btn.addEventListener('click', () => {
     if (!world) {
       if (isPortraitBlocked()) {
         handlePortraitBlockedStart();
@@ -195,30 +288,88 @@ function wireUiControls() {
     } else {
       resumeGame();
     }
-    blurActive();
+    blurActiveElement();
   });
+}
 
-  qs('btn-pause')?.addEventListener('click', () => {
+/**
+ * Wires the Pause button (btn-pause).
+ *
+ * @returns {void}
+ */
+function wirePauseButton() {
+  const btn = document.getElementById('btn-pause');
+  if (!btn) return;
+
+  btn.addEventListener('click', () => {
     if (world) {
       pauseGame();
     }
-    blurActive();
+    blurActiveElement();
   });
+}
 
-  qs('btn-restart')?.addEventListener('click', () => {
+/**
+ * Wires the "Back to start" button (btn-restart).
+ *
+ * @returns {void}
+ */
+function wireRestartButton() {
+  const btn = document.getElementById('btn-restart');
+  if (!btn) return;
+
+  btn.addEventListener('click', () => {
     backToStart();
-    blurActive();
+    blurActiveElement();
   });
+}
 
-  qs('btn-restart-now')?.addEventListener('click', () => {
+/**
+ * Wires the "Restart now" button (btn-restart-now).
+ *
+ * @returns {void}
+ */
+function wireRestartNowButton() {
+  const btn = document.getElementById('btn-restart-now');
+  if (!btn) return;
+
+  btn.addEventListener('click', () => {
     restartNow();
-    blurActive();
+    blurActiveElement();
   });
+}
 
-  qs('btn-mute')?.addEventListener('click', () => {
+/**
+ * Wires the Mute toggle button (btn-mute).
+ *
+ * @returns {void}
+ */
+function wireMuteButton() {
+  const btn = document.getElementById('btn-mute');
+  if (!btn) return;
+
+  btn.addEventListener('click', () => {
     toggleMute();
-    blurActive();
+    blurActiveElement();
   });
+}
+
+/**
+ * Wires up all main UI controls:
+ * - Start / Resume
+ * - Pause
+ * - Back to start
+ * - Restart now
+ * - Mute toggle
+ *
+ * @returns {void}
+ */
+function wireUiControls() {
+  wireStartButton();
+  wirePauseButton();
+  wireRestartButton();
+  wireRestartNowButton();
+  wireMuteButton();
 }
 
 /* ===== Pause overlay DOM ===== */
@@ -231,7 +382,9 @@ function wireUiControls() {
  * @returns {HTMLDivElement|null} Overlay root element or null.
  */
 function createPauseOverlay() {
-  const host = document.querySelector('#stage') || document.querySelector('.game-container');
+  const host =
+    document.getElementById('stage') ||
+    document.querySelector('.game-container');
   if (!host) return null;
 
   const wrap = document.createElement('div');
@@ -263,7 +416,6 @@ function showPauseOverlay(show) {
 }
 
 /* ===== i18n label wiring ===== */
-
 /**
  * Applies translations to various UI labels and buttons.
  * Uses I18N.t if available, otherwise falls back to key names.
