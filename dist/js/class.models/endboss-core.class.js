@@ -225,12 +225,24 @@ class Endboss extends MovableObject {
 
     // ===== Death sequence helpers =====
 
+    /**
+     * Clears the active hurt timeout, if any, and
+     * resets the local timeout handle.
+     *
+     * @returns {void}
+     */
     _cancelHurtTimeout() {
         if (!this.hurtTimeout) return;
         clearTimeout(this.hurtTimeout);
         this.hurtTimeout = null;
     }
 
+    /**
+     * Puts the boss into the "dying" state and
+     * disables aggro / hurt animations and movement.
+     *
+     * @returns {void}
+     */
     _beginDeathState() {
         this.isDying = true;
         this.isHurtAnimation = false;
@@ -239,12 +251,24 @@ class Endboss extends MovableObject {
         this.speed = 0;
     }
 
+    /**
+     * Sets the first frame of the death sequence, if available.
+     *
+     * @param {string[]} frames - List of sprite paths for the death animation.
+     * @returns {void}
+     */
     _setInitialDeathFrame(frames) {
         if (!Array.isArray(frames) || frames.length === 0) return;
         const firstPath = frames[0];
         this.img = this.imageCache[firstPath];
     }
 
+    /**
+     * Starts the interval that iterates through the death frames.
+     *
+     * @param {string[]} frames - List of sprite paths for the death animation.
+     * @returns {void}
+     */
     _startDeathInterval(frames) {
         let frameIndex = 0;
 
@@ -264,6 +288,13 @@ class Endboss extends MovableObject {
         }, 180);
     }
 
+    /**
+     * Cleans up the death interval, marks the boss as dead,
+     * and fixes the final sprite frame.
+     *
+     * @param {string[]} frames - List of sprite paths for the death animation.
+     * @returns {void}
+     */
     _finishDeath(frames) {
         if (this.deathTimer) {
             clearInterval(this.deathTimer);

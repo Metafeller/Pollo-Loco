@@ -318,7 +318,7 @@
             ctx.restore();
         },
 
-        /**
+                /**
          * Returns true if the portal arrow should be drawn.
          *
          * @param {number} now
@@ -330,6 +330,59 @@
 
             const blinkOn = (Math.floor(now / 200) % 2) === 0;
             return blinkOn;
+        },
+
+        /**
+         * Computes geometry for the portal arrow (position + size).
+         *
+         * @param {number} canvasWidth
+         * @param {number} now
+         * @returns {{ baseX:number, arrowCy:number, w:number, h:number }}
+         */
+        _getPortalArrowGeometry(canvasWidth, now) {
+            const cx = canvasWidth / 2;
+
+            const timerCy = 40;
+            const timerH = 48;
+            const arrowCy = timerCy + (timerH / 2) + 32;
+
+            const t = now / 220;
+            const scale = 1 + 0.2 * Math.sin(t);
+
+            const w = 64 * scale;
+            const h = 32 * scale;
+            const baseX = cx - w / 2;
+
+            return { baseX, arrowCy, w, h };
+        },
+
+        /**
+         * Starts a triangular path for the portal arrow.
+         *
+         * @param {CanvasRenderingContext2D} ctx
+         * @param {{ baseX:number, arrowCy:number, w:number, h:number }} geo
+         * @returns {void}
+         */
+        _beginPortalArrowPath(ctx, geo) {
+            const { baseX, arrowCy, w, h } = geo;
+
+            ctx.beginPath();
+            ctx.moveTo(baseX, arrowCy - h / 2);
+            ctx.lineTo(baseX + w, arrowCy);
+            ctx.lineTo(baseX, arrowCy + h / 2);
+            ctx.closePath();
+        },
+
+        /**
+         * Applies fill + glow style for the portal arrow.
+         *
+         * @param {CanvasRenderingContext2D} ctx
+         * @returns {void}
+         */
+        _applyPortalArrowStyle(ctx) {
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+            ctx.shadowColor = 'rgba(0, 255, 0, 0.9)';
+            ctx.shadowBlur = 16;
         },
 
         /**
@@ -345,31 +398,12 @@
             if (!canvas) return;
             if (!this._shouldDrawPortalArrow(now)) return;
 
-            const cx = canvas.width / 2;
-            const timerCy = 40;
-            const timerH = 48;
-            const arrowCy = timerCy + (timerH / 2) + 32;
-
-            const t = now / 220;
-            const scale = 1 + 0.2 * Math.sin(t);
-
-            const w = 64 * scale;
-            const h = 32 * scale;
-            const baseX = cx - w / 2;
+            const geo = this._getPortalArrowGeometry(canvas.width, now);
 
             ctx.save();
-
-            ctx.beginPath();
-            ctx.moveTo(baseX, arrowCy - h / 2);
-            ctx.lineTo(baseX + w, arrowCy);
-            ctx.lineTo(baseX, arrowCy + h / 2);
-            ctx.closePath();
-
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
-            ctx.shadowColor = 'rgba(0, 255, 0, 0.9)';
-            ctx.shadowBlur = 16;
+            this._beginPortalArrowPath(ctx, geo);
+            this._applyPortalArrowStyle(ctx);
             ctx.fill();
-
             ctx.restore();
         }
     });

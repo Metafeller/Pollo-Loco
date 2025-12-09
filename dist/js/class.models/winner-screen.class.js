@@ -8,6 +8,10 @@
  *   - Back to start screen
  */
 class WinnerScreen extends DrawableObject {
+  /**
+   * Creates a new winner overlay instance and initialises
+   * dimensions, frames, internal state and audio.
+   */
   constructor() {
     super();
     this.initDimensions();
@@ -16,11 +20,22 @@ class WinnerScreen extends DrawableObject {
     this.initAudio();
   }
 
+  /**
+   * Initialises the logical size of the winner screen
+   * in world/canvas coordinates.
+   *
+   * @returns {void}
+   */
   initDimensions() {
     this.width = 720;
     this.height = 480;
   }
 
+  /**
+   * Loads all winner animation frames and sets the initial image.
+   *
+   * @returns {void}
+   */
   initFramesAndImage() {
     this.FRAMES = [
       '/img/9_intro_outro_screens/win/win_1.png',
@@ -32,22 +47,58 @@ class WinnerScreen extends DrawableObject {
     this.img = this.imageCache[this.FRAMES[0]];
   }
 
+  /**
+   * Initialises internal runtime state:
+   * visibility flags, animation index/timer,
+   * overlay color and callback references.
+   *
+   * @returns {void}
+   */
   initState() {
     /** @type {boolean} True while the winner overlay is visible. */
-    this.visible = false; this._idx = 0; this._timer = null; this._delayMs = 300;
-    this._oneShot = true; this._played = false; this.overlayRGBA = 'rgba(0, 0, 0, 0.45)';
-    this._ui = null; this._btnRestartNow = null; this._btnBackStart = null; this._syncToCanvas = null;
-    this._onRestartNow = null; this._onBackToStart = null;
+    this.visible = false;
+    this._idx = 0;
+    this._timer = null;
+    this._delayMs = 300;
+    this._oneShot = true;
+    this._played = false;
+    this.overlayRGBA = 'rgba(0, 0, 0, 0.45)';
+    this._ui = null;
+    this._btnRestartNow = null;
+    this._btnBackToStart = null;
+    this._syncToCanvas = null;
+    this._onRestartNow = null;
+    this._onBackToStart = null;
   }
 
+  /**
+   * Initialises the win audio clip used when the
+   * winner overlay is shown.
+   *
+   * @returns {void}
+   */
   initAudio() {
     this.winAudio = new Audio('/audio/winning.mp3');
   }
 
+  /**
+   * Registers a callback that is invoked when the
+   * "Restart now" button is clicked.
+   *
+   * @param {(() => void)|null} cb - Callback or null to clear.
+   * @returns {void}
+   */
   onRestartNow(cb) {
     this._onRestartNow = cb;
   }
 
+  /**
+   * Registers a callback that is invoked when the
+   * "Back to start" button is clicked.
+   *
+   * @param {(() => void)|null} cb - Callback or null to clear.
+   * @returns {void}
+   */
   onBackToStart(cb) {
     this._onBackToStart = cb;
   }
