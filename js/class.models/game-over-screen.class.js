@@ -7,6 +7,8 @@
 class GameOverScreen {
   /**
    * Creates the Game Over UI controller (canvas overlay + DOM button).
+   *
+   * @constructor
    */
   constructor() {
     this.visible = false;
@@ -71,6 +73,15 @@ class GameOverScreen {
     this._credit = credit;
   }
 
+  /**
+   * Resolves the DOM root element used to attach
+   * the Game Over overlay.
+   *
+   * @param {string} containerSelector - CSS selector for the preferred root.
+   * @param {HTMLCanvasElement} canvas - The game canvas element.
+   * @returns {HTMLElement} The resolved root element.
+   * @private
+   */
   _resolveRoot(containerSelector, canvas) {
     const direct = document.querySelector(containerSelector);
     if (direct) return direct;
@@ -81,6 +92,13 @@ class GameOverScreen {
     return document.body;
   }
 
+  /**
+   * Creates the flex wrapper that holds the Try Again button
+   * and the credits label.
+   *
+   * @returns {HTMLDivElement} The overlay wrapper element.
+   * @private
+   */
   _createOverlayWrapper() {
     const wrap = document.createElement('div');
     wrap.id = 'go-overlay-ui';
@@ -100,6 +118,13 @@ class GameOverScreen {
     return wrap;
   }
 
+  /**
+   * Creates the "Try Again" button element and applies
+   * basic styling and hover interaction.
+   *
+   * @returns {HTMLButtonElement} The configured button element.
+   * @private
+   */
   _createTryAgainButton() {
     const btn = document.createElement('button');
     btn.id = 'btn-try-again';
@@ -130,6 +155,12 @@ class GameOverScreen {
     return btn;
   }
 
+  /**
+   * Creates the small credit label shown under the button.
+   *
+   * @returns {HTMLDivElement} The credit label element.
+   * @private
+   */
   _createCreditLabel() {
     const credit = document.createElement('div');
     credit.id = 'go-credit';
@@ -147,6 +178,14 @@ class GameOverScreen {
     return credit;
   }
 
+  /**
+   * Ensures the overlay root has a non-static position so the
+   * absolute overlay can be placed correctly.
+   *
+   * @param {HTMLElement} root - The parent element for the overlay.
+   * @returns {void}
+   * @private
+   */
   _ensureRootPositioned(root) {
     const style = getComputedStyle(root);
     if (style.position === 'static') {
@@ -154,6 +193,16 @@ class GameOverScreen {
     }
   }
 
+  /**
+   * Creates a function that synchronises the overlay wrapper
+   * with the current canvas position and size.
+   *
+   * @param {HTMLCanvasElement} canvas - The game canvas element.
+   * @param {HTMLElement} root - The overlay root container.
+   * @param {HTMLDivElement} wrap - The overlay wrapper element.
+   * @returns {Function} A function that updates the wrapper layout.
+   * @private
+   */
   _createSyncToCanvasFn(canvas, root, wrap) {
     return () => {
       const r = canvas.getBoundingClientRect();
@@ -170,6 +219,14 @@ class GameOverScreen {
     };
   }
 
+  /**
+   * Installs resize / scroll / fullscreen listeners that keep the
+   * overlay wrapper in sync with the canvas box.
+   *
+   * @param {Function} syncToCanvas - Callback to realign the overlay.
+   * @returns {void}
+   * @private
+   */
   _initSyncListeners(syncToCanvas) {
     syncToCanvas();
     window.addEventListener('resize', syncToCanvas);
@@ -177,6 +234,13 @@ class GameOverScreen {
     document.addEventListener('fullscreenchange', syncToCanvas);
   }
 
+  /**
+   * Registers the i18n change listener and applies the initial
+   * translations to the UI elements.
+   *
+   * @returns {void}
+   * @private
+   */
   _registerI18n() {
     window.addEventListener('i18n:changed', this._onLangChange);
     this._applyI18n();
@@ -199,10 +263,21 @@ class GameOverScreen {
     };
   }
 
+  /**
+   * Marks the Game Over overlay as visible so that drawOverlay()
+   * starts rendering it on the canvas.
+   *
+   * @returns {void}
+   */
   show() {
     this.visible = true;
   }
 
+  /**
+   * Shows the DOM button and re-syncs the overlay container.
+   *
+   * @returns {void}
+   */
   showButton() {
     this._showButton = true;
     if (this._container) {
@@ -211,6 +286,11 @@ class GameOverScreen {
     }
   }
 
+  /**
+   * Hides the DOM button and overlay container (if present).
+   *
+   * @returns {void}
+   */
   hideButton() {
     this._showButton = false;
     if (this._container) {

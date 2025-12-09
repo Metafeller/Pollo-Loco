@@ -90,6 +90,15 @@ function resetWorldOverlayState() {
   }, 'reset-overlays');
 }
 
+/**
+ * Fully shuts down the current world instance:
+ * - pauses the loop
+ * - stops story and ambience
+ * - resets audio and overlays
+ * - marks the world as destroyed
+ *
+ * @returns {void}
+ */
 function shutdownWorld() {
   if (!world) return;
   pauseWorldForShutdown();
@@ -121,6 +130,12 @@ function clearAutostartFlag() {
   }, 'clear-autostart-flag');
 }
 
+/**
+ * Safely resets the current level
+ * using the resetLevel1 helper if available.
+ *
+ * @returns {void}
+ */
 function resetLevelSafely() {
   safeCall(() => {
     if (typeof resetLevel1 === 'function') {
@@ -129,6 +144,12 @@ function resetLevelSafely() {
   }, 'reset-level1');
 }
 
+/**
+ * Clears all global references to the world
+ * and resets the startup flag.
+ *
+ * @returns {void}
+ */
 function resetWorldRefsAfterRestart() {
   world = null;
   if (typeof window !== 'undefined') {
@@ -163,6 +184,11 @@ function hideStartScreenIfPossible() {
   }
 }
 
+/**
+ * Hides the pause overlay if the helper function exists.
+ *
+ * @returns {void}
+ */
 function hidePauseOverlayIfPossible() {
   if (typeof showPauseOverlay !== 'function') return;
   safeCall(() => {
@@ -269,6 +295,13 @@ function handleStartWhenAlreadyRunning() {
   return true;
 }
 
+/**
+ * Begins the game startup sequence:
+ * - marks isStarting
+ * - stops menu audio
+ *
+ * @returns {void}
+ */
 function beginGameStartup() {
   isStarting = true;
   stopMenuAudio();
@@ -314,6 +347,12 @@ function updateStartButtonLabel() {
   btnStart.textContent = label;
 }
 
+/**
+ * Focuses the canvas element and triggers a mobile UI layout update.
+ *
+ * @param {HTMLCanvasElement} canvas - Game canvas.
+ * @returns {void}
+ */
 function focusCanvasAndUpdateLayout(canvas) {
   canvas.setAttribute('tabindex', '0');
   canvas.focus();
